@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Balloon from "../../components/balloon/balloon";
 import GameControls from "../../constants/gamecontrols/GameControls";
 import "./balloongame.css";
+import Chat from "../../constants/chat/Chat";
 
 const BALLOON_COLORS = ["red", "blue", "yellow", "green", "black", "pink"];
 
@@ -135,7 +136,7 @@ function BalloonGame() {
         chatOpen={chatOpen}
       />
 
-      {chatOpen && <div className="chat-panel"></div>}
+      {chatOpen && <Chat onClose={() => setChatOpen(false)} />}
     </div>
   );
 }
