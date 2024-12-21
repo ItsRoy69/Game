@@ -30,9 +30,9 @@ function Balloon({ id, x, y, color, onPop }) {
           onPop(id, false);
           return -20;
         }
-        return prev - 1;
+        return prev - 0.5;
       });
-    }, 50);
+    }, 100);
 
     return () => clearInterval(moveInterval);
   }, [onPop, id]);
