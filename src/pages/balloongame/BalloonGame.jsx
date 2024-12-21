@@ -1,15 +1,6 @@
-// src/pages/BalloonGame/BalloonGame.jsx 
 import React, { useState, useEffect, useCallback } from 'react';
 import Balloon from '../../components/Balloon/Balloon';
 import './balloongame.css';
-
-// Import balloon images
-import blueBalloon from '../../assets/blue-balloon.png';
-import redBalloon from '../../assets/red-balloon.png';
-import yellowBalloon from '../../assets/yellow-balloon.png';
-import greenBalloon from '../../assets/green-balloon.png';
-import blackBalloon from '../../assets/black-balloon.png';
-import pinkBalloon from '../../assets/pink-balloon.png';
 
 const BALLOON_COLORS = [
   'red',

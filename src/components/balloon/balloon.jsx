@@ -1,8 +1,5 @@
-// src/components/Balloon/Balloon.jsx
 import React, { useEffect, useState, useCallback } from 'react';
 import './balloon.css';
-
-// Import balloon images
 import blueBalloon from '../../assets/blue-balloon.png';
 import redBalloon from '../../assets/red-balloon.png';
 import yellowBalloon from '../../assets/yellow-balloon.png';
