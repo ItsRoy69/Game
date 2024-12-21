@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const appwriteUpload = require('../config/appwriteConfig');
 
 const userController = {
   async createOrUpdateUser(req, res, next) {
@@ -90,10 +91,49 @@ const userController = {
   async updateUserProfile(req, res, next) {
     try {
       const { auth0Id } = req.params;
-      const updateData = {
-        ...req.body,
-        updated_at: new Date()
-      };
+      let updateData = { ...req.body };
+
+      if (updateData.photos) {
+        try {
+          const existingUser = await User.findOne({ auth0Id });
+          
+          // Delete old photos from Appwrite that are no longer in the update
+          if (existingUser && existingUser.photos) {
+            for (const oldPhoto of existingUser.photos) {
+              if (!updateData.photos.includes(oldPhoto)) {
+                await appwriteUpload.deleteImage(oldPhoto);
+              }
+            }
+          }
+
+          // Process and upload new photos to Appwrite
+          const processedPhotos = await Promise.all(
+            updateData.photos.map(async (photo) => {
+              // Skip if it's already an Appwrite URL
+              if (photo.includes('/storage/buckets/')) {
+                return photo;
+              }
+              try {
+                const uploadedUrl = await appwriteUpload.saveImage(photo);
+                return uploadedUrl;
+              } catch (error) {
+                console.error('Error saving photo:', error);
+                return null;
+              }
+            })
+          );
+
+          // Filter out any failed uploads
+          updateData.photos = processedPhotos.filter(photo => photo !== null);
+        } catch (error) {
+          console.error('Error processing photos:', error);
+          const err = new Error('Failed to process photos');
+          err.status = 500;
+          throw err;
+        }
+      }
+
+      updateData.updated_at = new Date();
 
       const user = await User.findOneAndUpdate(
         { auth0Id },
@@ -116,13 +156,22 @@ const userController = {
   async deleteUser(req, res, next) {
     try {
       const { auth0Id } = req.params;
-      const user = await User.findOneAndDelete({ auth0Id });
+      const user = await User.findOne({ auth0Id });
 
       if (!user) {
         const error = new Error('User not found');
         error.status = 404;
         throw error;
       }
+
+      // Delete all user photos from Appwrite
+      if (user.photos && user.photos.length > 0) {
+        for (const photo of user.photos) {
+          await appwriteUpload.deleteImage(photo);
+        }
+      }
+
+      await User.findOneAndDelete({ auth0Id });
 
       res.json({ message: 'User deleted successfully', user });
     } catch (error) {
@@ -147,7 +196,9 @@ const userController = {
         accountCreated: user.created_at,
         lastUpdated: user.updated_at,
         loginHistory: user.login_history || [],
-        emailVerified: user.email_verified
+        emailVerified: user.email_verified,
+        totalPhotos: user.photos ? user.photos.length : 0,
+        storageUsed: user.photos ? user.photos.length : 0 // You could enhance this with actual file sizes if needed
       };
 
       res.json(stats);
@@ -182,6 +233,92 @@ const userController = {
         currentPage: page,
         totalPages: Math.ceil(total / limit),
         totalResults: total
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // New method to handle single photo upload
+  async uploadSinglePhoto(req, res, next) {
+    try {
+      const { auth0Id } = req.params;
+      const { photo } = req.body;
+
+      if (!photo) {
+        const error = new Error('No photo provided');
+        error.status = 400;
+        throw error;
+      }
+
+      try {
+        const uploadedUrl = await appwriteUpload.saveImage(photo);
+        
+        const user = await User.findOneAndUpdate(
+          { auth0Id },
+          { 
+            $push: { photos: uploadedUrl },
+            updated_at: new Date()
+          },
+          { new: true }
+        );
+
+        if (!user) {
+          const error = new Error('User not found');
+          error.status = 404;
+          throw error;
+        }
+
+        res.json({
+          message: 'Photo uploaded successfully',
+          photoUrl: uploadedUrl,
+          user
+        });
+      } catch (error) {
+        console.error('Error uploading photo:', error);
+        const err = new Error('Failed to upload photo');
+        err.status = 500;
+        throw err;
+      }
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // New method to delete a single photo
+  async deleteSinglePhoto(req, res, next) {
+    try {
+      const { auth0Id, photoUrl } = req.params;
+
+      const user = await User.findOne({ auth0Id });
+
+      if (!user) {
+        const error = new Error('User not found');
+        error.status = 404;
+        throw error;
+      }
+
+      if (!user.photos.includes(photoUrl)) {
+        const error = new Error('Photo not found for this user');
+        error.status = 404;
+        throw error;
+      }
+
+      // Delete from Appwrite
+      await appwriteUpload.deleteImage(photoUrl);
+
+      const updatedUser = await User.findOneAndUpdate(
+        { auth0Id },
+        { 
+          $pull: { photos: photoUrl },
+          updated_at: new Date()
+        },
+        { new: true }
+      );
+
+      res.json({
+        message: 'Photo deleted successfully',
+        user: updatedUser
       });
     } catch (error) {
       next(error);
