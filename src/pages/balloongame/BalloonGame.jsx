@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import Balloon from "../../components/balloon/balloon";
 import GameControls from "../../constants/gamecontrols/GameControls";
 import "./balloongame.css";
@@ -7,6 +8,7 @@ import Chat from "../../constants/chat/Chat";
 const BALLOON_COLORS = ["red", "blue", "yellow", "green", "black", "pink"];
 
 function BalloonGame() {
+  const navigate = useNavigate();
   const [score, setScore] = useState(0);
   const [balloons, setBalloons] = useState([]);
   const [gameActive, setGameActive] = useState(false);
@@ -27,6 +29,10 @@ function BalloonGame() {
   const exitGame = () => {
     setGameActive(false);
     setShowFinalScore(true);
+  };
+
+  const handleExitToHome = () => {
+    navigate("/");
   };
 
   useEffect(() => {
@@ -101,9 +107,14 @@ function BalloonGame() {
           <div className="minecraft-score">
             <h2>Game Over!</h2>
             <p className="score-text">Final Score: {score}</p>
-            <button className="start-button" onClick={startGame}>
-              Play Again
-            </button>
+            <div className="button-container">
+              <button className="start-button" onClick={startGame}>
+                Play Again
+              </button>
+              <button className="exit-button" onClick={handleExitToHome}>
+                Exit to Home
+              </button>
+            </div>
           </div>
         </div>
       )}
