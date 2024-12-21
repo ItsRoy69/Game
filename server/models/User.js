@@ -13,6 +13,24 @@ const userSchema = new mongoose.Schema({
     default: [],
     validate: [arrayLimit, '{PATH} exceeds the limit of 10']
   },
+  gender: String,
+  datingPreferences: [String],
+  about: String,
+  location: String,
+  dateOfBirth: Date,
+  occupation: {
+    type: { type: String },
+    details: String
+  },
+  photos: [String],
+  favoriteGames: [String],
+  preferredCartoons: [String],
+  datingAgeRange: {
+    min: { type: Number, default: 18 },
+    max: { type: Number, default: 99 }
+  },
+  datingGoal: String,
+  languagePreference: String,
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }
 });
