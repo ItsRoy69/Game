@@ -1,0 +1,137 @@
+.profile-settings {
+  min-height: 100vh;
+  background-color: #1d1f21;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+    url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMjHxIGmVAAAAVklEQVRoQ+3PMREAIAADITvkX8kKyH2Q0PBv5t5zxQAAAAAALHhnraWktZa01pLWWtJaS1prSWstaa0lrbWktZa01pLWWtJaS1prSWstaR0AAADA7wEdzIwJWqwJ4wAAAABJRU5ErkJggg==");
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  padding: 32px 20px;
+}
+
+.profile-settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #373737;
+  border: 3px solid #1d1f21;
+  border-radius: 0;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #fff7;
+  padding: 24px;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #1d1f21;
+  color: white;
+  padding: 8px 16px;
+  border: 2px solid #000000;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  font-size: 1rem;
+  text-shadow: 1px 1px #1d1f21;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #fff7;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: #2d2f31;
+}
+
+.back-button:active {
+  box-shadow: inset 2px 2px #0006, inset -2px -4px #fff7;
+}
+
+.settings-title {
+  font-size: 2rem;
+  color: #ffffff;
+  text-shadow: 2px 2px #1d1f21;
+  margin: 0;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: #ffffff;
+  font-size: 1rem;
+  text-shadow: 1px 1px #1d1f21;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background-color: #1d1f21;
+  border: 2px solid #000000;
+  padding: 8px;
+  color: #ffffff;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #fff7;
+}
+
+.about-textarea {
+  resize: none;
+  height: 120px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3c8527;
+}
+
+.occupation-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.age-range-inputs {
+  display: flex;
+  gap: 16px;
+}
+
+.age-range-inputs input {
+  width: 100px;
+}
+
+.save-button {
+  background-color: #3c8527;
+  color: white;
+  padding: 12px 24px;
+  border: 3px solid #1d1f21;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  font-size: 1.25rem;
+  text-shadow: 2px 2px #1d1f21;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #fff7;
+  transition: background-color 0.2s;
+  margin-top: 16px;
+}
+
+.save-button:hover {
+  background-color: #4caf50;
+}
+
+.save-button:active {
+  box-shadow: inset 2px 2px #0006, inset -2px -4px #fff7;
+}

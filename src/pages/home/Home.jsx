@@ -1,8 +1,9 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
-import NavBar from '../../constants/navbar/NavBar';
-import './home.css';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
+import NavBar from "../../constants/navbar/NavBar";
+import { Settings } from "lucide-react";
+import "./home.css";
 
 function Home() {
   const { isAuthenticated, user, loginWithRedirect } = useAuth0();
@@ -24,13 +25,16 @@ function Home() {
                   <h2>Welcome, {user.name}!</h2>
                   <p className="profile-email">{user.email}</p>
                 </div>
+                <Link to="/profilesettings">
+                  <Settings size={24} className="minecraft-settings-icon" />
+                </Link>
               </div>
             </div>
 
             <div className="games-section">
               <h2 className="games-title">Available Games</h2>
               <div className="game-grid">
-                <Link to="/balloon-game" className="game-card">
+                <Link to="/balloongame" className="game-card">
                   <h3>Balloon Popper</h3>
                   <p>Pop as many balloons as you can in 30 seconds!</p>
                   <div className="game-card-footer">

@@ -1,9 +1,9 @@
 .home {
   min-height: 100vh;
-  background-color: #1D1F21;
+  background-color: #1d1f21;
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMjHxIGmVAAAAVklEQVRoQ+3PMREAIAADITvkX8kKyH2Q0PBv5t5zxQAAAAAALHhnraWktZa01pLWWtJaS1prSWstaa0lrbWktZa01pLWWtJaS1prSWstaR0AAADA7wEdzIwJWqwJ4wAAAABJRU5ErkJggg==');
-  font-family: 'MinecraftiaRegular', 'VT323', monospace;
+    url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMjHxIGmVAAAAVklEQVRoQ+3PMREAIAADITvkX8kKyH2Q0PBv5t5zxQAAAAAALHhnraWktZa01pLWWtJaS1prSWstaa0lrbWktZa01pLWWtJaS1prSWstaR0AAADA7wEdzIwJWqwJ4wAAAABJRU5ErkJggg==");
+  font-family: "MinecraftiaRegular", "VT323", monospace;
 }
 
 .home-container {
@@ -14,9 +14,9 @@
 
 .profile-card {
   background-color: #373737;
-  border: 3px solid #1D1F21;
+  border: 3px solid #1d1f21;
   border-radius: 0;
-  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #fff7;
   padding: 24px;
   margin-bottom: 32px;
   image-rendering: pixelated;
@@ -31,20 +31,20 @@
 .profile-avatar {
   width: 64px;
   height: 64px;
-  border: 3px solid #1D1F21;
+  border: 3px solid #1d1f21;
   image-rendering: pixelated;
 }
 
 .profile-info h2 {
   font-size: 2rem;
-  font-family: 'MinecraftiaRegular', 'VT323', monospace;
-  color: #FFFFFF;
-  text-shadow: 2px 2px #1D1F21;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  color: #ffffff;
+  text-shadow: 2px 2px #1d1f21;
   margin: 0;
 }
 
 .profile-email {
-  color: #A8A8A8;
+  color: #a8a8a8;
   margin-top: 4px;
 }
 
@@ -54,9 +54,9 @@
 
 .games-title {
   font-size: 2rem;
-  font-family: 'MinecraftiaRegular', 'VT323', monospace;
-  color: #FFFFFF;
-  text-shadow: 2px 2px #1D1F21;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  color: #ffffff;
+  text-shadow: 2px 2px #1d1f21;
   margin-bottom: 24px;
 }
 
@@ -68,9 +68,9 @@
 
 .game-card {
   background-color: #373737;
-  border: 3px solid #1D1F21;
+  border: 3px solid #1d1f21;
   border-radius: 0;
-  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #fff7;
   padding: 24px;
   text-decoration: none;
   color: inherit;
@@ -79,19 +79,19 @@
 
 .game-card:hover {
   transform: translateY(-2px);
-  background-color: #4A4A4A;
+  background-color: #4a4a4a;
 }
 
 .game-card h3 {
   font-size: 1.5rem;
-  font-family: 'MinecraftiaRegular', 'VT323', monospace;
-  color: #FFFFFF;
-  text-shadow: 2px 2px #1D1F21;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  color: #ffffff;
+  text-shadow: 2px 2px #1d1f21;
   margin: 0 0 8px 0;
 }
 
 .game-card p {
-  color: #A8A8A8;
+  color: #a8a8a8;
   margin: 0;
 }
 
@@ -103,31 +103,31 @@
 }
 
 .high-score {
-  color: #FFD700;
+  color: #ffd700;
   font-size: 1rem;
-  text-shadow: 1px 1px #1D1F21;
+  text-shadow: 1px 1px #1d1f21;
 }
 
 .play-button {
-  background-color: #3C8527;
+  background-color: #3c8527;
   color: white;
   padding: 8px 16px;
-  border: 3px solid #1D1F21;
+  border: 3px solid #1d1f21;
   border-radius: 0;
   cursor: pointer;
-  font-family: 'MinecraftiaRegular', 'VT323', monospace;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
   font-size: 1rem;
-  text-shadow: 2px 2px #1D1F21;
-  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
+  text-shadow: 2px 2px #1d1f21;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #fff7;
   transition: background-color 0.2s;
 }
 
 .play-button:hover {
-  background-color: #4CAF50;
+  background-color: #4caf50;
 }
 
 .play-button:active {
-  box-shadow: inset 2px 2px #0006, inset -2px -4px #FFF7;
+  box-shadow: inset 2px 2px #0006, inset -2px -4px #fff7;
 }
 
 .welcome-section {
@@ -137,44 +137,73 @@
 
 .welcome-title {
   font-size: 3rem;
-  font-family: 'MinecraftiaRegular', 'VT323', monospace;
-  color: #FFFFFF;
-  text-shadow: 2px 2px #1D1F21;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  color: #ffffff;
+  text-shadow: 2px 2px #1d1f21;
   margin-bottom: 16px;
 }
 
 .welcome-text {
   font-size: 1.5rem;
-  color: #A8A8A8;
+  color: #a8a8a8;
   margin-bottom: 32px;
 }
 
 .auth-button.login-button {
-  background-color: #3C8527;
+  background-color: #3c8527;
   color: white;
   padding: 12px 24px;
-  border: 3px solid #1D1F21;
+  border: 3px solid #1d1f21;
   border-radius: 0;
   cursor: pointer;
-  font-family: 'MinecraftiaRegular', 'VT323', monospace;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
   font-size: 1.25rem;
-  text-shadow: 2px 2px #1D1F21;
-  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
+  text-shadow: 2px 2px #1d1f21;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #fff7;
   transition: background-color 0.2s;
 }
 
 .auth-button.login-button:hover {
-  background-color: #4CAF50;
+  background-color: #4caf50;
 }
 
 .auth-button.login-button:active {
-  box-shadow: inset 2px 2px #0006, inset -2px -4px #FFF7;
+  box-shadow: inset 2px 2px #0006, inset -2px -4px #fff7;
 }
 
 @font-face {
-  font-family: 'MinecraftiaRegular';
-  src: url('../../assets/font/minecraft2.woff') format('woff'),
-       url('../../assets/font/minecraft3.woff2') format('woff2');
+  font-family: "MinecraftiaRegular";
+  src: url("../../assets/font/minecraft2.woff") format("woff"),
+    url("../../assets/font/minecraft3.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.profile-header a {
+  margin-left: auto;
+  color: #ffffff;
+  transition: opacity 0.2s;
+}
+
+.profile-header a:hover {
+  opacity: 0.8;
+}
+
+.minecraft-settings-icon {
+  image-rendering: pixelated;  
+  filter: drop-shadow(2px 2px 0 #000); 
+  color: #8B8B8B; 
+  transition: transform 0.2s;
+}
+
+.minecraft-settings-icon:hover {
+  transform: scale(1.1);
+  color: #FFFFFF;
 }
