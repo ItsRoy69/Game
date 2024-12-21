@@ -1,0 +1,27 @@
+/* src/pages/Home/Home.css */
+.home {
+    min-height: 100vh;
+    padding: 2rem;
+    background-color: #f0f2f5;
+  }
+  
+  .game-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .game-card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+  }
+  
+  .game-card:hover {
+    transform: translateY(-5px);
+  }

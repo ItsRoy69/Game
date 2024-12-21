@@ -1,0 +1,80 @@
+/* src/pages/BalloonGame/balloongame.css */
+.balloon-game {
+    height: 100vh;
+    width: 100vw;
+    background-color: #7CB5D1;  /* Sky blue */
+    overflow: hidden;
+    position: relative;
+    font-family: Arial, sans-serif;
+  }
+  
+  .game-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    text-align: center;
+    z-index: 100;
+  }
+  
+  .game-title {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px #000;
+  }
+  
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+  
+  .start-button {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    background-color: #54AC68;  /* Green */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .start-button:hover {
+    background-color: #67c17d;
+  }
+  
+  .start-button:active {
+    transform: translateY(2px);
+  }
+  
+  .game-area {
+    height: 100%;
+    width: 100%;
+    position: relative;
+  }
+  
+  .score-popup {
+    position: absolute;
+    color: white;
+    font-size: 1.2rem;
+    pointer-events: none;
+    animation: scoreFloat 1s ease-out forwards;
+    text-shadow: 1px 1px #000;
+  }
+  
+  @keyframes scoreFloat {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+  }
