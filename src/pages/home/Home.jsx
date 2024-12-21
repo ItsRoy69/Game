@@ -44,7 +44,7 @@ function Home() {
           </>
         ) : (
           <div className="welcome-section">
-            <h1 className="welcome-title">Welcome to Game Center</h1>
+            <h1 className="welcome-title">Welcome to JGame</h1>
             <p className="welcome-text">
               Please log in to access our amazing collection of games!
             </p>

@@ -1,6 +1,9 @@
 .home {
   min-height: 100vh;
-  background-color: #f0f2f5;
+  background-color: #1D1F21;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMjHxIGmVAAAAVklEQVRoQ+3PMREAIAADITvkX8kKyH2Q0PBv5t5zxQAAAAAALHhnraWktZa01pLWWtJaS1prSWstaa0lrbWktZa01pLWWtJaS1prSWstaR0AAADA7wEdzIwJWqwJ4wAAAABJRU5ErkJggg==');
+  font-family: 'MinecraftiaRegular', 'VT323', monospace;
 }
 
 .home-container {
@@ -10,11 +13,13 @@
 }
 
 .profile-card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #373737;
+  border: 3px solid #1D1F21;
+  border-radius: 0;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
   padding: 24px;
   margin-bottom: 32px;
+  image-rendering: pixelated;
 }
 
 .profile-header {
@@ -26,17 +31,20 @@
 .profile-avatar {
   width: 64px;
   height: 64px;
-  border-radius: 50%;
+  border: 3px solid #1D1F21;
+  image-rendering: pixelated;
 }
 
 .profile-info h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 2rem;
+  font-family: 'MinecraftiaRegular', 'VT323', monospace;
+  color: #FFFFFF;
+  text-shadow: 2px 2px #1D1F21;
   margin: 0;
 }
 
 .profile-email {
-  color: #666;
+  color: #A8A8A8;
   margin-top: 4px;
 }
 
@@ -45,8 +53,10 @@
 }
 
 .games-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 2rem;
+  font-family: 'MinecraftiaRegular', 'VT323', monospace;
+  color: #FFFFFF;
+  text-shadow: 2px 2px #1D1F21;
   margin-bottom: 24px;
 }
 
@@ -57,28 +67,31 @@
 }
 
 .game-card {
-  background-color: white;
-  border-radius: 8px;
+  background-color: #373737;
+  border: 3px solid #1D1F21;
+  border-radius: 0;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
   padding: 24px;
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.2s;
 }
 
 .game-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  background-color: #4A4A4A;
 }
 
 .game-card h3 {
-  font-size: 1.25rem;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-family: 'MinecraftiaRegular', 'VT323', monospace;
+  color: #FFFFFF;
+  text-shadow: 2px 2px #1D1F21;
   margin: 0 0 8px 0;
 }
 
 .game-card p {
-  color: #666;
+  color: #A8A8A8;
   margin: 0;
 }
 
@@ -90,22 +103,31 @@
 }
 
 .high-score {
-  color: #666;
-  font-size: 0.875rem;
+  color: #FFD700;
+  font-size: 1rem;
+  text-shadow: 1px 1px #1D1F21;
 }
 
 .play-button {
-  background-color: #0066cc;
+  background-color: #3C8527;
   color: white;
   padding: 8px 16px;
-  border-radius: 4px;
-  border: none;
+  border: 3px solid #1D1F21;
+  border-radius: 0;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-family: 'MinecraftiaRegular', 'VT323', monospace;
+  font-size: 1rem;
+  text-shadow: 2px 2px #1D1F21;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
+  transition: background-color 0.2s;
 }
 
 .play-button:hover {
-  background-color: #0052a3;
+  background-color: #4CAF50;
+}
+
+.play-button:active {
+  box-shadow: inset 2px 2px #0006, inset -2px -4px #FFF7;
 }
 
 .welcome-section {
@@ -114,13 +136,45 @@
 }
 
 .welcome-title {
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: 3rem;
+  font-family: 'MinecraftiaRegular', 'VT323', monospace;
+  color: #FFFFFF;
+  text-shadow: 2px 2px #1D1F21;
   margin-bottom: 16px;
 }
 
 .welcome-text {
-  font-size: 1.25rem;
-  color: #666;
+  font-size: 1.5rem;
+  color: #A8A8A8;
   margin-bottom: 32px;
+}
+
+.auth-button.login-button {
+  background-color: #3C8527;
+  color: white;
+  padding: 12px 24px;
+  border: 3px solid #1D1F21;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: 'MinecraftiaRegular', 'VT323', monospace;
+  font-size: 1.25rem;
+  text-shadow: 2px 2px #1D1F21;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
+  transition: background-color 0.2s;
+}
+
+.auth-button.login-button:hover {
+  background-color: #4CAF50;
+}
+
+.auth-button.login-button:active {
+  box-shadow: inset 2px 2px #0006, inset -2px -4px #FFF7;
+}
+
+@font-face {
+  font-family: 'MinecraftiaRegular';
+  src: url('https://cdn.jsdelivr.net/gh/South-Paw/typeface-minecraft@master/font/minecraft.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/South-Paw/typeface-minecraft@master/font/minecraft.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }

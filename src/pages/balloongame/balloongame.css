@@ -1,10 +1,16 @@
+@font-face {
+  font-family: "Minecraft";
+  src: url("../../assets/font/Minecraft.ttf") format("truetype");
+}
+
 .balloon-game {
   height: 100vh;
   width: 100vw;
-  background-color: #7cb5d1;
+  background-image: linear-gradient(to bottom, #7fb2f0 0%, #87ceeb 100%);
   overflow: hidden;
   position: relative;
-  font-family: Arial, sans-serif;
+  font-family: "Minecraft", Arial, sans-serif;
+  image-rendering: pixelated;
 }
 
 .game-info {
@@ -12,19 +18,21 @@
   top: 0;
   left: 0;
   right: 0;
-  padding: 20px;
+  padding: 10px;
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
   text-align: center;
   z-index: 100;
+  border-bottom: 4px solid #1d1d1d;
 }
 
 .game-title {
   font-size: 2.5rem;
   margin-bottom: 15px;
-  text-shadow: 2px 2px #000;
-  font-weight: bold;
-  letter-spacing: 1px;
+  color: #ffff55;
+  text-shadow: 2px 2px #3f3f3f;
+  font-weight: normal;
+  letter-spacing: 2px;
 }
 
 .stats {
@@ -33,58 +41,18 @@
   gap: 20px;
   font-size: 1.2rem;
   margin-bottom: 15px;
+  color: #ffffff;
+  text-shadow: 2px 2px #000000;
 }
 
-.start-button {
-  padding: 10px 20px;
-  font-size: 1.2rem;
-  background-color: #54ac68;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+.stats-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.start-button:hover {
-  background-color: #67c17d;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.start-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.exit-button {
-  padding: 10px 20px;
-  font-size: 1.2rem;
-  background-color: #ff4444;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-
-.exit-button:hover {
-  background-color: #ff6666;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.exit-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.stats-icon {
+  font-size: 1.4rem;
 }
 
 .game-area {
@@ -93,15 +61,50 @@
   position: relative;
 }
 
+.start-button,
+.exit-button {
+  padding: 8px 16px;
+  font-size: 1.2rem;
+  color: #ffffff;
+  border: 2px solid #000000;
+  cursor: pointer;
+  font-family: "Minecraft", Arial, sans-serif;
+  text-transform: uppercase;
+  image-rendering: pixelated;
+  position: relative;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.4);
+  transition: all 0.1s ease;
+}
+
+.start-button {
+  background-color: #008800;
+}
+
+.exit-button {
+  background-color: #aa0000;
+}
+
+.start-button:hover,
+.exit-button:hover {
+  filter: brightness(1.1);
+}
+
+.start-button:active,
+.exit-button:active {
+  box-shadow: inset 2px 4px #000000;
+  transform: translateY(2px);
+}
+
 .score-popup {
   position: absolute;
-  color: white;
+  color: #ffff55;
   font-size: 1.2rem;
   pointer-events: none;
   animation: scoreFloat 1s ease-out forwards;
-  text-shadow: 1px 1px #000;
-  font-weight: bold;
+  text-shadow: 2px 2px #000000;
+  font-weight: normal;
   z-index: 50;
+  font-family: "Minecraft", Arial, sans-serif;
 }
 
 @keyframes scoreFloat {
@@ -126,7 +129,7 @@
   justify-content: center;
   align-items: center;
   z-index: 200;
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
@@ -140,14 +143,12 @@
 
 .minecraft-score {
   background-color: #c6c6c6;
-  border: 3px solid #000;
-  padding: 30px 50px;
+  border: 4px solid #000000;
+  padding: 20px 30px;
   text-align: center;
-  font-family: "Minecraft", Arial, sans-serif;
   image-rendering: pixelated;
-  box-shadow: 0 0 0 4px #555;
-  transform: scale(0.95);
-  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  box-shadow: inset -2px -4px #555555, inset 2px 2px #ffffff;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes popIn {
@@ -162,38 +163,57 @@
 }
 
 .minecraft-score h2 {
-  color: #ffff00;
+  color: #ffff55;
   font-size: 2.5rem;
-  text-shadow: 2px 2px #000;
+  text-shadow: 2px 2px #3f3f3f;
   margin-bottom: 20px;
   text-transform: uppercase;
   letter-spacing: 2px;
+  font-weight: normal;
 }
 
 .score-text {
   color: #ffffff;
   font-size: 2rem;
-  text-shadow: 2px 2px #000;
+  text-shadow: 2px 2px #000000;
   margin-bottom: 30px;
-  font-weight: bold;
+  font-weight: normal;
 }
 
 .button-container {
   display: flex;
-  gap: 1rem;
+  gap: 10px;
   justify-content: center;
 }
 
-.exit-button {
-  padding: 10px 20px;
-  font-size: 16px;
+.chat-toggle {
+  background-color: #4a4a4a;
+  padding: 8px 16px;
+  font-size: 1.2rem;
+  color: #ffffff;
+  border: 2px solid #000000;
   cursor: pointer;
-  background-color: #ff4444;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  font-family: "Minecraft", Arial, sans-serif;
+  text-transform: uppercase;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.4);
 }
 
-.exit-button:hover {
-  background-color: #ff0000;
+.chat-toggle:hover {
+  filter: brightness(1.1);
+}
+
+.chat-toggle:active {
+  box-shadow: inset 2px 4px #000000;
+  transform: translateY(2px);
+}
+
+.balloon {
+  position: absolute;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  image-rendering: pixelated;
+}
+
+.balloon:hover {
+  transform: scale(1.1);
 }

@@ -3,109 +3,81 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(31, 41, 55, 0.9);
-  color: white;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
   padding: 16px;
   z-index: 100;
+  border-top: 4px solid #1d1d1d;
+  font-family: "Minecraft", Arial, sans-serif;
+  box-sizing: border-box;
 }
 
 .controls-container {
-  max-width: 1024px;
-  margin: 0 auto;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
 }
 
-.score-display {
+.minecraft-score-display {
   display: flex;
   align-items: center;
-  gap: 8px;
+  color: #ffffff;
+  text-shadow: 2px 2px #000000;
+  font-size: 1.4rem;
 }
 
-.score-icon {
-  background-color: #eab308;
-  border-radius: 50%;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.minecraft-score-value {
+  font-size: 1.4rem;
+  margin-top: 8px;
 }
 
-.score-icon svg {
-  width: 24px;
-  height: 24px;
-  color: white;
-}
-
-.score-value {
-  font-size: 1.25rem;
-  font-weight: bold;
-}
-
-.game-control-button {
-  padding: 8px 24px;
-  border-radius: 9999px;
-  font-weight: bold;
-  border: none;
+.minecraft-button {
+  padding: 8px 16px;
+  font-size: 1.2rem;
+  color: #ffffff;
+  border: 2px solid #000000;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  font-family: "Minecraft", Arial, sans-serif;
+  text-transform: uppercase;
+  image-rendering: pixelated;
+  position: relative;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.4);
+  transition: all 0.1s ease;
 }
 
-.game-control-button.start {
-  background-color: #22c55e;
+.start-button {
+  background-color: #008800;
 }
 
-.game-control-button.start:hover {
-  background-color: #16a34a;
-}
-
-.game-control-button.stop {
-  background-color: #ef4444;
-}
-
-.game-control-button.stop:hover {
-  background-color: #dc2626;
-}
-
-.game-control-button:active {
-  transform: scale(0.98);
+.exit-button {
+  background-color: #aa0000;
 }
 
 .chat-button {
+  background-color: #4a4a4a;
   padding: 8px;
-  background: none;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background-color 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 40px;
 }
 
-.chat-button:hover {
-  background-color: rgba(75, 85, 99, 0.5);
+.chat-button.active {
+  background-color: #555555;
 }
 
-.chat-button svg {
+.chat-icon {
   width: 24px;
   height: 24px;
-  color: white;
 }
 
-.chat-panel {
-  position: fixed;
-  right: 20px;
-  bottom: 80px;
-  width: 300px;
-  height: 400px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  z-index: 90;
+.minecraft-button:hover {
+  filter: brightness(1.1);
 }
 
-.game-area {
-  padding-bottom: 80px;
+.minecraft-button:active {
+  box-shadow: inset 2px 4px #000000;
+  transform: translateY(2px);
 }

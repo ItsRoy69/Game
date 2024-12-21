@@ -15,7 +15,7 @@ const NavBar = () => {
       <div className="navbar-container">
         <div className="navbar-content">
           <div className="navbar-brand">
-            <h1>Game Center</h1>
+            <h1>JGame</h1>
           </div>
           <div className="navbar-right">
             {isAuthenticated ? (
