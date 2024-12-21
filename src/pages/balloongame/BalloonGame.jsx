@@ -3,11 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import Balloon from '../../components/balloon/balloon';
 import GameControls from '../../constants/gamecontrols/GameControls';
 import Chat from '../../constants/chat/Chat';
+import backSound from '../../assets/audio/back.mp3';
+import saveSound from '../../assets/audio/save.mp3';
 import './balloongame.css';
 
 const BALLOON_COLORS = ["red", "blue", "yellow", "green", "black", "pink"];
 const GAME_DURATION = 30;
 const BALLOON_SPAWN_INTERVAL = 1000;
+
+const backAudio = new Audio(backSound);
+const saveAudio = new Audio(saveSound);
 
 const BalloonGame = () => {
   const navigate = useNavigate();
@@ -26,6 +31,7 @@ const BalloonGame = () => {
   const balloonSpawner = useRef(null);
 
   const startGame = useCallback(() => {
+    saveAudio.play();
     setGameActive(true);
     setScore(0);
     setTimeLeft(GAME_DURATION);
@@ -40,6 +46,7 @@ const BalloonGame = () => {
   }, []);
 
   const handleExitToHome = useCallback(() => {
+    backAudio.play();
     navigate('/');
   }, [navigate]);
 

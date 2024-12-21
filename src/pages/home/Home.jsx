@@ -3,10 +3,23 @@ import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import NavBar from "../../constants/navbar/NavBar";
 import { Settings } from "lucide-react";
+import saveSound from "../../assets/audio/save.mp3";
+import settingSound from "../../assets/audio/setting.mp3";
 import "./home.css";
 
 function Home() {
   const { isAuthenticated, user, loginWithRedirect } = useAuth0();
+  
+  const saveAudio = new Audio(saveSound);
+  const settingAudio = new Audio(settingSound);
+
+  const handleSettingsClick = (e) => {
+    settingAudio.play();
+  };
+
+  const handlePlayClick = () => {
+    saveAudio.play();
+  };
 
   return (
     <div className="home">
@@ -25,7 +38,7 @@ function Home() {
                   <h2>Welcome, {user.name}!</h2>
                   <p className="profile-email">{user.email}</p>
                 </div>
-                <Link to="/profilesettings">
+                <Link to="/profilesettings" onClick={handleSettingsClick}>
                   <Settings size={24} className="minecraft-settings-icon" />
                 </Link>
               </div>
@@ -39,7 +52,9 @@ function Home() {
                   <p>Pop as many balloons as you can in 30 seconds!</p>
                   <div className="game-card-footer">
                     <span className="high-score">High Score: 0</span>
-                    <button className="play-button">Play Now</button>
+                    <button className="play-button" onClick={handlePlayClick}>
+                      Play Now
+                    </button>
                   </div>
                 </Link>
                 {/* Add more game cards here */}

@@ -1,13 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { Settings, ArrowLeft } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Settings, ArrowLeft, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
+import popSound from "../../assets/audio/save.mp3";
+import backSound from "../../assets/audio/back.mp3";
 import "./profilesettings.css";
+
+const MinecraftAlert = ({ message, onClose }) => {
+  return (
+    <div className="minecraft-alert-overlay">
+      <div className="minecraft-alert">
+        <div className="minecraft-alert-message">{message}</div>
+        <button className="minecraft-alert-button" onClick={onClose}>
+          OK
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const audio = new Audio(popSound);
+const backAudio = new Audio(backSound);
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
   const { getAccessTokenSilently, user } = useAuth0();
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const [userProfile, setUserProfile] = useState({
     gender: "",
     datingPreferences: [],
@@ -36,7 +56,7 @@ const ProfileSettings = () => {
       try {
         const token = await getAccessTokenSilently();
         const API_BASE_URL = import.meta.env.VITE_API_URL;
-        
+
         const response = await axios.get(
           `${API_BASE_URL}/api/users/${user.sub}`,
           {
@@ -45,17 +65,17 @@ const ProfileSettings = () => {
             },
           }
         );
-        
+
         const profileData = response.data;
         if (profileData.dateOfBirth) {
           profileData.dateOfBirth = new Date(profileData.dateOfBirth)
             .toISOString()
-            .split('T')[0];
+            .split("T")[0];
         }
 
-        setUserProfile(prev => ({
+        setUserProfile((prev) => ({
           ...prev,
-          ...profileData
+          ...profileData,
         }));
       } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -81,6 +101,11 @@ const ProfileSettings = () => {
     }
   }, []);
 
+  const showMinecraftAlert = (message) => {
+    setAlertMessage(message);
+    setShowAlert(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -98,18 +123,54 @@ const ProfileSettings = () => {
         }
       );
 
-      alert("Profile updated successfully!");
-      navigate("/profile");
+      audio.play();
+      showMinecraftAlert("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating profile:", error);
-      setError("Failed to update profile. Please try again.");
+      showMinecraftAlert("Failed to update profile. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleBack = () => {
+    backAudio.play();
     navigate("/");
+  };
+
+  const fileInputRef = useRef(null);
+
+  const handlePhotoUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const maxPhotos = 6;
+
+    if (userProfile.photos.length + files.length > maxPhotos) {
+      showMinecraftAlert(`You can only upload up to ${maxPhotos} photos`);
+      return;
+    }
+
+    files.forEach((file) => {
+      if (file.size > 5 * 1024 * 1024) {
+        showMinecraftAlert("Each photo must be under 5MB");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUserProfile((prev) => ({
+          ...prev,
+          photos: [...prev.photos, reader.result],
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (index) => {
+    setUserProfile((prev) => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index),
+    }));
   };
 
   if (isLoading) {
@@ -122,6 +183,12 @@ const ProfileSettings = () => {
 
   return (
     <div className="profile-settings">
+      {showAlert && (
+        <MinecraftAlert
+          message={alertMessage}
+          onClose={() => setShowAlert(false)}
+        />
+      )}
       <div className="profile-settings-container">
         <div className="header-container">
           <button onClick={handleBack} className="back-button">
@@ -150,17 +217,19 @@ const ProfileSettings = () => {
           <div className="form-group">
             <label>Dating Preferences</label>
             <div className="checkbox-group">
-              {['male', 'female', 'non-binary'].map(preference => (
+              {["male", "female", "non-binary"].map((preference) => (
                 <label key={preference}>
                   <input
                     type="checkbox"
                     checked={userProfile.datingPreferences.includes(preference)}
                     onChange={(e) => {
-                      setUserProfile(prev => ({
+                      setUserProfile((prev) => ({
                         ...prev,
                         datingPreferences: e.target.checked
                           ? [...prev.datingPreferences, preference]
-                          : prev.datingPreferences.filter(p => p !== preference)
+                          : prev.datingPreferences.filter(
+                              (p) => p !== preference
+                            ),
                       }));
                     }}
                   />
@@ -173,12 +242,11 @@ const ProfileSettings = () => {
           <div className="form-group">
             <label>About Me</label>
             <textarea
-              rows="4"
+              className="about-textarea"
               value={userProfile.about}
               onChange={(e) =>
                 setUserProfile((prev) => ({ ...prev, about: e.target.value }))
               }
-              className="about-textarea"
             />
           </div>
 
@@ -283,11 +351,98 @@ const ProfileSettings = () => {
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            className="save-button"
-            disabled={isLoading}
-          >
+          <div className="form-group">
+            <label>Profile Photos</label>
+            <div className="photo-upload-container">
+              <div className="photo-grid">
+                {userProfile.photos.map((photo, index) => (
+                  <div key={index} className="photo-preview">
+                    <img src={photo} alt={`Profile photo ${index + 1}`} />
+                    <button
+                      type="button"
+                      className="remove-photo"
+                      onClick={() => removePhoto(index)}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              {userProfile.photos.length < 6 && (
+                <>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handlePhotoUpload}
+                    ref={fileInputRef}
+                    className="photo-input"
+                  />
+                  <button
+                    type="button"
+                    className="photo-upload-button"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Add Photos
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Favorite Games</label>
+            <input
+              type="text"
+              placeholder="Enter your favorite games"
+              value={userProfile.favoriteGames.join(", ")}
+              onChange={(e) =>
+                setUserProfile((prev) => ({
+                  ...prev,
+                  favoriteGames: e.target.value
+                    .split(",")
+                    .map((game) => game.trim()),
+                }))
+              }
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Preferred Cartoons</label>
+            <input
+              type="text"
+              placeholder="Enter your preferred cartoons"
+              value={userProfile.preferredCartoons.join(", ")}
+              onChange={(e) =>
+                setUserProfile((prev) => ({
+                  ...prev,
+                  preferredCartoons: e.target.value
+                    .split(",")
+                    .map((cartoon) => cartoon.trim()),
+                }))
+              }
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Language Preference</label>
+            <select
+              value={userProfile.languagePreference}
+              onChange={(e) =>
+                setUserProfile((prev) => ({
+                  ...prev,
+                  languagePreference: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select Language</option>
+              <option value="english">English</option>
+              <option value="hindi">Hindi</option>
+              <option value="bengali">Bengali</option>
+            </select>
+          </div>
+
+          <button type="submit" className="save-button" disabled={isLoading}>
             {isLoading ? "Saving..." : "Save Changes"}
           </button>
         </form>
