@@ -6,6 +6,7 @@ import yellowBalloon from '../../assets/yellow-balloon.png';
 import greenBalloon from '../../assets/green-balloon.png';
 import blackBalloon from '../../assets/black-balloon.png';
 import pinkBalloon from '../../assets/pink-balloon.png';
+import balloonBurstSound from '../../assets/audio/balloon-burst.mp3';
 
 const BALLOON_IMAGES = {
   blue: blueBalloon,
@@ -15,6 +16,8 @@ const BALLOON_IMAGES = {
   black: blackBalloon,
   pink: pinkBalloon
 };
+
+const burstAudio = new Audio(balloonBurstSound);
 
 function Balloon({ id, x, y, color, onPop }) {
   const [position, setPosition] = useState(y);
@@ -37,6 +40,9 @@ function Balloon({ id, x, y, color, onPop }) {
   const handlePop = useCallback(() => {
     if (!isPopping) {
       setIsPopping(true);
+      burstAudio.currentTime = 0;
+      burstAudio.play();
+      
       setTimeout(() => {
         onPop(id, true);
       }, 300);

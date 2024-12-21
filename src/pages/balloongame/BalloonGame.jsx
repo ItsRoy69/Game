@@ -1,15 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import Balloon from '../../components/Balloon/Balloon';
-import './balloongame.css';
+import React, { useState, useEffect, useCallback } from "react";
+import Balloon from "../../components/balloon/balloon";
+import GameControls from "../../constants/gamecontrols/GameControls";
+import "./balloongame.css";
 
-const BALLOON_COLORS = [
-  'red',
-  'blue',
-  'yellow',
-  'green',
-  'black',
-  'pink'
-];
+const BALLOON_COLORS = ["red", "blue", "yellow", "green", "black", "pink"];
 
 function BalloonGame() {
   const [score, setScore] = useState(0);
@@ -17,6 +11,8 @@ function BalloonGame() {
   const [gameActive, setGameActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
   const [scorePopups, setScorePopups] = useState([]);
+  const [showFinalScore, setShowFinalScore] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const startGame = () => {
     setGameActive(true);
@@ -24,6 +20,12 @@ function BalloonGame() {
     setTimeLeft(30);
     setBalloons([]);
     setScorePopups([]);
+    setShowFinalScore(false);
+  };
+
+  const exitGame = () => {
+    setGameActive(false);
+    setShowFinalScore(true);
   };
 
   useEffect(() => {
@@ -34,6 +36,7 @@ function BalloonGame() {
       }, 1000);
     } else if (timeLeft === 0) {
       setGameActive(false);
+      setShowFinalScore(true);
     }
     return () => clearInterval(intervalId);
   }, [gameActive, timeLeft]);
@@ -46,7 +49,8 @@ function BalloonGame() {
           id: Math.random(),
           x: Math.random() * 80 + 10,
           y: 100,
-          color: BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
+          color:
+            BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
         };
         setBalloons((prev) => [...prev, newBalloon]);
       }, 1000);
@@ -54,49 +58,60 @@ function BalloonGame() {
     return () => clearInterval(balloonInterval);
   }, [gameActive]);
 
-  const popBalloon = useCallback((id, shouldScore) => {
-    setBalloons((prev) => prev.filter((balloon) => balloon.id !== id));
-    
-    if (shouldScore) {
-      setScore((prev) => prev + 1);
-      const balloon = balloons.find(b => b.id === id);
-      if (balloon) {
-        const popup = {
-          id: Math.random(),
-          x: balloon.x,
-          y: balloon.y,
-          text: '+1'
-        };
-        setScorePopups(prev => [...prev, popup]);
-        setTimeout(() => {
-          setScorePopups(prev => prev.filter(p => p.id !== popup.id));
-        }, 1000);
+  const popBalloon = useCallback(
+    (id, shouldScore) => {
+      setBalloons((prev) => prev.filter((balloon) => balloon.id !== id));
+
+      if (shouldScore) {
+        setScore((prev) => prev + 1);
+        const balloon = balloons.find((b) => b.id === id);
+        if (balloon) {
+          const popup = {
+            id: Math.random(),
+            x: balloon.x,
+            y: balloon.y,
+            text: "+1",
+          };
+          setScorePopups((prev) => [...prev, popup]);
+          setTimeout(() => {
+            setScorePopups((prev) => prev.filter((p) => p.id !== popup.id));
+          }, 1000);
+        }
       }
-    }
-  }, [balloons]);
+    },
+    [balloons]
+  );
+
+  const toggleChat = () => {
+    setChatOpen((prev) => !prev);
+  };
 
   return (
     <div className="balloon-game">
       <div className="game-info">
         <h1 className="game-title">Balloon Popper</h1>
         <div className="stats">
-          <p>Score: {score}</p>
           <p>Time: {timeLeft}s</p>
         </div>
-        {!gameActive && (
-          <button className="start-button" onClick={startGame}>
-            {timeLeft === 30 ? 'Start Game' : 'Play Again'}
-          </button>
-        )}
       </div>
+
+      {showFinalScore && (
+        <div className="final-score-overlay">
+          <div className="minecraft-score">
+            <h2>Game Over!</h2>
+            <p className="score-text">Final Score: {score}</p>
+            <button className="start-button" onClick={startGame}>
+              Play Again
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="game-area">
         {balloons.map((balloon) => (
-          <Balloon
-            key={balloon.id}
-            {...balloon}
-            onPop={popBalloon}
-          />
+          <Balloon key={balloon.id} {...balloon} onPop={popBalloon} />
         ))}
+
         {scorePopups.map((popup) => (
           <div
             key={popup.id}
@@ -110,6 +125,17 @@ function BalloonGame() {
           </div>
         ))}
       </div>
+
+      <GameControls
+        score={score}
+        gameActive={gameActive}
+        onStartGame={startGame}
+        onExitGame={exitGame}
+        onChatToggle={toggleChat}
+        chatOpen={chatOpen}
+      />
+
+      {chatOpen && <div className="chat-panel"></div>}
     </div>
   );
 }

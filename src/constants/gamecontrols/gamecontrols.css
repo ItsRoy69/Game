@@ -1,0 +1,111 @@
+.game-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(31, 41, 55, 0.9);
+  color: white;
+  padding: 16px;
+  z-index: 100;
+}
+
+.controls-container {
+  max-width: 1024px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.score-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.score-icon {
+  background-color: #eab308;
+  border-radius: 50%;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-icon svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.score-value {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.game-control-button {
+  padding: 8px 24px;
+  border-radius: 9999px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.game-control-button.start {
+  background-color: #22c55e;
+}
+
+.game-control-button.start:hover {
+  background-color: #16a34a;
+}
+
+.game-control-button.stop {
+  background-color: #ef4444;
+}
+
+.game-control-button.stop:hover {
+  background-color: #dc2626;
+}
+
+.game-control-button:active {
+  transform: scale(0.98);
+}
+
+.chat-button {
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-button:hover {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+
+.chat-button svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.chat-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 80px;
+  width: 300px;
+  height: 400px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 90;
+}
+
+.game-area {
+  padding-bottom: 80px;
+}
