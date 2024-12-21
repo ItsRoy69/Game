@@ -31,7 +31,6 @@ function AuthenticationWrapper({ children }) {
               },
             }
           );
-
           
           console.log('User sync successful:', response.data);
         } catch (error) {

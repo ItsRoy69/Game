@@ -173,8 +173,8 @@
 
 @font-face {
   font-family: 'MinecraftiaRegular';
-  src: url('https://cdn.jsdelivr.net/gh/South-Paw/typeface-minecraft@master/font/minecraft.woff2') format('woff2'),
-       url('https://cdn.jsdelivr.net/gh/South-Paw/typeface-minecraft@master/font/minecraft.woff') format('woff');
+  src: url('../../assets/font/minecraft2.woff') format('woff'),
+       url('../../assets/font/minecraft3.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
 }
