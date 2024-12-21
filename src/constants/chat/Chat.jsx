@@ -1,84 +1,108 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send } from 'lucide-react';
-import './chat.css';
+import { Send, Users, MessageSquare, X } from 'lucide-react';
+import { useChat } from '../../contexts/ChatContext';
+import { useAuth0 } from '@auth0/auth0-react';
+import ChatRoomsList from './ChatRoomsList';
+import UsersList from './UsersList';
+import MessageList from './MessageList';
+import './Chat.css';
 
 const Chat = ({ onClose }) => {
-  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
-  const messagesEndRef = useRef(null);
+  const [view, setView] = useState('rooms');
+  const [selectedUser, setSelectedUser] = useState(null);
   const inputRef = useRef(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const { user } = useAuth0();
+  const {
+    currentRoom,
+    sendPrivateMessage,
+    sendGroupMessage,
+    privateChats
+  } = useChat();
 
   useEffect(() => {
-    scrollToBottom();
     inputRef.current?.focus();
-  }, [messages]);
+  }, [currentRoom, selectedUser]);
 
   const handleSend = (e) => {
     e.preventDefault();
-    if (inputText.trim()) {
-      const newMessage = {
-        text: inputText,
-        sender: 'user',
-        time: new Date()
-      };
-      setMessages(prev => [...prev, newMessage]);
-      
-      setTimeout(() => {
-        const botMessage = {
-          text: 'Hello player!',
-          sender: 'bot',
-          time: new Date()
-        };
-        setMessages(prev => [...prev, botMessage]);
-      }, 1000);
-      
-      setInputText('');
-    }
-  };
+    if (!inputText.trim()) return;
 
-  const formatTime = (date) => {
-    return new Date(date).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit'
-    });
+    if (selectedUser) {
+      sendPrivateMessage(selectedUser.userId, inputText);
+    } else if (currentRoom) {
+      sendGroupMessage(currentRoom, inputText);
+    }
+
+    setInputText('');
+  };
+  
+  const renderContent = () => {
+    switch (view) {
+      case "rooms":
+        return <ChatRoomsList onSelectRoom={() => setView("chat")} />;
+      case "users":
+        return (
+          <UsersList
+            onSelectUser={(user) => {
+              setSelectedUser(user);
+              setView("chat");
+            }}
+          />
+        );
+      case "chat":
+        return (
+          <MessageList
+            messages={selectedUser ? privateChats.get(selectedUser.userId) : []}
+            isPrivateChat={!!selectedUser}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   return (
     <div className="chat-panel">
       <div className="chat-header">
-        <h3>Game Chat</h3>
-        <button onClick={onClose}>×</button>
-      </div>
-      
-      <div className="chat-messages">
-        {messages.map((msg, index) => (
-          <div key={index} className="message-container">
-            <span className="message-time">[{formatTime(msg.time)}]</span>
-            <div className={`message-bubble ${msg.sender}`}>
-              <span>{msg.sender === 'user' ? 'You' : 'Game'}: {msg.text}</span>
-            </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-      
-      <form onSubmit={handleSend} className="chat-input">
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder="Press T to chat..."
-          maxLength={256}
-        />
-        <button type="submit" className="send-button">
-          <Send size={16} />
+        <div className="chat-tabs">
+          <button
+            className={`tab ${view === "rooms" ? "active" : ""}`}
+            onClick={() => setView("rooms")}
+          >
+            <MessageSquare size={16} />
+            Rooms
+          </button>
+          <button
+            className={`tab ${view === "users" ? "active" : ""}`}
+            onClick={() => setView("users")}
+          >
+            <Users size={16} />
+            Users
+          </button>
+        </div>
+        <button onClick={onClose} className="close-button">
+          <X size={16} />
         </button>
-      </form>
+      </div>
+
+      <div className="chat-content">{renderContent()}</div>
+
+      {view === "chat" && (
+        <form onSubmit={handleSend} className="chat-input">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="Type a message..."
+            maxLength={1000}
+          />
+          <button type="submit" className="send-button">
+            <Send size={16} />
+          </button>
+        </form>
+      )}
     </div>
   );
 };

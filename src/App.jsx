@@ -2,8 +2,10 @@ import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { useEffect } from 'react';
 import axios from 'axios';
+import { ChatProvider } from './contexts/ChatContext';
 import AppRoutes from './routes/Routes';
 import './App.css';
+
 
 function AuthenticationWrapper({ children }) {
   const { isAuthenticated, getAccessTokenSilently, user, isLoading } = useAuth0();
@@ -63,7 +65,9 @@ function App() {
     >
       <Router>
         <AuthenticationWrapper>
-          <AppRoutes />
+          <ChatProvider>
+            <AppRoutes />
+          </ChatProvider>
         </AuthenticationWrapper>
       </Router>
     </Auth0Provider>
