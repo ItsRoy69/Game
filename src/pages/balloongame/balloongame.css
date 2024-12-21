@@ -26,13 +26,49 @@
   border-bottom: 4px solid #1d1d1d;
 }
 
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 15px;
+  padding: 0 60px;
+}
+
+.back-button {
+  position: absolute;
+  left: 20px;
+  padding: 8px 16px;
+  font-size: 1.2rem;
+  color: #ffffff;
+  background-color: #4a4a4a;
+  border: 2px solid #000000;
+  cursor: pointer;
+  font-family: "Minecraft", Arial, sans-serif;
+  text-transform: uppercase;
+  image-rendering: pixelated;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.4);
+  transition: all 0.1s ease;
+}
+
+.back-button:hover {
+  filter: brightness(1.1);
+}
+
+.back-button:active {
+  box-shadow: inset 2px 4px #000000;
+  transform: translateY(2px);
+}
+
 .game-title {
   font-size: 2.5rem;
-  margin-bottom: 15px;
+  margin: 0; /* Removed bottom margin */
   color: #ffff55;
   text-shadow: 2px 2px #3f3f3f;
   font-weight: normal;
   letter-spacing: 2px;
+  text-align: center;
+  white-space: nowrap; /* Prevent wrapping */
 }
 
 .stats {
@@ -216,4 +252,58 @@
 
 .balloon:hover {
   transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .game-title {
+    font-size: 2rem;
+  }
+  
+  .back-button {
+    padding: 6px 12px;
+    font-size: 1rem;
+    left: 10px;
+  }
+  
+  .stats {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .stats-item {
+    font-size: 1rem;
+  }
+  
+  .stats-icon {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-title {
+    font-size: 1.5rem;
+  }
+  
+  .game-header {
+    padding: 0 50px;
+  }
+  
+  .minecraft-score h2 {
+    font-size: 2rem;
+  }
+  
+  .score-text {
+    font-size: 1.5rem;
+  }
+  
+  .button-container {
+    flex-direction: column;
+  }
+  
+  .start-button,
+  .exit-button,
+  .chat-toggle {
+    font-size: 1rem;
+    padding: 6px 12px;
+  }
 }

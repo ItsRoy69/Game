@@ -28,6 +28,7 @@ const ProfileSettings = () => {
   const { getAccessTokenSilently, user } = useAuth0();
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [currentStep, setCurrentStep] = useState(1);
   const [userProfile, setUserProfile] = useState({
     gender: "",
     datingPreferences: [],
@@ -140,9 +141,11 @@ const ProfileSettings = () => {
 
   const fileInputRef = useRef(null);
 
+  // ... (keep existing useEffects and helper functions)
+
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
-    const maxPhotos = 6;
+    const maxPhotos = 4; // Changed to 4 photos max
 
     if (userProfile.photos.length + files.length > maxPhotos) {
       showMinecraftAlert(`You can only upload up to ${maxPhotos} photos`);
@@ -173,187 +176,103 @@ const ProfileSettings = () => {
     }));
   };
 
-  if (isLoading) {
-    return <div className="loading">Loading...</div>;
-  }
 
-  if (error) {
-    return <div className="error">{error}</div>;
-  }
-
-  return (
-    <div className="profile-settings">
-      {showAlert && (
-        <MinecraftAlert
-          message={alertMessage}
-          onClose={() => setShowAlert(false)}
-        />
-      )}
-      <div className="profile-settings-container">
-        <div className="header-container">
-          <button onClick={handleBack} className="back-button">
-            <ArrowLeft size={24} />
-            Back
-          </button>
-          <h2 className="settings-title">Profile Settings</h2>
-        </div>
-
-        <form className="settings-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Gender</label>
-            <select
-              value={userProfile.gender}
-              onChange={(e) =>
-                setUserProfile((prev) => ({ ...prev, gender: e.target.value }))
-              }
-            >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="non-binary">Non-binary</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Dating Preferences</label>
-            <div className="checkbox-group">
-              {["male", "female", "non-binary"].map((preference) => (
-                <label key={preference}>
-                  <input
-                    type="checkbox"
-                    checked={userProfile.datingPreferences.includes(preference)}
-                    onChange={(e) => {
-                      setUserProfile((prev) => ({
-                        ...prev,
-                        datingPreferences: e.target.checked
-                          ? [...prev.datingPreferences, preference]
-                          : prev.datingPreferences.filter(
-                              (p) => p !== preference
-                            ),
-                      }));
-                    }}
-                  />
-                  {preference.charAt(0).toUpperCase() + preference.slice(1)}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>About Me</label>
-            <textarea
-              className="about-textarea"
-              value={userProfile.about}
-              onChange={(e) =>
-                setUserProfile((prev) => ({ ...prev, about: e.target.value }))
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Date of Birth</label>
-            <input
-              type="date"
-              value={userProfile.dateOfBirth}
-              onChange={(e) =>
-                setUserProfile((prev) => ({
-                  ...prev,
-                  dateOfBirth: e.target.value,
-                }))
-              }
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Currently</label>
-            <div className="occupation-inputs">
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="step-container">
+            <h3 className="step-title">Basic Information</h3>
+            <div className="form-group box-input">
+              <label>Gender</label>
               <select
-                value={userProfile.occupation.type}
+                value={userProfile.gender}
                 onChange={(e) =>
-                  setUserProfile((prev) => ({
-                    ...prev,
-                    occupation: { ...prev.occupation, type: e.target.value },
-                  }))
+                  setUserProfile((prev) => ({ ...prev, gender: e.target.value }))
                 }
               >
-                <option value="">Select Status</option>
-                <option value="studying">Studying</option>
-                <option value="working">Working</option>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="non-binary">Non-binary</option>
               </select>
-              <input
-                type="text"
-                placeholder={
-                  userProfile.occupation.type === "studying"
-                    ? "College/University"
-                    : "Profession"
-                }
-                value={userProfile.occupation.details}
+            </div>
+
+            <div className="form-group box-input">
+              <label>Dating Preferences</label>
+              <div className="checkbox-group">
+                {["male", "female", "non-binary"].map((preference) => (
+                  <label key={preference}>
+                    <input
+                      type="checkbox"
+                      checked={userProfile.datingPreferences.includes(preference)}
+                      onChange={(e) => {
+                        setUserProfile((prev) => ({
+                          ...prev,
+                          datingPreferences: e.target.checked
+                            ? [...prev.datingPreferences, preference]
+                            : prev.datingPreferences.filter((p) => p !== preference),
+                        }));
+                      }}
+                    />
+                    {preference.charAt(0).toUpperCase() + preference.slice(1)}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-group box-input">
+              <label>About Me</label>
+              <textarea
+                className="about-textarea"
+                value={userProfile.about}
                 onChange={(e) =>
-                  setUserProfile((prev) => ({
-                    ...prev,
-                    occupation: { ...prev.occupation, details: e.target.value },
-                  }))
+                  setUserProfile((prev) => ({ ...prev, about: e.target.value }))
                 }
               />
             </div>
-          </div>
 
-          <div className="form-group">
-            <label>Dating Goal</label>
-            <select
-              value={userProfile.datingGoal}
-              onChange={(e) =>
-                setUserProfile((prev) => ({
-                  ...prev,
-                  datingGoal: e.target.value,
-                }))
-              }
-            >
-              <option value="">Select Goal</option>
-              <option value="casual">Keep it Casual</option>
-              <option value="short-term">Short Term Relationship</option>
-              <option value="long-term">Long Term Relationship</option>
-              <option value="flow">Go with the Flow</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Preferred Age Range to Date</label>
-            <div className="age-range-inputs">
-              <input
-                type="number"
-                placeholder="Min Age"
-                value={userProfile.datingAgeRange.min}
-                onChange={(e) =>
-                  setUserProfile((prev) => ({
-                    ...prev,
-                    datingAgeRange: {
-                      ...prev.datingAgeRange,
-                      min: parseInt(e.target.value),
-                    },
-                  }))
-                }
-              />
-              <input
-                type="number"
-                placeholder="Max Age"
-                value={userProfile.datingAgeRange.max}
-                onChange={(e) =>
-                  setUserProfile((prev) => ({
-                    ...prev,
-                    datingAgeRange: {
-                      ...prev.datingAgeRange,
-                      max: parseInt(e.target.value),
-                    },
-                  }))
-                }
-              />
+            <div className="form-group box-input">
+              <label>Preferred Age Range to Date</label>
+              <div className="age-range-inputs">
+                <input
+                  type="number"
+                  placeholder="Min Age"
+                  value={userProfile.datingAgeRange.min}
+                  onChange={(e) =>
+                    setUserProfile((prev) => ({
+                      ...prev,
+                      datingAgeRange: {
+                        ...prev.datingAgeRange,
+                        min: parseInt(e.target.value),
+                      },
+                    }))
+                  }
+                />
+                <input
+                  type="number"
+                  placeholder="Max Age"
+                  value={userProfile.datingAgeRange.max}
+                  onChange={(e) =>
+                    setUserProfile((prev) => ({
+                      ...prev,
+                      datingAgeRange: {
+                        ...prev.datingAgeRange,
+                        max: parseInt(e.target.value),
+                      },
+                    }))
+                  }
+                />
+              </div>
             </div>
           </div>
+        );
 
-          <div className="form-group">
-            <label>Profile Photos</label>
-            <div className="photo-upload-container">
+      case 2:
+        return (
+          <div className="step-container">
+            <h3 className="step-title">Profile Photos</h3>
+            <div className="photo-upload-container box-input">
               <div className="photo-grid">
                 {userProfile.photos.map((photo, index) => (
                   <div key={index} className="photo-preview">
@@ -368,7 +287,7 @@ const ProfileSettings = () => {
                   </div>
                 ))}
               </div>
-              {userProfile.photos.length < 6 && (
+              {userProfile.photos.length < 4 && (
                 <>
                   <input
                     type="file"
@@ -383,68 +302,133 @@ const ProfileSettings = () => {
                     className="photo-upload-button"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    Add Photos
+                    Add Photos (Max 4)
                   </button>
                 </>
               )}
             </div>
           </div>
+        );
 
-          <div className="form-group">
-            <label>Favorite Games</label>
-            <input
-              type="text"
-              placeholder="Enter your favorite games"
-              value={userProfile.favoriteGames.join(", ")}
-              onChange={(e) =>
-                setUserProfile((prev) => ({
-                  ...prev,
-                  favoriteGames: e.target.value
-                    .split(",")
-                    .map((game) => game.trim()),
-                }))
-              }
-            />
+      case 3:
+        return (
+          <div className="step-container">
+            <h3 className="step-title">Interests & Preferences</h3>
+            <div className="form-group box-input">
+              <label>Favorite Games</label>
+              <input
+                type="text"
+                placeholder="Enter your favorite games"
+                value={userProfile.favoriteGames.join(", ")}
+                onChange={(e) =>
+                  setUserProfile((prev) => ({
+                    ...prev,
+                    favoriteGames: e.target.value.split(",").map((game) => game.trim()),
+                  }))
+                }
+              />
+            </div>
+
+            <div className="form-group box-input">
+              <label>Preferred Cartoons</label>
+              <input
+                type="text"
+                placeholder="Enter your preferred cartoons"
+                value={userProfile.preferredCartoons.join(", ")}
+                onChange={(e) =>
+                  setUserProfile((prev) => ({
+                    ...prev,
+                    preferredCartoons: e.target.value
+                      .split(",")
+                      .map((cartoon) => cartoon.trim()),
+                  }))
+                }
+              />
+            </div>
+
+            <div className="form-group box-input">
+              <label>Language Preference</label>
+              <select
+                value={userProfile.languagePreference}
+                onChange={(e) =>
+                  setUserProfile((prev) => ({
+                    ...prev,
+                    languagePreference: e.target.value,
+                  }))
+                }
+              >
+                <option value="">Select Language</option>
+                <option value="english">English</option>
+                <option value="hindi">Hindi</option>
+                <option value="bengali">Bengali</option>
+              </select>
+            </div>
           </div>
+        );
 
-          <div className="form-group">
-            <label>Preferred Cartoons</label>
-            <input
-              type="text"
-              placeholder="Enter your preferred cartoons"
-              value={userProfile.preferredCartoons.join(", ")}
-              onChange={(e) =>
-                setUserProfile((prev) => ({
-                  ...prev,
-                  preferredCartoons: e.target.value
-                    .split(",")
-                    .map((cartoon) => cartoon.trim()),
-                }))
-              }
-            />
-          </div>
+      default:
+        return null;
+    }
+  };
 
-          <div className="form-group">
-            <label>Language Preference</label>
-            <select
-              value={userProfile.languagePreference}
-              onChange={(e) =>
-                setUserProfile((prev) => ({
-                  ...prev,
-                  languagePreference: e.target.value,
-                }))
-              }
-            >
-              <option value="">Select Language</option>
-              <option value="english">English</option>
-              <option value="hindi">Hindi</option>
-              <option value="bengali">Bengali</option>
-            </select>
-          </div>
+  const handleNext = () => {
+    audio.play();
+    setCurrentStep((prev) => prev + 1);
+  };
 
-          <button type="submit" className="save-button" disabled={isLoading}>
-            {isLoading ? "Saving..." : "Save Changes"}
+  const handlePrevious = () => {
+    backAudio.play();
+    setCurrentStep((prev) => prev - 1);
+  };
+
+  if (isLoading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
+
+  return (
+    <div className="profile-settings">
+      {showAlert && (
+        <MinecraftAlert message={alertMessage} onClose={() => setShowAlert(false)} />
+      )}
+      <div className="profile-settings-container">
+        <div className="header-container">
+          <button onClick={() => navigate("/")} className="back-button">
+            <ArrowLeft size={24} />
+            Back
           </button>
+          <h2 className="settings-title">Profile Settings</h2>
+        </div>
+
+        <div className="step-indicator">
+          <div className={`step ${currentStep >= 1 ? "active" : ""}`}>1</div>
+          <div className={`step ${currentStep >= 2 ? "active" : ""}`}>2</div>
+          <div className={`step ${currentStep >= 3 ? "active" : ""}`}>3</div>
+        </div>
+
+        <form className="settings-form" onSubmit={handleSubmit}>
+          {renderStepContent()}
+
+          <div className="form-navigation">
+            {currentStep > 1 && (
+              <button type="button" className="nav-button" onClick={handlePrevious}>
+                Previous
+              </button>
+            )}
+            {currentStep < 3 && (
+              <button type="button" className="nav-button next" onClick={handleNext}>
+                Next
+              </button>
+            )}
+            {currentStep === 3 && (
+              <button type="submit" className="save-button" disabled={isLoading}>
+                {isLoading ? "Saving..." : "Save Changes"}
+              </button>
+            )}
+          </div>
         </form>
       </div>
     </div>

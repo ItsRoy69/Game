@@ -30,6 +30,11 @@ const BalloonGame = () => {
   const gameLoop = useRef(null);
   const balloonSpawner = useRef(null);
 
+  const handleBackClick = () => {
+    backAudio.play();
+    navigate('/');
+  };
+
   const startGame = useCallback(() => {
     saveAudio.play();
     setGameActive(true);
@@ -127,7 +132,12 @@ const BalloonGame = () => {
   return (
     <div className="balloon-game">
       <div className="game-info">
-        <h1 className="game-title">Balloon Popper</h1>
+        <div className="game-header">
+          <button className="back-button" onClick={handleBackClick}>
+            ⬅ Back
+          </button>
+          <h1 className="game-title">Balloon Popper</h1>
+        </div>
         <div className="stats">
           <div className="stats-item">
             <span className="stats-icon">⏰</span>
