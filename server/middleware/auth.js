@@ -1,4 +1,3 @@
-// middleware/auth.js
 const { expressjwt: jwt } = require('express-jwt');
 const jwks = require('jwks-rsa');
 
@@ -14,7 +13,6 @@ const authMiddleware = jwt({
   algorithms: ['RS256']
 });
 
-// Add error handling middleware
 const handleAuthError = (err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {
     return res.status(401).json({

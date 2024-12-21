@@ -6,7 +6,7 @@ import AppRoutes from './routes/Routes';
 import './App.css';
 
 function AuthenticationWrapper({ children }) {
-  const { isAuthenticated, getAccessTokenSilently, user } = useAuth0();
+  const { isAuthenticated, getAccessTokenSilently, user, isLoading } = useAuth0();
 
   useEffect(() => {
     const syncUserData = async () => {
@@ -14,25 +14,40 @@ function AuthenticationWrapper({ children }) {
         try {
           const token = await getAccessTokenSilently();
           
-          await axios.post('/api/users', {
-            auth0Id: user.sub,
-            email: user.email,
-            name: user.name,
-            picture: user.picture,
-            email_verified: user.email_verified
-          }, {
-            headers: {
-              Authorization: `Bearer ${token}`
+          const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+          const response = await axios.post(
+            `${API_BASE_URL}/api/users`,
+            {
+              auth0Id: user.sub,
+              email: user.email,
+              name: user.name,
+              picture: user.picture,
+              email_verified: user.email_verified,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             }
-          });
+          );
+
+          
+          console.log('User sync successful:', response.data);
         } catch (error) {
-          console.error('Error syncing user data:', error);
+          console.error('Error syncing user data:', error.response?.data || error.message);
         }
       }
     };
 
-    syncUserData();
-  }, [isAuthenticated, user, getAccessTokenSilently]);
+    if (!isLoading) {
+      syncUserData();
+    }
+  }, [isAuthenticated, user, getAccessTokenSilently, isLoading]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return children;
 }

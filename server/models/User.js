@@ -7,8 +7,32 @@ const userSchema = new mongoose.Schema({
   picture: String,
   email_verified: Boolean,
   last_login: Date,
+  login_count: { type: Number, default: 0 },
+  login_history: {
+    type: [Date],
+    default: [],
+    validate: [arrayLimit, '{PATH} exceeds the limit of 10']
+  },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }
 });
+
+function arrayLimit(val) {
+  return val.length <= 10;
+}
+
+userSchema.index({ email: 1 });
+userSchema.index({ created_at: -1 });
+
+userSchema.methods.getStats = function() {
+  return {
+    totalLogins: this.login_count || 0,
+    lastLogin: this.last_login,
+    accountCreated: this.created_at,
+    lastUpdated: this.updated_at,
+    loginHistory: this.login_history || [],
+    emailVerified: this.email_verified
+  };
+};
 
 module.exports = mongoose.model('User', userSchema);
