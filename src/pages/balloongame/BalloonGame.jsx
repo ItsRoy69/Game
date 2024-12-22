@@ -62,7 +62,6 @@ const BalloonGame = () => {
     fetchHighScore();
   }, [user, getAccessTokenSilently, isAuthenticated]);
 
-  // Save new high score to database
   const saveHighScore = async (newScore) => {
     if (!isAuthenticated || !user) return;
   
@@ -71,7 +70,7 @@ const BalloonGame = () => {
       const API_BASE_URL = import.meta.env.VITE_API_URL;
   
       const response = await axios.post(
-        `${API_BASE_URL}/api/users/${user.sub}/games/${GAME_NAME}/score`,  // Changed endpoint
+        `${API_BASE_URL}/api/users/${user.sub}/games/${GAME_NAME}/score`,
         {
           gameName: GAME_NAME,
           score: newScore
@@ -165,7 +164,6 @@ const BalloonGame = () => {
     [balloons]
   );
 
-  // Game timer
   useEffect(() => {
     if (gameActive && timeLeft > 0) {
       gameLoop.current = setInterval(() => {

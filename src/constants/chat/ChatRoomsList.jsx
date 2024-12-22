@@ -109,7 +109,6 @@ const ChatRoomsList = ({ onSelectRoom }) => {
 
       {error && <div className="error-message">{error}</div>}
 
-      {/* Private Rooms Section */}
       <div className="rooms-section">
         <h4 className="section-title">
           <Lock size={16} />
@@ -138,7 +137,6 @@ const ChatRoomsList = ({ onSelectRoom }) => {
         )}
       </div>
 
-      {/* Public Rooms Section */}
       <div className="rooms-section">
         <h4
           className="section-title toggle-title"
@@ -169,7 +167,6 @@ const ChatRoomsList = ({ onSelectRoom }) => {
         )}
       </div>
 
-      {/* Simplified Create Room Modal */}
       {showCreateModal && (
         <div className="modal-overlay">
           <div className="modal">

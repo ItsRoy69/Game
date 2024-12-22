@@ -10,7 +10,7 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/balloongame" element={<BalloonGame />} />
       <Route path="/profilesettings" element={<ProfileSettings />} />
-      <Route path="/challenges" element={<GameChallenges />} />
+      <Route path="/challenges/:gameId" element={<GameChallenges />} />
     </Routes>
   );
 }

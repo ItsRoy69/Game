@@ -244,6 +244,20 @@ const ProfileSettings = () => {
             </div>
 
             <div className="form-group box-input">
+              <label>Date of Birth</label>
+              <input
+                type="date"
+                value={userProfile.dateOfBirth}
+                onChange={(e) =>
+                  setUserProfile((prev) => ({
+                    ...prev,
+                    dateOfBirth: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="form-group box-input">
               <label>Preferred Age Range to Date</label>
               <div className="age-range-inputs">
                 <input
