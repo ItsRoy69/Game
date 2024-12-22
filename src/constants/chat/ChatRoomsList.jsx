@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useChat } from '../../contexts/ChatContext';
 import { Plus, Copy, Lock, Globe } from 'lucide-react';
 import './chat.css';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const ChatRoomsList = ({ onSelectRoom }) => {
   const { chatRooms, joinRoom, createRoom } = useChat();
@@ -9,7 +10,8 @@ const ChatRoomsList = ({ onSelectRoom }) => {
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [roomType, setRoomType] = useState('public');
-
+  const { getAccessTokenSilently } = useAuth0();
+  
   const handleRoomSelect = async (roomId) => {
     try {
       await joinRoom(roomId);
@@ -40,25 +42,36 @@ const ChatRoomsList = ({ onSelectRoom }) => {
       setError('Join code is required');
       return;
     }
-
+  
     try {
-      const response = await fetch('http://localhost:5000/api/chat/join', {
+      // Get the access token
+      const token = await getAccessTokenSilently({
+        authorizationParams: {
+          audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+          scope: "openid profile email",
+        },
+      });
+  
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/join`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Add the authorization header
         },
         body: JSON.stringify({ joinCode })
       });
-
+  
       if (!response.ok) {
-        throw new Error('Failed to join room');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to join room');
       }
-
+  
       const data = await response.json();
       handleRoomSelect(data.data._id);
       setJoinCode('');
     } catch (error) {
-      setError(error.message);
+      console.error('Error joining room:', error);
+      setError(error.message || 'Failed to join room');
     }
   };
 
