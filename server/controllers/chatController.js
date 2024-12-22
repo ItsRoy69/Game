@@ -2,21 +2,9 @@ const ChatRoom = require("../models/ChatRoom");
 const Message = require("../models/Message");
 const mongoose = require("mongoose");
 
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
 const chatController = {
-  isValidObjectId(id) {
-    return mongoose.Types.ObjectId.isValid(id);
-  },
-
-  requireAuth(req, res, next) {
-    if (!req.user || !req.user.auth0Id) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized - User not authenticated",
-      });
-    }
-    next();
-  },
-
   async createRoom(req, res, next) {
     try {
       if (!req.user?.auth0Id) {
@@ -122,7 +110,7 @@ const chatController = {
         });
       }
 
-      if (!this.isValidObjectId(req.params.roomId)) {
+      if (!isValidObjectId(req.params.roomId)) {
         return res.status(400).json({
           success: false,
           message: "Invalid room ID format",
@@ -163,7 +151,7 @@ const chatController = {
         });
       }
 
-      if (!this.isValidObjectId(req.params.roomId)) {
+      if (!isValidObjectId(req.params.roomId)) {
         return res.status(400).json({
           success: false,
           message: "Invalid room ID format",
@@ -234,7 +222,7 @@ const chatController = {
         });
       }
 
-      if (!this.isValidObjectId(req.params.roomId)) {
+      if (!isValidObjectId(req.params.roomId)) {
         return res.status(400).json({
           success: false,
           message: "Invalid room ID format",
@@ -358,7 +346,7 @@ const chatController = {
         });
       }
 
-      if (!this.isValidObjectId(req.params.roomId)) {
+      if (!isValidObjectId(req.params.roomId)) {
         return res.status(400).json({
           success: false,
           message: "Invalid room ID format",
@@ -446,7 +434,7 @@ const chatController = {
         });
       }
 
-      if (!messageIds.every((id) => this.isValidObjectId(id))) {
+      if (!messageIds.every((id) => isValidObjectId(id))) {
         return res.status(400).json({
           success: false,
           message: "Invalid message ID format",

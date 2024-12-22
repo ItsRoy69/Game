@@ -1,9 +1,13 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import './chat.css';
 import { useAuth0 } from '@auth0/auth0-react';
+// In MessageList.jsx, update to handle the data structure:
 const MessageList = ({ messages = [], isPrivateChat }) => {
-    const messagesEndRef = useRef(null);
-    const { user } = useAuth0();
+  const messagesEndRef = useRef(null);
+  const { user } = useAuth0();
+  
+  // Add error state
+  const [error, setError] = useState(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -20,11 +24,19 @@ const MessageList = ({ messages = [], isPrivateChat }) => {
     });
   };
 
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
+  if (!Array.isArray(messages)) {
+    return <div className="loading">Loading messages...</div>;
+  }
+
   return (
     <div className="messages-container">
       {messages.map((msg, index) => (
         <div
-          key={index}
+          key={msg._id || index}
           className={`message ${msg.sender === user.auth0Id ? 'sent' : 'received'}`}
         >
           <div className="message-content">
