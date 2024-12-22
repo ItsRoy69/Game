@@ -3,11 +3,13 @@ import { useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 import NavBar from "../../constants/navbar/NavBar";
+import UserProfileModal from "../../components/userprofilemodal/UserProfileModal";
 import "./gamechallenges.css";
 
 function GameChallenges() {
   const [users, setUsers] = useState([]);
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const { gameId } = useParams();
   const { getAccessTokenSilently, user: currentUser } = useAuth0();
   const [isLoading, setIsLoading] = useState(true);
@@ -184,7 +186,10 @@ function GameChallenges() {
     return age;
   };
 
-  const handleChallenge = async (challengedUser) => {
+  const handleChallenge = async (challengedUser, event) => {
+    // Prevent the card click event from triggering
+    event.stopPropagation();
+    
     console.log("Sending challenge to:", {
       challengedUser: challengedUser.name,
       challengedId: challengedUser.auth0Id,
@@ -234,6 +239,7 @@ function GameChallenges() {
       </div>
     );
   }
+
   if (error) {
     console.log("Rendering error state:", error);
     return (
@@ -269,7 +275,11 @@ function GameChallenges() {
         ) : (
           <div className="players-grid">
             {users.map((user) => (
-              <div key={user.auth0Id} className="player-card">
+              <div
+                key={user.auth0Id}
+                className="player-card"
+                onClick={() => setSelectedUser(user)}
+              >
                 <img
                   src={user.picture || "default-avatar.png"}
                   alt={user.name}
@@ -291,13 +301,30 @@ function GameChallenges() {
                 </div>
                 <button
                   className="challenge-player-button"
-                  onClick={() => handleChallenge(user)}
+                  onClick={(e) => handleChallenge(user, e)}
                 >
                   Send Challenge
                 </button>
               </div>
             ))}
           </div>
+        )}
+
+        {/* User Profile Modal */}
+        {selectedUser && (
+          <UserProfileModal
+            user={{
+              ...selectedUser,
+              age: calculateAge(selectedUser.dateOfBirth),
+              gameScores: {
+                ...(selectedUser.gameScores || {}),
+                highScore: selectedUser.gameScores?.[gameId]?.highScore || 0,
+                gamesPlayed: selectedUser.gameScores?.[gameId]?.gamesPlayed || 0,
+              }
+            }}
+            onClose={() => setSelectedUser(null)}
+            onChallenge={(e) => handleChallenge(selectedUser, e)}
+          />
         )}
       </div>
     </div>

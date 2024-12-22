@@ -133,13 +133,11 @@ function Home() {
                       High Score: {getHighScore("balloon-game")}
                     </span>
                     <div className="button-group">
-                      <Link to="/balloongame">
-                        <button
+                      <Link to="/balloongame"
                           className="play-button"
                           onClick={handlePlayClick}
                         >
                           Play Now
-                        </button>
                       </Link>
                       {isProfileComplete(userProfile) ? (
                         <Link

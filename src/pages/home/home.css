@@ -183,6 +183,7 @@
 .play-button {
   background-color: #3c8527;
   color: white;
+  text-decoration:none;
 }
 
 .play-button:hover {
