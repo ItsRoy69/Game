@@ -9,6 +9,50 @@ const generateJoinCode = () => {
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+const cleanupService = {
+  running: false,
+  
+  async cleanupMessages() {
+    if (this.running) return;
+    
+    this.running = true;
+    try {
+      const expiredRooms = await ChatRoom.find({
+        expiresAt: { $lte: new Date() }
+      });
+      
+      for (const room of expiredRooms) {
+        const session = await mongoose.startSession();
+        try {
+          session.startTransaction();
+          
+          await Message.deleteMany({
+            roomId: room._id,
+            type: 'group'
+          }, { session });
+          
+          await ChatRoom.findByIdAndDelete(room._id, { session });
+          
+          await session.commitTransaction();
+        } catch (error) {
+          await session.abortTransaction();
+          console.error('Error during cleanup:', error);
+        } finally {
+          session.endSession();
+        }
+      }
+    } catch (error) {
+      console.error('Cleanup service error:', error);
+    } finally {
+      this.running = false;
+    }
+  },
+  
+  startPeriodicCleanup(interval = 60 * 60 * 1000) { 
+    setInterval(() => this.cleanupMessages(), interval);
+  }
+};
+
 const chatController = {
   async createRoom(req, res, next) {
     try {
@@ -20,19 +64,25 @@ const chatController = {
       }
 
       const joinCode = generateJoinCode();
+      const expiresAt = new Date(Date.now() + 5 * 60 * 60 * 1000); // 5 hours
       
       const room = await ChatRoom.create({
         name: `Room #${joinCode}`,
         type: req.body.type || "public",
         members: [req.user.auth0Id],
         admins: [req.user.auth0Id],
-        joinCode
+        joinCode,
+        expiresAt
       });
 
       res.status(201).json({
         success: true,
         message: "Chat room created successfully",
-        data: room
+        data: {
+          ...room.toJSON(),
+          expiresIn: '5 hours',
+          expirationTime: expiresAt
+        }
       });
     } catch (error) {
       next(error);
@@ -53,7 +103,8 @@ const chatController = {
       const skip = (page - 1) * limit;
 
       const query = {
-        $or: [{ type: "public" }, { members: req.user.auth0Id }]
+        $or: [{ type: "public" }, { members: req.user.auth0Id }],
+        expiresAt: { $gt: new Date() } // Only return non-expired rooms
       };
 
       if (req.query.search) {
@@ -67,10 +118,15 @@ const chatController = {
 
       const total = await ChatRoom.countDocuments(query);
 
+      const roomsWithExpiry = rooms.map(room => ({
+        ...room.toJSON(),
+        remainingTime: Math.max(0, room.expiresAt - new Date()) / 1000 / 60 / 60 // hours
+      }));
+
       res.json({
         success: true,
         data: {
-          rooms,
+          rooms: roomsWithExpiry,
           pagination: {
             currentPage: page,
             totalPages: Math.ceil(total / limit),
@@ -83,7 +139,6 @@ const chatController = {
       next(error);
     }
   },
-
 
   async joinRoomByCode(req, res, next) {
     try {
@@ -103,12 +158,15 @@ const chatController = {
         });
       }
 
-      const room = await ChatRoom.findOne({ joinCode });
+      const room = await ChatRoom.findOne({ 
+        joinCode,
+        expiresAt: { $gt: new Date() } 
+      });
       
       if (!room) {
         return res.status(404).json({
           success: false,
-          message: "Room not found with this join code"
+          message: "Room not found or has expired"
         });
       }
 
@@ -120,7 +178,10 @@ const chatController = {
       res.json({
         success: true,
         message: "Successfully joined room",
-        data: room
+        data: {
+          ...room.toJSON(),
+          remainingTime: Math.max(0, room.expiresAt - new Date()) / 1000 / 60 / 60
+        }
       });
     } catch (error) {
       next(error);
@@ -143,12 +204,15 @@ const chatController = {
         });
       }
 
-      const room = await ChatRoom.findById(req.params.roomId);
+      const room = await ChatRoom.findOne({
+        _id: req.params.roomId,
+        expiresAt: { $gt: new Date() }
+      });
 
       if (!room) {
         return res.status(404).json({
           success: false,
-          message: "Room not found",
+          message: "Room not found or has expired",
         });
       }
 
@@ -161,7 +225,10 @@ const chatController = {
 
       res.json({
         success: true,
-        data: room,
+        data: {
+          ...room.toJSON(),
+          remainingTime: Math.max(0, room.expiresAt - new Date()) / 1000 / 60 / 60
+        }
       });
     } catch (error) {
       next(error);
@@ -185,12 +252,15 @@ const chatController = {
       }
 
       const { name, description, type, members } = req.body;
-      const room = await ChatRoom.findById(req.params.roomId);
+      const room = await ChatRoom.findOne({
+        _id: req.params.roomId,
+        expiresAt: { $gt: new Date() }
+      });
 
       if (!room) {
         return res.status(404).json({
           success: false,
-          message: "Room not found",
+          message: "Room not found or has expired",
         });
       }
 
@@ -226,7 +296,10 @@ const chatController = {
       res.json({
         success: true,
         message: "Room updated successfully",
-        data: updatedRoom,
+        data: {
+          ...updatedRoom.toJSON(),
+          remainingTime: Math.max(0, updatedRoom.expiresAt - new Date()) / 1000 / 60 / 60
+        }
       });
     } catch (error) {
       if (error.code === 11000) {
@@ -315,7 +388,6 @@ const chatController = {
       const limit = parseInt(req.query.limit) || 50;
       const skip = (page - 1) * limit;
 
-      // Get messages where the current user is either sender or recipient
       const query = {
         type: 'private',
         $or: [
@@ -324,7 +396,6 @@ const chatController = {
         ]
       };
 
-      // Add date filters if provided
       if (req.query.startDate) {
         query.createdAt = { $gte: new Date(req.query.startDate) };
       }
@@ -342,7 +413,6 @@ const chatController = {
 
       const total = await Message.countDocuments(query);
 
-      // Mark messages as read if recipient is current user
       if (messages.length > 0) {
         await Message.updateMany(
           {
@@ -357,7 +427,7 @@ const chatController = {
       res.json({
         success: true,
         data: {
-          messages: messages.reverse(), // Return in chronological order
+          messages: messages.reverse(),
           pagination: {
             currentPage: page,
             totalPages: Math.ceil(total / limit),
@@ -387,12 +457,15 @@ const chatController = {
         });
       }
 
-      const room = await ChatRoom.findById(req.params.roomId);
+      const room = await ChatRoom.findOne({
+        _id: req.params.roomId,
+        expiresAt: { $gt: new Date() }
+      });
 
       if (!room) {
         return res.status(404).json({
           success: false,
-          message: "Room not found",
+          message: "Room not found or has expired",
         });
       }
 
@@ -450,5 +523,8 @@ const chatController = {
     }
   },
 };
+
+// Initialize cleanup service
+cleanupService.startPeriodicCleanup();
 
 module.exports = chatController;
