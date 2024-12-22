@@ -231,3 +231,31 @@
   font-weight: normal;
   font-style: normal;
 }
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
+.challenge-button {
+  background-color: #7e3cbd;
+  color: white;
+  padding: 8px 16px;
+  border: 3px solid #1d1f21;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  font-size: 1rem;
+  text-shadow: 2px 2px #1d1f21;
+  box-shadow: inset -2px -4px #0006, inset 2px 2px #fff7;
+  transition: background-color 0.2s;
+  text-decoration: none;
+}
+
+.challenge-button:hover {
+  background-color: #9947e5;
+}
+
+.challenge-button:active {
+  box-shadow: inset 2px 2px #0006, inset -2px -4px #fff7;
+}

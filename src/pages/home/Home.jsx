@@ -47,16 +47,31 @@ function Home() {
             <div className="games-section">
               <h2 className="games-title">Available Games</h2>
               <div className="game-grid">
-                <Link to="/balloongame" className="game-card">
+                <div className="game-card">
                   <h3>Balloon Popper</h3>
                   <p>Pop as many balloons as you can in 30 seconds!</p>
                   <div className="game-card-footer">
                     <span className="high-score">High Score: 0</span>
-                    <button className="play-button" onClick={handlePlayClick}>
-                      Play Now
-                    </button>
+                    <div className="button-group">
+                      <Link to="/balloongame">
+                        <button
+                          className="play-button"
+                          onClick={handlePlayClick}
+                        >
+                          Play Now
+                        </button>
+                      </Link>
+                      <Link to="/challenges">
+                        <button
+                          className="challenge-button"
+                          onClick={handlePlayClick}
+                        >
+                          Challenge
+                        </button>
+                      </Link>
+                    </div>
                   </div>
-                </Link>
+                </div>
                 {/* Add more game cards here */}
               </div>
             </div>
