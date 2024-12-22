@@ -16,6 +16,10 @@ function GameChallenges() {
         const token = await getAccessTokenSilently();
         const API_BASE_URL = import.meta.env.VITE_API_URL;
         const response = await axios.get(`${API_BASE_URL}/api/users`, {
+          params: {
+            page: 1,
+            limit: 10,
+          },
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -37,10 +41,16 @@ function GameChallenges() {
         <div className="players-grid">
           {users.map((user) => (
             <div key={user.auth0Id} className="player-card">
-              <img src={user.picture} alt={user.name} className="player-avatar" />
+              <img
+                src={user.picture}
+                alt={user.name}
+                className="player-avatar"
+              />
               <div className="player-info">
                 <h3>{user.name}</h3>
-                <p className="player-stats">High Score: {user.highScore || 0}</p>
+                <p className="player-stats">
+                  High Score: {user.highScore || 0}
+                </p>
               </div>
               <button className="challenge-player-button">
                 Send Challenge
