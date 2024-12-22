@@ -1,6 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import io from "socket.io-client";
 import { useAuth0 } from "@auth0/auth0-react";
+import messageSound from "../assets/audio/message.mp3";
 
 const ChatContext = createContext();
 
@@ -10,7 +17,7 @@ export const ChatProvider = ({ children }) => {
   const [activeUsers, setActiveUsers] = useState([]);
   const [chatRooms, setChatRooms] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(() => {
-    const savedRoom = localStorage.getItem('currentRoom');
+    const savedRoom = localStorage.getItem("currentRoom");
     return savedRoom ? JSON.parse(savedRoom) : null;
   });
   const [privateChats, setPrivateChats] = useState(new Map());
@@ -18,12 +25,13 @@ export const ChatProvider = ({ children }) => {
   const [pendingMessages, setPendingMessages] = useState(new Map());
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState(null);
+  const notificationSound = useRef(new Audio(messageSound));
 
   useEffect(() => {
     if (currentRoom) {
-      localStorage.setItem('currentRoom', JSON.stringify(currentRoom));
+      localStorage.setItem("currentRoom", JSON.stringify(currentRoom));
     } else {
-      localStorage.removeItem('currentRoom');
+      localStorage.removeItem("currentRoom");
     }
   }, [currentRoom]);
 
@@ -35,38 +43,51 @@ export const ChatProvider = ({ children }) => {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         auth: {
-          userId: user.sub
-        }
+          userId: user.sub,
+        },
       });
 
-      newSocket.on('connect', () => {
+      newSocket.on("connect", () => {
         setIsConnecting(false);
         setError(null);
-        
+
         newSocket.emit("user_join", {
           userId: user.sub,
           userName: user.name,
         });
 
-        const savedRoom = localStorage.getItem('currentRoom');
+        const savedRoom = localStorage.getItem("currentRoom");
         if (savedRoom) {
           const roomId = JSON.parse(savedRoom);
-          joinRoom(roomId).catch(err => {
-            console.error('Failed to rejoin room:', err);
-            localStorage.removeItem('currentRoom');
+          joinRoom(roomId).catch((err) => {
+            console.error("Failed to rejoin room:", err);
+            localStorage.removeItem("currentRoom");
           });
         }
       });
 
-      newSocket.on('connect_error', (err) => {
-        console.error('Socket connection error:', err);
-        setError('Failed to connect to chat server');
+      newSocket.on("connect_error", (err) => {
+        console.error("Socket connection error:", err);
+        setError("Failed to connect to chat server");
         setIsConnecting(false);
       });
 
-      newSocket.on('disconnect', (reason) => {
-        console.log('Socket disconnected:', reason);
-        setError('Disconnected from chat server');
+      newSocket.on("disconnect", (reason) => {
+        console.log("Socket disconnected:", reason);
+        setError("Disconnected from chat server");
+      });
+
+      newSocket.on("active_users", (users) => {
+        const uniqueUsers = users.reduce((acc, current) => {
+          if (
+            !acc.find((user) => user.userId === current.userId) &&
+            current.userId !== user?.sub
+          ) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        setActiveUsers(uniqueUsers);
       });
 
       setSocket(newSocket);
@@ -81,69 +102,84 @@ export const ChatProvider = ({ children }) => {
   useEffect(() => {
     if (!socket) return;
 
-    const handleActiveUsers = (users) => {
-      setActiveUsers(users.filter((u) => u.userId !== user?.sub));
+    const playMessageSound = () => {
+      try {
+        notificationSound.current.currentTime = 0;
+        notificationSound.current.play().catch((error) => {
+          console.error("Error playing message sound:", error);
+        });
+      } catch (error) {
+        console.error("Error with message sound:", error);
+      }
     };
 
     const handlePrivateMessage = (data) => {
+      if (data.from !== user?.sub) {
+        playMessageSound();
+      }
+
       setPrivateChats((prev) => {
         const chatId = data.from || data.to;
         const currentChat = prev.get(chatId) || [];
-        
+
         if (data.tempId && pendingMessages.has(data.tempId)) {
-          const updatedChat = currentChat.map(msg => 
+          const updatedChat = currentChat.map((msg) =>
             msg._id === data.tempId ? data.message : msg
           );
           const newChats = new Map(prev);
           newChats.set(chatId, updatedChat);
-          
-          setPendingMessages(prev => {
+
+          setPendingMessages((prev) => {
             const newPending = new Map(prev);
             newPending.delete(data.tempId);
             return newPending;
           });
-          
+
           return newChats;
         }
-        
-        if (!currentChat.some(msg => msg._id === data.message._id)) {
+
+        if (!currentChat.some((msg) => msg._id === data.message._id)) {
           const updatedChat = [...currentChat, data.message];
           const newChats = new Map(prev);
           newChats.set(chatId, updatedChat);
           return newChats;
         }
-        
+
         return prev;
       });
     };
 
     const handleGroupMessage = (data) => {
+      if (data.from !== user?.sub) {
+        playMessageSound();
+      }
+
       setRoomMessages((prev) => {
         const currentMessages = prev.get(data.roomId) || [];
-        
+
         if (data.tempId && pendingMessages.has(data.tempId)) {
-          const updatedMessages = currentMessages.map(msg => 
+          const updatedMessages = currentMessages.map((msg) =>
             msg._id === data.tempId ? data.message : msg
           );
           const newMessages = new Map(prev);
           newMessages.set(data.roomId, updatedMessages);
-          
-          setPendingMessages(prev => {
+
+          setPendingMessages((prev) => {
             const newPending = new Map(prev);
             newPending.delete(data.tempId);
             return newPending;
           });
-          
+
           return newMessages;
         }
-        
-        if (!currentMessages.some(msg => msg._id === data.message._id)) {
+
+        if (!currentMessages.some((msg) => msg._id === data.message._id)) {
           const updatedMessages = [...currentMessages, data.message];
           const newMessages = new Map(prev);
           newMessages.set(data.roomId, updatedMessages);
           return newMessages;
         }
-        
+
         return prev;
       });
     };
@@ -159,8 +195,8 @@ export const ChatProvider = ({ children }) => {
     const handleRoomExpired = (data) => {
       if (currentRoom === data.roomId) {
         setCurrentRoom(null);
-        localStorage.removeItem('currentRoom');
-        setError('This room has expired');
+        localStorage.removeItem("currentRoom");
+        setError("This room has expired");
       }
     };
 
@@ -170,8 +206,8 @@ export const ChatProvider = ({ children }) => {
         const systemMessage = {
           _id: `system_${Date.now()}`,
           content: `${data.userName} joined the room`,
-          type: 'system',
-          createdAt: new Date().toISOString()
+          type: "system",
+          createdAt: new Date().toISOString(),
         };
         const newMessages = new Map(prev);
         newMessages.set(data.roomId, [...currentMessages, systemMessage]);
@@ -179,7 +215,6 @@ export const ChatProvider = ({ children }) => {
       });
     };
 
-    socket.on("active_users", handleActiveUsers);
     socket.on("private_message", handlePrivateMessage);
     socket.on("group_message", handleGroupMessage);
     socket.on("room_joined", handleRoomJoined);
@@ -187,7 +222,6 @@ export const ChatProvider = ({ children }) => {
     socket.on("user_joined_room", handleUserJoinedRoom);
 
     return () => {
-      socket.off("active_users", handleActiveUsers);
       socket.off("private_message", handlePrivateMessage);
       socket.off("group_message", handleGroupMessage);
       socket.off("room_joined", handleRoomJoined);
@@ -318,8 +352,8 @@ export const ChatProvider = ({ children }) => {
     if (socket) {
       socket.emit("leave_room", { roomId, userId: user?.sub });
       setCurrentRoom(null);
-      localStorage.removeItem('currentRoom');
-      
+      localStorage.removeItem("currentRoom");
+
       setRoomMessages((prev) => {
         const newMessages = new Map(prev);
         newMessages.delete(roomId);
@@ -336,12 +370,12 @@ export const ChatProvider = ({ children }) => {
       to: recipientId,
       message,
       from: user.sub,
-      tempId
+      tempId,
     };
 
     socket.emit("private_message", messageData);
 
-    setPendingMessages(prev => {
+    setPendingMessages((prev) => {
       const newPending = new Map(prev);
       newPending.set(tempId, true);
       return newPending;
@@ -355,7 +389,7 @@ export const ChatProvider = ({ children }) => {
         sender: user.sub,
         recipient: recipientId,
         createdAt: new Date().toISOString(),
-        pending: true
+        pending: true,
       };
       const updatedChat = [...currentChat, newMessage];
       const newChats = new Map(prev);
@@ -372,12 +406,12 @@ export const ChatProvider = ({ children }) => {
       roomId,
       message,
       from: user.sub,
-      tempId
+      tempId,
     };
 
     socket.emit("group_message", messageData);
 
-    setPendingMessages(prev => {
+    setPendingMessages((prev) => {
       const newPending = new Map(prev);
       newPending.set(tempId, true);
       return newPending;
@@ -391,7 +425,7 @@ export const ChatProvider = ({ children }) => {
         sender: user.sub,
         roomId,
         createdAt: new Date().toISOString(),
-        pending: true
+        pending: true,
       };
       const updatedMessages = [...currentMessages, newMessage];
       const newMessages = new Map(prev);

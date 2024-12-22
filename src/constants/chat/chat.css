@@ -465,3 +465,90 @@
   padding: 8px;
   margin-top: 4px;
 }
+
+.users-list {
+  height: 100%;
+  overflow-y: auto;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.user-item {
+  background-color: #1f1f1f;
+  border: 2px solid #404040;
+  padding: 8px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.3);
+}
+
+.user-item:hover {
+  background-color: #2f2f2f;
+  border-color: #55ff55;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #404040;
+  border: 2px solid #808080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  text-shadow: 2px 2px #000000;
+  font-size: 16px;
+  image-rendering: pixelated;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  color: #ffffff;
+  text-shadow: 2px 2px #000000;
+  font-size: 14px;
+}
+
+.user-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #55ff55;
+  text-shadow: 2px 2px #000000;
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #55ff55;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #55ff55;
+}
+
+.notification-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #55ff55;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #55ff55;
+  margin-left: 4px;
+}
+
+.no-users {
+  color: #aaaaaa;
+  text-shadow: 2px 2px #000000;
+  text-align: center;
+  padding: 16px;
+  font-size: 14px;
+  background-color: #1f1f1f;
+  border: 2px solid #404040;
+}

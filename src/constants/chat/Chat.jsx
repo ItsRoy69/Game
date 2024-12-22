@@ -5,6 +5,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import ChatRoomsList from "./ChatRoomsList";
 import UsersList from "./UsersList";
 import MessageList from "./MessageList";
+import sendSound from "../../assets/audio/send.mp3";
 import "./Chat.css";
 
 const Chat = ({ onClose }) => {
@@ -12,6 +13,7 @@ const Chat = ({ onClose }) => {
   const [view, setView] = useState("rooms");
   const [selectedUser, setSelectedUser] = useState(null);
   const inputRef = useRef(null);
+  const sendAudioRef = useRef(new Audio(sendSound));
   const { user } = useAuth0();
   const {
     currentRoom,
@@ -28,6 +30,7 @@ const Chat = ({ onClose }) => {
   const handleSend = (e) => {
     e.preventDefault();
     if (!inputText.trim()) return;
+    sendAudioRef.current.play().catch(console.error);
 
     if (selectedUser) {
       sendPrivateMessage(selectedUser.userId, inputText);
