@@ -125,3 +125,85 @@
     font-size: 1.5rem;
   }
 }
+
+/* Add to splitarena.css */
+.start-button {
+  padding: 12px 24px;
+  font-size: 1.4rem;
+  background-color: #45af45;
+  color: white;
+  border: 2px solid #000000;
+  cursor: pointer;
+  font-family: "Minecraft", Arial, sans-serif;
+  text-transform: uppercase;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.4);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.start-button:hover {
+  filter: brightness(1.1);
+}
+
+.start-button:active {
+  box-shadow: inset 2px 4px #000000;
+  transform: translate(-50%, -50%) translateY(2px);
+}
+
+@media (max-width: 768px) {
+  .game-section.right {
+    position: fixed;
+    width: 40%;
+    height: 40%;
+    top: 10px;
+    right: 10px;
+    background: #1a1a1a;
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: move;
+    z-index: 100;
+    transition: all 0.3s ease;
+  }
+
+  .game-section.right.minimized {
+    width: 120px;
+    height: 80px;
+  }
+
+  .game-section.right .player-info {
+    font-size: 0.8rem;
+    padding: 5px;
+  }
+
+  .separator {
+    display: none;
+  }
+
+  .game-section.left {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.expand-button {
+  display: none;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 4px 8px;
+  background: #4a4a4a;
+  border: 1px solid #000;
+  color: white;
+  cursor: pointer;
+  z-index: 101;
+}
+
+@media (max-width: 768px) {
+  .expand-button {
+    display: block;
+  }
+}
