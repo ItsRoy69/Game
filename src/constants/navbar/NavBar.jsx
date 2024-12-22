@@ -5,6 +5,7 @@ import axios from "axios";
 import io from "socket.io-client";
 import "./navbar.css";
 import NotificationItem from "../notificationitem/NotificationItem";
+import messageSound from "../../assets/audio/message.mp3";
 
 const NavBar = () => {
   const {
@@ -19,6 +20,14 @@ const NavBar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [socket, setSocket] = useState(null);
+  const [audio] = useState(new Audio(messageSound));
+
+  const playNotificationSound = () => {
+    audio.currentTime = 0;
+    audio.play().catch(error => {
+      console.error("Error playing notification sound:", error);
+    });
+  };
 
   const fetchNotifications = useCallback(async () => {
     if (!user?.sub) return;
@@ -52,6 +61,7 @@ const NavBar = () => {
       socketInstance.on("newNotification", (notification) => {
         setNotifications((prev) => [notification, ...prev]);
         setUnreadCount((prev) => prev + 1);
+        playNotificationSound(); 
       });
 
       return () => {
@@ -70,7 +80,6 @@ const NavBar = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Remove the challenge notification
       setNotifications((prev) =>
         prev.filter(
           (notif) =>
@@ -81,7 +90,6 @@ const NavBar = () => {
         )
       );
 
-      // Update unread count
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       console.error("Error accepting challenge:", error);
@@ -98,7 +106,6 @@ const NavBar = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Remove the challenge notification
       setNotifications((prev) =>
         prev.filter(
           (notif) =>
@@ -109,7 +116,6 @@ const NavBar = () => {
         )
       );
 
-      // Update unread count
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       console.error("Error declining challenge:", error);

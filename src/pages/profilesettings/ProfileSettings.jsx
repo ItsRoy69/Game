@@ -8,6 +8,29 @@ import backSound from "../../assets/audio/back.mp3";
 import relaxingSound from "../../assets/audio/relaxing.mp3";
 import "./profilesettings.css";
 
+const createAudio = (src) => {
+  const audio = new Audio(src);
+  audio.preload = 'auto';
+  return audio;
+};
+
+const soundEffects = {
+  pop: createAudio(popSound),
+  back: createAudio(backSound)
+};
+
+const safePlay = async (audio) => {
+  try {
+    if (audio.readyState >= 2) { 
+      await audio.play();
+    }
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      console.error('Error playing audio:', error);
+    }
+  }
+};
+
 const MinecraftAlert = ({ message, onClose }) => {
   return (
     <div className="minecraft-alert-overlay">
@@ -20,9 +43,6 @@ const MinecraftAlert = ({ message, onClose }) => {
     </div>
   );
 };
-
-const audio = new Audio(popSound);
-const backAudio = new Audio(backSound);
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
@@ -52,15 +72,32 @@ const ProfileSettings = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const relaxingAudio = useRef(new Audio(relaxingSound));
+  const backgroundMusic = useRef(null);
+  const isUnmounting = useRef(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    relaxingAudio.current.loop = true;
-    relaxingAudio.current.play();
+    backgroundMusic.current = new Audio(relaxingSound);
+    backgroundMusic.current.loop = true;
+    
+    const initializeBackgroundMusic = async () => {
+      try {
+        if (!isUnmounting.current) {
+          await safePlay(backgroundMusic.current);
+        }
+      } catch (error) {
+        console.error('Failed to initialize background music:', error);
+      }
+    };
+
+    initializeBackgroundMusic();
 
     return () => {
-      relaxingAudio.current.pause();
-      relaxingAudio.current.currentTime = 0;
+      isUnmounting.current = true;
+      if (backgroundMusic.current) {
+        backgroundMusic.current.pause();
+        backgroundMusic.current = null;
+      }
     };
   }, []);
 
@@ -136,7 +173,7 @@ const ProfileSettings = () => {
         }
       );
 
-      audio.play();
+      await safePlay(soundEffects.pop);
       showMinecraftAlert("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -145,8 +182,6 @@ const ProfileSettings = () => {
       setIsLoading(false);
     }
   };
-
-  const fileInputRef = useRef(null);
 
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -212,9 +247,7 @@ const ProfileSettings = () => {
                   <label key={preference}>
                     <input
                       type="checkbox"
-                      checked={userProfile.datingPreferences.includes(
-                        preference
-                      )}
+                      checked={userProfile.datingPreferences.includes(preference)}
                       onChange={(e) => {
                         setUserProfile((prev) => ({
                           ...prev,
@@ -399,12 +432,12 @@ const ProfileSettings = () => {
   };
 
   const handleNext = () => {
-    audio.play();
+    safePlay(soundEffects.pop);
     setCurrentStep((prev) => prev + 1);
   };
 
   const handlePrevious = () => {
-    backAudio.play();
+    safePlay(soundEffects.back);
     setCurrentStep((prev) => prev - 1);
   };
 
