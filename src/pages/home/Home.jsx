@@ -25,7 +25,7 @@ function Home() {
           setIsLoading(true);
           const token = await getAccessTokenSilently();
           const API_BASE_URL = import.meta.env.VITE_API_URL;
-
+  
           const userResponse = await axios.get(
             `${API_BASE_URL}/api/users/${user.sub}`,
             {
@@ -49,9 +49,11 @@ function Home() {
         } finally {
           setIsLoading(false);
         }
+      } else {
+        setIsLoading(false);
       }
     };
-
+  
     fetchUserProfile();
   }, [isAuthenticated, getAccessTokenSilently, user]);
 

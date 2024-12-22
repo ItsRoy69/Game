@@ -3,7 +3,7 @@
   background-color: #1d1f21;
   font-family: "MinecraftiaRegular", "VT323", monospace;
   background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-  url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMjHxIGmVAAAAVklEQVRoQ+3PMREAIAADITvkX8kKyH2Q0PBv5t5zxQAAAAAALHhnraWktZa01pLWWtJaS1prSWstaa0lrbWktZa01pLWWtJaS1prSWstaR0AAADA7wEdzIwJWqwJ4wAAAABJRU5ErkJggg==");
+    url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMjHxIGmVAAAAVklEQVRoQ+3PMREAIAADITvkX8kKyH2Q0PBv5t5zxQAAAAAALHhnraWktZa01pLWWtJaS1prSWstaa0lrbWktZa01pLWWtJaS1prSWstaR0AAADA7wEdzIwJWqwJ4wAAAABJRU5ErkJggg==");
 }
 
 .challenges-container {
@@ -47,6 +47,7 @@
 
 .player-info {
   text-align: center;
+  width: 100%;
 }
 
 .player-info h3 {
@@ -59,7 +60,7 @@
 
 .player-stats {
   color: #a8a8a8;
-  margin: 0;
+  margin: 4px 0;
 }
 
 .challenge-player-button {
@@ -74,6 +75,8 @@
   text-shadow: 2px 2px #1d1f21;
   box-shadow: inset -2px -4px #0006, inset 2px 2px #fff7;
   transition: background-color 0.2s;
+  width: 100%;
+  max-width: 200px;
 }
 
 .challenge-player-button:hover {
@@ -84,3 +87,46 @@
   box-shadow: inset 2px 2px #0006, inset -2px -4px #fff7;
 }
 
+.player-location {
+  color: #a8a8a8;
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.player-age {
+  color: #a8a8a8;
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.player-games {
+  color: #a8a8a8;
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.player-favorites {
+  color: #a8a8a8;
+  margin: 4px 0;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.player-about {
+  color: #a8a8a8;
+  margin: 8px 0;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.no-matches {
+  color: #a8a8a8;
+}
