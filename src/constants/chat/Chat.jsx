@@ -69,6 +69,7 @@ const Chat = ({ onClose }) => {
           <MessageList
             messages={getCurrentMessages()}
             isPrivateChat={!!selectedUser}
+            selectedUser={selectedUser} 
           />
         );
       default:

@@ -17,7 +17,7 @@ const GAME_NAME = "balloonPopper";
 const backAudio = new Audio(backSound);
 const saveAudio = new Audio(saveSound);
 
-const BalloonGame = () => {
+const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate }) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [score, setScore] = useState(0);
@@ -33,6 +33,13 @@ const BalloonGame = () => {
   const gameLoop = useRef(null);
   const balloonSpawner = useRef(null);
 
+  // Effect for arena mode score updates
+  useEffect(() => {
+    if (isArenaMode && onScoreUpdate) {
+      onScoreUpdate(score);
+    }
+  }, [score, isArenaMode, onScoreUpdate]);
+
   useEffect(() => {
     const fetchHighScore = async () => {
       if (!isAuthenticated || !user) return;
@@ -43,7 +50,7 @@ const BalloonGame = () => {
         const API_BASE_URL = import.meta.env.VITE_API_URL;
         
         const response = await axios.get(
-          `${API_BASE_URL}/api/users/${user.sub}/games/${GAME_NAME}/score`,
+          `${API_BASE_URL}/api/users/${isArenaMode ? player.userId : user.sub}/games/${GAME_NAME}/score`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -60,17 +67,17 @@ const BalloonGame = () => {
     };
 
     fetchHighScore();
-  }, [user, getAccessTokenSilently, isAuthenticated]);
+  }, [user, getAccessTokenSilently, isAuthenticated, isArenaMode, player]);
 
   const saveHighScore = async (newScore) => {
-    if (!isAuthenticated || !user) return;
+    if (!isAuthenticated || (!user && !isArenaMode)) return;
   
     try {
       const token = await getAccessTokenSilently();
       const API_BASE_URL = import.meta.env.VITE_API_URL;
   
       const response = await axios.post(
-        `${API_BASE_URL}/api/users/${user.sub}/games/${GAME_NAME}/score`,
+        `${API_BASE_URL}/api/users/${isArenaMode ? player.userId : user.sub}/games/${GAME_NAME}/score`,
         {
           gameName: GAME_NAME,
           score: newScore
@@ -92,8 +99,10 @@ const BalloonGame = () => {
   };
 
   const handleBackClick = () => {
-    backAudio.play();
-    navigate("/");
+    if (!isArenaMode) {
+      backAudio.play();
+      navigate("/");
+    }
   };
 
   const startGame = useCallback(() => {
@@ -112,7 +121,7 @@ const BalloonGame = () => {
         console.log('Attempting to save new high score:', {
           newScore,
           gameName: GAME_NAME,
-          userId: user?.sub
+          userId: isArenaMode ? player.userId : user?.sub
         });
         setHighScore(newScore);
         saveHighScore(newScore).catch(error => {
@@ -120,7 +129,7 @@ const BalloonGame = () => {
         });
       }
     },
-    [highScore, user]
+    [highScore, user, isArenaMode, player]
   );
 
   const exitGame = useCallback(() => {
@@ -130,9 +139,11 @@ const BalloonGame = () => {
   }, [score, updateHighScore]);
 
   const handleExitToHome = useCallback(() => {
-    backAudio.play();
-    navigate("/");
-  }, [navigate]);
+    if (!isArenaMode) {
+      backAudio.play();
+      navigate("/");
+    }
+  }, [navigate, isArenaMode]);
 
   const popBalloon = useCallback(
     (id, shouldScore) => {
@@ -203,36 +214,38 @@ const BalloonGame = () => {
     };
   }, [gameActive]);
 
-  if (isLoading) {
+  if (isLoading && !isArenaMode) {
     return <div className="loading">Loading game data...</div>;
   }
 
   return (
-    <div className="balloon-game">
-      <div className="game-info">
-        <div className="game-header">
-          <button className="back-button" onClick={handleBackClick}>
-            ⬅ Back
-          </button>
-          <h1 className="game-title">Balloon Popper</h1>
+    <div className={`balloon-game ${isArenaMode ? 'arena-mode' : ''}`}>
+      {!isArenaMode && (
+        <div className="game-info">
+          <div className="game-header">
+            <button className="back-button" onClick={handleBackClick}>
+              ⬅ Back
+            </button>
+            <h1 className="game-title">Balloon Popper</h1>
+          </div>
+          <div className="stats">
+            <div className="stats-item">
+              <span className="stats-icon">⏰</span>
+              <span>Time: {timeLeft}s</span>
+            </div>
+            <div className="stats-item">
+              <span className="stats-icon">💎</span>
+              <span>Score: {score}</span>
+            </div>
+            <div className="stats-item">
+              <span className="stats-icon">👑</span>
+              <span>High Score: {highScore}</span>
+            </div>
+          </div>
         </div>
-        <div className="stats">
-          <div className="stats-item">
-            <span className="stats-icon">⏰</span>
-            <span>Time: {timeLeft}s</span>
-          </div>
-          <div className="stats-item">
-            <span className="stats-icon">💎</span>
-            <span>Score: {score}</span>
-          </div>
-          <div className="stats-item">
-            <span className="stats-icon">👑</span>
-            <span>High Score: {highScore}</span>
-          </div>
-        </div>
-      </div>
+      )}
 
-      {showFinalScore && (
+      {showFinalScore && !isArenaMode && (
         <div className="final-score-overlay">
           <div className="minecraft-score">
             <h2>Game Over!</h2>
@@ -271,16 +284,31 @@ const BalloonGame = () => {
         ))}
       </div>
 
-      <GameControls
-        score={score}
-        gameActive={gameActive}
-        onStartGame={startGame}
-        onExitGame={exitGame}
-        onChatToggle={() => setChatOpen((prev) => !prev)}
-        chatOpen={chatOpen}
-      />
+      {!isArenaMode && (
+        <GameControls
+          score={score}
+          gameActive={gameActive}
+          onStartGame={startGame}
+          onExitGame={exitGame}
+          onChatToggle={() => setChatOpen((prev) => !prev)}
+          chatOpen={chatOpen}
+        />
+      )}
 
-      {chatOpen && <Chat onClose={() => setChatOpen(false)} />}
+      {chatOpen && !isArenaMode && <Chat onClose={() => setChatOpen(false)} />}
+
+      {isArenaMode && (
+        <div className="arena-stats">
+          <div className="stats-item">
+            <span className="stats-icon">⏰</span>
+            <span>Time: {timeLeft}s</span>
+          </div>
+          <div className="stats-item">
+            <span className="stats-icon">💎</span>
+            <span>Score: {score}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

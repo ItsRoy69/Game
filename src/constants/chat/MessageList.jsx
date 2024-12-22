@@ -1,9 +1,11 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import "./chat.css";
 
-const MessageList = ({ messages = [], isPrivateChat }) => {
+const MessageList = ({ messages = [], isPrivateChat, selectedUser }) => {
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
   const { user } = useAuth0();
   const [error, setError] = useState(null);
 
@@ -15,6 +17,10 @@ const MessageList = ({ messages = [], isPrivateChat }) => {
     scrollToBottom();
   }, [messages]);
 
+  const handleEnterArena = () => {
+    console.log('Selected User:', selectedUser);
+    navigate('/arena', { state: { opponent: selectedUser } });
+  };
   const formatTime = (date) => {
     return new Date(date).toLocaleTimeString([], {
       hour: "2-digit",
@@ -32,6 +38,17 @@ const MessageList = ({ messages = [], isPrivateChat }) => {
 
   return (
     <div className="chat-messages">
+      {isPrivateChat && (
+        <div className="arena-button-container">
+          <button 
+            className="enter-arena-button"
+            onClick={handleEnterArena}
+          >
+            Enter Arena
+          </button>
+        </div>
+      )}
+      
       {messages.map((msg, index) => {
         const isCurrentUser = msg.sender === user?.sub;
         return (
