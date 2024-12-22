@@ -19,7 +19,6 @@ export const ChatProvider = ({ children }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Effect to persist currentRoom to localStorage
   useEffect(() => {
     if (currentRoom) {
       localStorage.setItem('currentRoom', JSON.stringify(currentRoom));
@@ -28,7 +27,6 @@ export const ChatProvider = ({ children }) => {
     }
   }, [currentRoom]);
 
-  // Socket connection and reconnection logic
   useEffect(() => {
     if (isAuthenticated && user) {
       setIsConnecting(true);
@@ -50,7 +48,6 @@ export const ChatProvider = ({ children }) => {
           userName: user.name,
         });
 
-        // Rejoin room if there was one
         const savedRoom = localStorage.getItem('currentRoom');
         if (savedRoom) {
           const roomId = JSON.parse(savedRoom);
@@ -81,7 +78,6 @@ export const ChatProvider = ({ children }) => {
     }
   }, [isAuthenticated, user]);
 
-  // Socket event listeners
   useEffect(() => {
     if (!socket) return;
 
@@ -94,7 +90,6 @@ export const ChatProvider = ({ children }) => {
         const chatId = data.from || data.to;
         const currentChat = prev.get(chatId) || [];
         
-        // If this is a response to a pending message
         if (data.tempId && pendingMessages.has(data.tempId)) {
           const updatedChat = currentChat.map(msg => 
             msg._id === data.tempId ? data.message : msg
@@ -102,7 +97,6 @@ export const ChatProvider = ({ children }) => {
           const newChats = new Map(prev);
           newChats.set(chatId, updatedChat);
           
-          // Clear pending status
           setPendingMessages(prev => {
             const newPending = new Map(prev);
             newPending.delete(data.tempId);
@@ -112,7 +106,6 @@ export const ChatProvider = ({ children }) => {
           return newChats;
         }
         
-        // If this is a new message
         if (!currentChat.some(msg => msg._id === data.message._id)) {
           const updatedChat = [...currentChat, data.message];
           const newChats = new Map(prev);
@@ -128,7 +121,6 @@ export const ChatProvider = ({ children }) => {
       setRoomMessages((prev) => {
         const currentMessages = prev.get(data.roomId) || [];
         
-        // If this is a response to a pending message
         if (data.tempId && pendingMessages.has(data.tempId)) {
           const updatedMessages = currentMessages.map(msg => 
             msg._id === data.tempId ? data.message : msg
@@ -136,7 +128,6 @@ export const ChatProvider = ({ children }) => {
           const newMessages = new Map(prev);
           newMessages.set(data.roomId, updatedMessages);
           
-          // Clear pending status
           setPendingMessages(prev => {
             const newPending = new Map(prev);
             newPending.delete(data.tempId);
@@ -146,7 +137,6 @@ export const ChatProvider = ({ children }) => {
           return newMessages;
         }
         
-        // If this is a new message
         if (!currentMessages.some(msg => msg._id === data.message._id)) {
           const updatedMessages = [...currentMessages, data.message];
           const newMessages = new Map(prev);
@@ -206,7 +196,6 @@ export const ChatProvider = ({ children }) => {
     };
   }, [socket, user, currentRoom, pendingMessages]);
 
-  // Fetch chat rooms
   useEffect(() => {
     const fetchRooms = async () => {
       if (!isAuthenticated) return;
@@ -305,12 +294,10 @@ export const ChatProvider = ({ children }) => {
         throw new Error(data.message || "Failed to fetch messages");
       }
 
-      // Leave previous room if any
       if (currentRoom) {
         socket.emit("leave_room", { roomId: currentRoom, userId: user.sub });
       }
 
-      // Join new room with userId
       socket.emit("join_room", { roomId, userId: user.sub });
       setCurrentRoom(roomId);
       setRoomMessages((prev) => {
@@ -354,14 +341,12 @@ export const ChatProvider = ({ children }) => {
 
     socket.emit("private_message", messageData);
 
-    // Track pending message
     setPendingMessages(prev => {
       const newPending = new Map(prev);
       newPending.set(tempId, true);
       return newPending;
     });
 
-    // Optimistic update
     setPrivateChats((prev) => {
       const currentChat = prev.get(recipientId) || [];
       const newMessage = {
@@ -392,14 +377,12 @@ export const ChatProvider = ({ children }) => {
 
     socket.emit("group_message", messageData);
 
-    // Track pending message
     setPendingMessages(prev => {
       const newPending = new Map(prev);
       newPending.set(tempId, true);
       return newPending;
     });
 
-    // Optimistic update
     setRoomMessages((prev) => {
       const currentMessages = prev.get(roomId) || [];
       const newMessage = {

@@ -134,18 +134,11 @@ const ProfileSettings = () => {
     }
   };
 
-  const handleBack = () => {
-    backAudio.play();
-    navigate("/");
-  };
-
   const fileInputRef = useRef(null);
-
-  // ... (keep existing useEffects and helper functions)
 
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
-    const maxPhotos = 4; // Changed to 4 photos max
+    const maxPhotos = 4;
 
     if (userProfile.photos.length + files.length > maxPhotos) {
       showMinecraftAlert(`You can only upload up to ${maxPhotos} photos`);
@@ -396,7 +389,7 @@ const ProfileSettings = () => {
       )}
       <div className="profile-settings-container">
         <div className="header-container">
-          <button onClick={() => navigate("/")} className="back-button">
+          <button onClick={() => navigate("/")} className="back-settings-button">
             <ArrowLeft size={24} />
             Back
           </button>

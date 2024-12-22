@@ -11,7 +11,7 @@ const ChatRoomsList = ({ onSelectRoom }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [roomType, setRoomType] = useState('public');
   const { getAccessTokenSilently } = useAuth0();
-  
+
   const handleRoomSelect = async (roomId) => {
     try {
       await joinRoom(roomId);
@@ -44,7 +44,6 @@ const ChatRoomsList = ({ onSelectRoom }) => {
     }
   
     try {
-      // Get the access token
       const token = await getAccessTokenSilently({
         authorizationParams: {
           audience: import.meta.env.VITE_AUTH0_AUDIENCE,
@@ -56,7 +55,7 @@ const ChatRoomsList = ({ onSelectRoom }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // Add the authorization header
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify({ joinCode })
       });

@@ -12,11 +12,8 @@ function initializeSocket(server) {
     }
   });
 
-  // Store active users with their room information
   const activeUsers = new Map();
-  const userRooms = new Map(); // Track which rooms each user is in
-
-  // Check room expiration
+  const userRooms = new Map(); 
   const isRoomExpired = async (roomId) => {
     try {
       const room = await ChatRoom.findById(roomId);
@@ -29,28 +26,18 @@ function initializeSocket(server) {
 
   io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
-
-    // Handle user joining
     socket.on('user_join', async (userData) => {
       const { userId, userName } = userData;
-      
-      // Store user data
       activeUsers.set(socket.id, { userId, userName });
       userRooms.set(userId, new Set());
-      
-      // Join personal room for private messages
       socket.join(userId);
-      
-      // Broadcast updated active users list
       io.emit('active_users', Array.from(activeUsers.values()));
     });
 
-    // Handle private messages
     socket.on('private_message', async (data) => {
       const { to, message, from } = data;
       
       try {
-        // Save message to database
         const newMessage = await Message.create({
           sender: from,
           recipient: to,
@@ -58,13 +45,10 @@ function initializeSocket(server) {
           type: 'private'
         });
 
-        // Send to recipient
         io.to(to).emit('private_message', {
           message: newMessage,
           from
         });
-        
-        // Send confirmation to sender
         socket.emit('private_message', {
           message: newMessage,
           to
@@ -75,7 +59,6 @@ function initializeSocket(server) {
       }
     });
 
-    // Handle group messages
     socket.on('group_message', async (data) => {
       const { roomId, message, from, tempId } = data;
       
@@ -91,20 +74,17 @@ function initializeSocket(server) {
           roomId,
           message: newMessage,
           from,
-          tempId // Send back tempId for tracking
+          tempId
         });
       } catch (error) {
         console.error('Error saving group message:', error);
         socket.emit('error', { message: 'Failed to send message' });
       }
     });
-
-    // Join chat room
     socket.on('join_room', async (data) => {
       const { roomId, userId } = data;
       
       try {
-        // Check if room exists and hasn't expired
         const room = await ChatRoom.findOne({
           _id: roomId,
           expiresAt: { $gt: new Date() }
@@ -115,21 +95,17 @@ function initializeSocket(server) {
           return;
         }
 
-        // Check if user is member of private room
         if (room.type === 'private' && !room.members.includes(userId)) {
           socket.emit('error', { message: 'Not authorized to join this room' });
           return;
         }
 
-        // Update user's room membership
         const userRoomSet = userRooms.get(userId) || new Set();
         userRoomSet.add(roomId);
         userRooms.set(userId, userRoomSet);
 
-        // Join the socket room
         socket.join(roomId);
 
-        // Get recent messages
         const messages = await Message.find({ 
           roomId,
           type: 'group'
@@ -137,14 +113,12 @@ function initializeSocket(server) {
           .sort({ createdAt: -1 })
           .limit(50);
 
-        // Send room join confirmation and messages
         socket.emit('room_joined', {
           roomId,
           messages: messages.reverse(),
           expiresAt: room.expiresAt
         });
 
-        // Notify room members
         socket.to(roomId).emit('user_joined_room', {
           userId,
           userName: activeUsers.get(socket.id)?.userName
@@ -155,12 +129,10 @@ function initializeSocket(server) {
       }
     });
 
-    // Leave chat room
     socket.on('leave_room', async (data) => {
       const { roomId, userId } = data;
       
       if (userId && roomId) {
-        // Update user's room membership
         const userRoomSet = userRooms.get(userId);
         if (userRoomSet) {
           userRoomSet.delete(roomId);
@@ -168,7 +140,6 @@ function initializeSocket(server) {
         
         socket.leave(roomId);
         
-        // Notify room members
         socket.to(roomId).emit('user_left_room', {
           userId,
           userName: activeUsers.get(socket.id)?.userName
@@ -176,7 +147,6 @@ function initializeSocket(server) {
       }
     });
 
-    // Handle room expiration check
     socket.on('check_room_expiration', async (roomId) => {
       try {
         if (await isRoomExpired(roomId)) {
@@ -187,7 +157,6 @@ function initializeSocket(server) {
       }
     });
 
-    // Handle typing indicators
     socket.on('typing_start', (data) => {
       const { roomId, userId, userName } = data;
       socket.to(roomId).emit('user_typing', { userId, userName });
@@ -198,7 +167,6 @@ function initializeSocket(server) {
       socket.to(roomId).emit('user_stopped_typing', { userId });
     });
 
-    // Handle read receipts
     socket.on('mark_messages_read', async (data) => {
       const { messageIds, userId } = data;
       
@@ -212,7 +180,6 @@ function initializeSocket(server) {
           { read: true }
         );
 
-        // Notify message senders
         const messages = await Message.find({ _id: { $in: messageIds } });
         messages.forEach(msg => {
           io.to(msg.sender).emit('message_read', {
@@ -225,12 +192,10 @@ function initializeSocket(server) {
       }
     });
 
-    // Handle disconnection
     socket.on('disconnect', () => {
       const userData = activeUsers.get(socket.id);
       
       if (userData) {
-        // Leave all rooms the user was in
         const userRoomSet = userRooms.get(userData.userId);
         if (userRoomSet) {
           userRoomSet.forEach(roomId => {
@@ -242,30 +207,25 @@ function initializeSocket(server) {
           userRooms.delete(userData.userId);
         }
         
-        // Notify all rooms the user was in
         io.emit('user_offline', {
           userId: userData.userId,
           userName: userData.userName
         });
       }
       
-      // Remove from active users
       activeUsers.delete(socket.id);
       
-      // Broadcast updated active users list
       io.emit('active_users', Array.from(activeUsers.values()));
       
       console.log('User disconnected:', socket.id);
     });
 
-    // Error handling
     socket.on('error', (error) => {
       console.error('Socket error:', error);
       socket.emit('error', { message: 'An unexpected error occurred' });
     });
   });
 
-  // Periodic room expiration check
   setInterval(async () => {
     try {
       const expiredRooms = await ChatRoom.find({
@@ -279,7 +239,7 @@ function initializeSocket(server) {
     } catch (error) {
       console.error('Error in periodic room expiration check:', error);
     }
-  }, 60 * 1000); // Check every minute
+  }, 60 * 1000);
 
   return io;
 }

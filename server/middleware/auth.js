@@ -18,7 +18,6 @@ const authMiddleware = jwt({
     }
     return null;
   },
-  // Add this to verify function to handle array of audiences
   verify: (decoded, done) => {
     const audience = process.env.AUTH0_AUDIENCE;
     if (Array.isArray(decoded.aud)) {

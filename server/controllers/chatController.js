@@ -64,7 +64,7 @@ const chatController = {
       }
 
       const joinCode = generateJoinCode();
-      const expiresAt = new Date(Date.now() + 5 * 60 * 60 * 1000); // 5 hours
+      const expiresAt = new Date(Date.now() + 5 * 60 * 60 * 1000); 
       
       const room = await ChatRoom.create({
         name: `Room #${joinCode}`,
@@ -104,7 +104,7 @@ const chatController = {
 
       const query = {
         $or: [{ type: "public" }, { members: req.user.auth0Id }],
-        expiresAt: { $gt: new Date() } // Only return non-expired rooms
+        expiresAt: { $gt: new Date() }
       };
 
       if (req.query.search) {
@@ -120,7 +120,7 @@ const chatController = {
 
       const roomsWithExpiry = rooms.map(room => ({
         ...room.toJSON(),
-        remainingTime: Math.max(0, room.expiresAt - new Date()) / 1000 / 60 / 60 // hours
+        remainingTime: Math.max(0, room.expiresAt - new Date()) / 1000 / 60 / 60 
       }));
 
       res.json({
@@ -524,7 +524,6 @@ const chatController = {
   },
 };
 
-// Initialize cleanup service
 cleanupService.startPeriodicCleanup();
 
 module.exports = chatController;

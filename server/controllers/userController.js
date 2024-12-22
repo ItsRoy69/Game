@@ -96,8 +96,7 @@ const userController = {
       if (updateData.photos) {
         try {
           const existingUser = await User.findOne({ auth0Id });
-          
-          // Delete old photos from Appwrite that are no longer in the update
+        
           if (existingUser && existingUser.photos) {
             for (const oldPhoto of existingUser.photos) {
               if (!updateData.photos.includes(oldPhoto)) {
@@ -106,10 +105,8 @@ const userController = {
             }
           }
 
-          // Process and upload new photos to Appwrite
           const processedPhotos = await Promise.all(
             updateData.photos.map(async (photo) => {
-              // Skip if it's already an Appwrite URL
               if (photo.includes('/storage/buckets/')) {
                 return photo;
               }
@@ -123,7 +120,6 @@ const userController = {
             })
           );
 
-          // Filter out any failed uploads
           updateData.photos = processedPhotos.filter(photo => photo !== null);
         } catch (error) {
           console.error('Error processing photos:', error);
@@ -164,7 +160,6 @@ const userController = {
         throw error;
       }
 
-      // Delete all user photos from Appwrite
       if (user.photos && user.photos.length > 0) {
         for (const photo of user.photos) {
           await appwriteUpload.deleteImage(photo);
@@ -198,7 +193,7 @@ const userController = {
         loginHistory: user.login_history || [],
         emailVerified: user.email_verified,
         totalPhotos: user.photos ? user.photos.length : 0,
-        storageUsed: user.photos ? user.photos.length : 0 // You could enhance this with actual file sizes if needed
+        storageUsed: user.photos ? user.photos.length : 0
       };
 
       res.json(stats);
@@ -239,7 +234,6 @@ const userController = {
     }
   },
 
-  // New method to handle single photo upload
   async uploadSinglePhoto(req, res, next) {
     try {
       const { auth0Id } = req.params;
@@ -285,7 +279,6 @@ const userController = {
     }
   },
 
-  // New method to delete a single photo
   async deleteSinglePhoto(req, res, next) {
     try {
       const { auth0Id, photoUrl } = req.params;
@@ -304,7 +297,6 @@ const userController = {
         throw error;
       }
 
-      // Delete from Appwrite
       await appwriteUpload.deleteImage(photoUrl);
 
       const updatedUser = await User.findOneAndUpdate(

@@ -22,7 +22,6 @@ function AuthenticationWrapper({ children }) {
           
           const API_BASE_URL = import.meta.env.VITE_API_URL;
           
-          // Log the token for debugging (remove in production)
           console.log('Token obtained:', token ? 'Token exists' : 'No token');
           
           const response = await axios.post(

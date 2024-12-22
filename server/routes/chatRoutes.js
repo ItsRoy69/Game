@@ -3,7 +3,6 @@ const router = express.Router();
 const chatController = require('../controllers/chatController');
 const { authMiddleware, handleAuthError, extractUser } = require('../middleware/auth');
 
-// Debug middleware
 const debugMiddleware = (req, res, next) => {
   console.log('Request Headers:', req.headers);
   console.log('Request Body:', req.body);
@@ -12,12 +11,10 @@ const debugMiddleware = (req, res, next) => {
   next();
 };
 
-// Apply middleware
 router.use(debugMiddleware);
 router.use(authMiddleware);
 router.use(extractUser);
 
-// Chat routes
 router.post('/rooms', chatController.createRoom);
 router.get('/rooms', chatController.getRooms);
 router.get('/rooms/:roomId', chatController.getRoomDetails);
