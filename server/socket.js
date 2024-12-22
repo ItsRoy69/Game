@@ -32,8 +32,10 @@ function initializeSocket(server) {
       activeUsers.set(socket.id, { userId, userName });
       userRooms.set(userId, new Set());
       socket.join(userId);
+      io.emit('user_connected', userId);
       io.emit('active_users', Array.from(activeUsers.values()));
     });
+
 
     socket.on('private_message', async (data) => {
       const { to, message, from } = data;
@@ -229,15 +231,11 @@ function initializeSocket(server) {
           userRooms.delete(userData.userId);
         }
 
-        io.emit('user_offline', {
-          userId: userData.userId,
-          userName: userData.userName
-        });
+        io.emit('user_disconnected', userData.userId);
+        
+        activeUsers.delete(socket.id);
+        io.emit('active_users', Array.from(activeUsers.values()));
       }
-
-      activeUsers.delete(socket.id);
-
-      io.emit('active_users', Array.from(activeUsers.values()));
 
       console.log('User disconnected:', socket.id);
     });

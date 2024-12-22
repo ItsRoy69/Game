@@ -24,7 +24,7 @@ const NavBar = () => {
 
   const playNotificationSound = () => {
     audio.currentTime = 0;
-    audio.play().catch(error => {
+    audio.play().catch((error) => {
       console.error("Error playing notification sound:", error);
     });
   };
@@ -52,7 +52,6 @@ const NavBar = () => {
     if (isAuthenticated && user?.sub) {
       fetchNotifications();
 
-      // Socket connection
       const socketInstance = io(import.meta.env.VITE_API_URL);
       setSocket(socketInstance);
 
@@ -61,7 +60,7 @@ const NavBar = () => {
       socketInstance.on("newNotification", (notification) => {
         setNotifications((prev) => [notification, ...prev]);
         setUnreadCount((prev) => prev + 1);
-        playNotificationSound(); 
+        playNotificationSound();
       });
 
       return () => {

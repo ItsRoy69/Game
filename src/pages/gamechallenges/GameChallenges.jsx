@@ -96,14 +96,12 @@ function GameChallenges() {
             return false;
           }
 
-          const userLikesPotentialMatch =
-            currentUserProfile.datingPreferences.includes(
-              potentialMatch.gender
-            );
-          const potentialMatchLikesUser =
-            potentialMatch.datingPreferences.includes(
-              currentUserProfile.gender
-            );
+          const userLikesPotentialMatch = currentUserProfile.datingPreferences.includes(
+            potentialMatch.gender
+          );
+          const potentialMatchLikesUser = potentialMatch.datingPreferences.includes(
+            currentUserProfile.gender
+          );
 
           console.log("Gender preferences check:", {
             currentUserGender: currentUserProfile.gender,
@@ -187,9 +185,8 @@ function GameChallenges() {
   };
 
   const handleChallenge = async (challengedUser, event) => {
-    // Prevent the card click event from triggering
     event.stopPropagation();
-    
+
     console.log("Sending challenge to:", {
       challengedUser: challengedUser.name,
       challengedId: challengedUser.auth0Id,
@@ -319,8 +316,9 @@ function GameChallenges() {
               gameScores: {
                 ...(selectedUser.gameScores || {}),
                 highScore: selectedUser.gameScores?.[gameId]?.highScore || 0,
-                gamesPlayed: selectedUser.gameScores?.[gameId]?.gamesPlayed || 0,
-              }
+                gamesPlayed:
+                  selectedUser.gameScores?.[gameId]?.gamesPlayed || 0,
+              },
             }}
             onClose={() => setSelectedUser(null)}
             onChallenge={(e) => handleChallenge(selectedUser, e)}

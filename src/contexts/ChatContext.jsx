@@ -15,6 +15,7 @@ export const ChatProvider = ({ children }) => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [socket, setSocket] = useState(null);
   const [activeUsers, setActiveUsers] = useState([]);
+  const [connectedUsers, setConnectedUsers] = useState(new Set());
   const [chatRooms, setChatRooms] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(() => {
     const savedRoom = localStorage.getItem("currentRoom");
@@ -77,6 +78,18 @@ export const ChatProvider = ({ children }) => {
         setError("Disconnected from chat server");
       });
 
+      newSocket.on("user_connected", (userId) => {
+        setConnectedUsers((prev) => new Set([...prev, userId]));
+      });
+
+      newSocket.on("user_disconnected", (userId) => {
+        setConnectedUsers((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(userId);
+          return newSet;
+        });
+      });
+
       newSocket.on("active_users", (users) => {
         const uniqueUsers = users.reduce((acc, current) => {
           if (
@@ -88,6 +101,7 @@ export const ChatProvider = ({ children }) => {
           return acc;
         }, []);
         setActiveUsers(uniqueUsers);
+        setConnectedUsers(new Set(uniqueUsers.map((u) => u.userId)));
       });
 
       setSocket(newSocket);
@@ -454,6 +468,8 @@ export const ChatProvider = ({ children }) => {
         setRoomMessages,
         isConnecting,
         error,
+        connectedUsers,
+        setConnectedUsers,
       }}
     >
       {children}
