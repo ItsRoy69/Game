@@ -3,6 +3,7 @@ const { createAdapter } = require('@socket.io/mongo-adapter');
 const mongoose = require('mongoose');
 const Message = require('./models/Message');
 const ChatRoom = require('./models/ChatRoom');
+const Notification = require('./models/Notification');
 
 function initializeSocket(server) {
   const io = socketIO(server, {
@@ -189,6 +190,27 @@ function initializeSocket(server) {
         });
       } catch (error) {
         console.error('Error marking messages as read:', error);
+      }
+    });
+
+    socket.on('sendChallenge', async (data) => {
+      try {
+        const { senderId, recipientId, challengeType, message } = data;
+        
+        const notification = await Notification.create({
+          recipient: recipientId,
+          sender: senderId,
+          type: 'challenge',
+          message,
+          metadata: { challengeType }
+        });
+
+        const recipientSocketId = userSockets.get(recipientId);
+        if (recipientSocketId) {
+          io.to(recipientSocketId).emit('newNotification', notification);
+        }
+      } catch (error) {
+        console.error('Error sending challenge:', error);
       }
     });
 
