@@ -6,7 +6,7 @@ import ChatRoomsList from "./ChatRoomsList";
 import UsersList from "./UsersList";
 import MessageList from "./MessageList";
 import sendSound from "../../assets/audio/send.mp3";
-import "./Chat.css";
+import "./chat.css";
 
 const Chat = ({ onClose }) => {
   const [inputText, setInputText] = useState("");
