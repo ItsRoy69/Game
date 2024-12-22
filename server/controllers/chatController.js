@@ -22,12 +22,11 @@ const chatController = {
       const joinCode = generateJoinCode();
       
       const room = await ChatRoom.create({
-        name: req.body.name || `Room #${joinCode}`,
+        name: `Room #${joinCode}`,
         type: req.body.type || "public",
         members: [req.user.auth0Id],
         admins: [req.user.auth0Id],
-        joinCode,
-        description: req.body.description
+        joinCode
       });
 
       res.status(201).json({

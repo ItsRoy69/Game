@@ -1,23 +1,37 @@
 import React, { useState } from 'react';
 import { useChat } from '../../contexts/ChatContext';
-import { Plus, Copy } from 'lucide-react';
+import { Plus, Copy, Lock, Globe } from 'lucide-react';
 import './chat.css';
 
 const ChatRoomsList = ({ onSelectRoom }) => {
   const { chatRooms, joinRoom, createRoom } = useChat();
   const [joinCode, setJoinCode] = useState('');
   const [error, setError] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [roomType, setRoomType] = useState('public');
+
+  const handleRoomSelect = async (roomId) => {
+    try {
+      await joinRoom(roomId);
+      onSelectRoom(roomId);
+    } catch (error) {
+      setError(error.message || 'Failed to join room');
+    }
+  };
 
   const handleCreateRoom = async () => {
     try {
-      const newRoom = await createRoom();
+      const newRoom = await createRoom({ type: roomType });
       handleRoomSelect(newRoom._id);
+      setShowCreateModal(false);
+      setRoomType('public');
     } catch (error) {
       setError(error.message || 'Failed to create room');
     }
   };
 
-  const copyJoinCode = (code) => {
+  const copyJoinCode = (code, event) => {
+    event.stopPropagation();
     navigator.clipboard.writeText(code);
   };
 
@@ -48,43 +62,75 @@ const ChatRoomsList = ({ onSelectRoom }) => {
     }
   };
 
+  const publicRooms = chatRooms.filter(room => room.type === 'public');
+  const privateRooms = chatRooms.filter(room => room.type === 'private');
+
   return (
     <div className="chat-rooms-list">
       <div className="rooms-header">
         <h3>Chat Rooms</h3>
         <button 
           className="create-room-btn"
-          onClick={handleCreateRoom}
+          onClick={() => setShowCreateModal(true)}
         >
           <Plus size={16} />
           New Room
         </button>
       </div>
 
-      {/* Join by code input */}
       <div className="join-room-form">
         <input
           type="text"
           value={joinCode}
           onChange={(e) => setJoinCode(e.target.value)}
-          placeholder="Enter room code to join"
+          placeholder="Enter room code"
           className="join-code-input"
         />
         <button onClick={handleJoinByCode} className="join-btn">
-          Join
+          Join Room
         </button>
       </div>
 
       {error && <div className="error-message">{error}</div>}
 
-      {/* Room list */}
-      {chatRooms.map((room) => (
-        <div key={room._id} className="room-item">
-          <div className="room-info">
-            <span className="room-name">Room #{room.joinCode}</span>
-            <div className="room-code">
+      {/* Public Rooms Section */}
+      <div className="rooms-section">
+        <h4 className="section-title">
+          <Globe size={16} />
+          Public Rooms
+        </h4>
+        {publicRooms.map((room) => (
+          <div 
+            key={room._id} 
+            className="room-item"
+            onClick={() => handleRoomSelect(room._id)}
+          >
+            <div className="room-info">
+              <span className="room-id">Room #{room.joinCode}</span>
+            </div>
+          </div>
+        ))}
+        {publicRooms.length === 0 && (
+          <div className="no-rooms">No public rooms available</div>
+        )}
+      </div>
+
+      {/* Private Rooms Section */}
+      <div className="rooms-section">
+        <h4 className="section-title">
+          <Lock size={16} />
+          Private Rooms
+        </h4>
+        {privateRooms.map((room) => (
+          <div 
+            key={room._id} 
+            className="room-item"
+            onClick={() => handleRoomSelect(room._id)}
+          >
+            <div className="room-info">
+              <span className="room-id">Room #{room.joinCode}</span>
               <button 
-                onClick={() => copyJoinCode(room.joinCode)}
+                onClick={(e) => copyJoinCode(room.joinCode, e)}
                 className="copy-btn"
                 title="Copy room code"
               >
@@ -92,11 +138,35 @@ const ChatRoomsList = ({ onSelectRoom }) => {
               </button>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+        {privateRooms.length === 0 && (
+          <div className="no-rooms">No private rooms available</div>
+        )}
+      </div>
 
-      {chatRooms.length === 0 && (
-        <div className="no-rooms">No chat rooms available</div>
+      {/* Simplified Create Room Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Create New Room</h3>
+            <select
+              value={roomType}
+              onChange={(e) => setRoomType(e.target.value)}
+              className="modal-input"
+            >
+              <option value="public">Public Room</option>
+              <option value="private">Private Room</option>
+            </select>
+            <div className="modal-buttons">
+              <button onClick={handleCreateRoom} className="create-btn">
+                Create Room
+              </button>
+              <button onClick={() => setShowCreateModal(false)} className="cancel-btn">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

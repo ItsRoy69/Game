@@ -3,22 +3,26 @@
   src: url("../../assets/font/Minecraft.ttf") format("truetype");
 }
 
+/* Base Container Styles */
+.chat-container {
+  font-family: "Minecraft", Arial, sans-serif;
+  image-rendering: pixelated;
+}
+
 /* Chat Panel */
 .chat-panel {
   position: fixed;
   right: 20px;
   bottom: 100px;
   width: 300px;
-  height: 400px;
-  background-color: #000000;
+  background-color: rgba(0, 0, 0, 0.8);
   border: 2px solid #404040;
   z-index: 90;
   display: flex;
   flex-direction: column;
-  font-family: "Minecraft", Arial, sans-serif;
-  image-rendering: pixelated;
 }
 
+/* Chat Header */
 .chat-header {
   padding: 8px;
   background-color: #1f1f1f;
@@ -30,10 +34,10 @@
 
 .chat-header h3 {
   color: #ffffff;
-  font-weight: normal;
   text-shadow: 2px 2px #000000;
   margin: 0;
   font-size: 16px;
+  font-weight: normal;
 }
 
 .chat-header button {
@@ -51,14 +55,12 @@
   color: #ff5555;
 }
 
-/* Chat Messages */
+/* Chat Messages Area */
 .chat-messages {
   flex: 1;
   overflow-y: auto;
   padding: 8px;
   background-color: rgba(0, 0, 0, 0.8);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .chat-messages::-webkit-scrollbar {
@@ -66,18 +68,25 @@
 }
 
 .chat-messages::-webkit-scrollbar-track {
-  background: transparent;
+  background: #000000;
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+  background-color: #404040;
+  border: 2px solid #666666;
 }
 
 .message-container {
   margin-bottom: 4px;
   display: flex;
   align-items: flex-start;
+}
+
+.message-time {
+  color: #555555;
+  font-size: 10px;
+  margin-right: 4px;
+  text-shadow: 1px 1px #000000;
 }
 
 .message-bubble {
@@ -98,13 +107,7 @@
   color: #aaaaaa;
 }
 
-.message-time {
-  color: #555555;
-  font-size: 10px;
-  margin-right: 4px;
-}
-
-/* Chat Input */
+/* Chat Input Area */
 .chat-input {
   padding: 8px;
   display: flex;
@@ -125,153 +128,174 @@
 
 .chat-input input:focus {
   outline: none;
-  border-color: #ffffff;
-}
-
-.send-button {
-  background-color: #404040;
-  border: 2px solid #808080;
-  color: #ffffff;
-  padding: 4px 8px;
-  font-family: "Minecraft", Arial, sans-serif;
-  cursor: pointer;
-  image-rendering: pixelated;
-  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.2);
-}
-
-.send-button:hover {
-  background-color: #505050;
-}
-
-.send-button:active {
-  box-shadow: inset 2px 4px #000000;
-  transform: translateY(2px);
+  border-color: #55ff55;
 }
 
 /* Chat Rooms List */
 .chat-rooms-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-family: "Minecraft", Arial, sans-serif;
-  image-rendering: pixelated;
-  max-height: 360px; /* Set a maximum height */
-  overflow-y: auto; /* Enable vertical scrolling */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-
-/* Add scrollbar styling for webkit browsers */
-.chat-rooms-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chat-rooms-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chat-rooms-list::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 2px solid #404040;
+  height: 400px;
+  overflow-y: auto;
 }
 
 .rooms-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 8px;
   background-color: #1f1f1f;
   border: 2px solid #404040;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .rooms-header h3 {
   color: #ffffff;
-  font-weight: normal;
   text-shadow: 2px 2px #000000;
   margin: 0;
   font-size: 16px;
 }
 
-.create-room-btn {
-  background-color: #404040;
-  border: 2px solid #808080;
+/* Button Styles */
+.minecraft-button {
+  background-color: #5a5a5a;
+  border: 2px solid #404040;
   color: #ffffff;
-  padding: 4px 8px;
+  padding: 6px 12px;
   font-family: "Minecraft", Arial, sans-serif;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  image-rendering: pixelated;
-  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.2);
+  text-shadow: 2px 2px #000000;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.3);
 }
 
-.create-room-btn:hover {
-  background-color: #505050;
+.minecraft-button:hover {
+  background-color: #666666;
 }
 
-.create-room-btn:active {
+.minecraft-button:active {
   box-shadow: inset 2px 4px #000000;
   transform: translateY(2px);
 }
 
-.room-creation-form {
-  padding: 8px;
-  background-color: #1f1f1f;
-  border: 2px solid #404040;
+.create-room-btn {
+  background-color: #373737;
+  border: 2px solid #1f1f1f;
+  border-bottom: 4px solid #1f1f1f;
+  color: #ffffff;
+  padding: 6px 12px;
+  font-family: "Minecraft", Arial, sans-serif;
+  cursor: pointer;
+  text-shadow: 2px 2px #000000;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  height: 32px;
+  image-rendering: pixelated;
 }
 
-.room-name-input {
+.create-room-btn:hover {
+  background-color: #474747;
+  border-bottom-color: #373737;
+}
+
+.create-room-btn:active {
+  border-bottom-width: 2px;
+  transform: translateY(2px);
+  box-shadow: inset 2px 2px #000000;
+}
+
+.join-btn {
+  background-color: #373737;
+  border: 2px solid #1f1f1f;
+  border-bottom: 4px solid #1f1f1f;
+  color: #ffffff;
+  padding: 6px 12px;
+  font-family: "Minecraft", Arial, sans-serif;
+  cursor: pointer;
+  text-shadow: 2px 2px #000000;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.3);
+  font-size: 14px;
+  height: 32px;
+  min-width: 100px;
+  image-rendering: pixelated;
+}
+
+.join-btn:hover {
+  background-color: #474747;
+  border-bottom-color: #373737;
+}
+
+.join-btn:active {
+  border-bottom-width: 2px;
+  transform: translateY(2px);
+  box-shadow: inset 2px 2px #000000;
+}
+
+
+.join-code-input:focus {
+  outline: none;
+  border-color: #55ff55;
+}
+
+/* Updated Join Room Form */
+.join-room-form {
+  padding: 8px;
+  background-color: #1f1f1f;
+  border: 2px solid #373737;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Icon styling */
+.create-room-btn svg,
+.join-btn svg {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
+}
+
+.join-code-input {
+  flex: 1;
   padding: 6px 8px;
   background-color: #000000;
   border: 2px solid #404040;
   color: #ffffff;
   font-family: "Minecraft", Arial, sans-serif;
   font-size: 14px;
-  margin-bottom: 8px;
+  max-width: 140px;
 }
 
-.room-name-input:focus {
-  outline: none;
-  border-color: #ffffff;
+/* Room Sections */
+.rooms-section {
+  margin-bottom: 16px;
 }
 
-.form-buttons {
+.section-title {
   display: flex;
+  align-items: center;
   gap: 8px;
-}
-
-.create-btn,
-.cancel-btn {
-  background-color: #404040;
-  border: 2px solid #808080;
-  color: #ffffff;
+  color: #aaaaaa;
+  text-shadow: 2px 2px #000000;
   padding: 4px 8px;
-  font-family: "Minecraft", Arial, sans-serif;
-  cursor: pointer;
-  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.2);
-}
-
-.create-btn:hover,
-.cancel-btn:hover {
-  background-color: #505050;
-}
-
-.create-btn:active,
-.cancel-btn:active {
-  box-shadow: inset 2px 4px #000000;
-  transform: translateY(2px);
+  font-size: 14px;
 }
 
 .room-item {
-  padding: 8px;
   background-color: #1f1f1f;
   border: 2px solid #404040;
+  padding: 8px;
+  margin-bottom: 4px;
   cursor: pointer;
 }
 
 .room-item:hover {
   background-color: #2f2f2f;
+  border-color: #55ff55;
 }
 
 .room-info {
@@ -280,37 +304,113 @@
   align-items: center;
 }
 
-.room-name {
+.room-id {
   color: #ffffff;
   text-shadow: 2px 2px #000000;
   font-size: 14px;
 }
 
-.room-type {
+/* Copy Button */
+.copy-btn {
+  background: none;
+  border: none;
   color: #aaaaaa;
-  text-shadow: 2px 2px #000000;
-  font-size: 12px;
+  cursor: pointer;
+  padding: 4px;
 }
 
+.copy-btn:hover {
+  color: #55ff55;
+}
+
+/* Error Message */
 .error-message {
   color: #ff5555;
   text-shadow: 2px 2px #000000;
-  font-size: 12px;
+  background-color: rgba(255, 0, 0, 0.2);
+  border: 2px solid #ff5555;
+  padding: 8px;
   margin-bottom: 8px;
+  text-align: center;
+  font-size: 14px;
 }
 
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #1f1f1f;
+  border: 2px solid #404040;
+  padding: 16px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modal h3 {
+  color: #ffffff;
+  text-shadow: 2px 2px #000000;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 8px;
+  background-color: #000000;
+  border: 2px solid #404040;
+  color: #ffffff;
+  font-family: "Minecraft", Arial, sans-serif;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.create-btn {
+  background-color: #2d7d32;
+}
+
+.create-btn:hover {
+  background-color: #388e3c;
+}
+
+.cancel-btn:hover {
+  background-color: #666666;
+}
+
+/* No Rooms Message */
 .no-rooms {
   color: #aaaaaa;
   text-shadow: 2px 2px #000000;
   text-align: center;
   padding: 16px;
   font-size: 14px;
+  background-color: #1f1f1f;
+  border: 2px solid #404040;
 }
 
 /* Chat Tabs */
 .chat-tabs {
   display: flex;
-  gap: 8px;
+  gap: 4px;
+  padding: 4px;
+  background-color: #1f1f1f;
+  border-bottom: 2px solid #404040;
 }
 
 .tab {
@@ -333,7 +433,7 @@
 
 .tab.active {
   background-color: #666666;
-  border-color: #ffffff;
+  border-color: #55ff55;
 }
 
 .close-button {
@@ -348,87 +448,25 @@
 }
 
 .close-button:hover {
-  background-color: #505050;
+  background-color: #ff5555;
 }
 
-
-/* chat.css - add/update these styles */
-.join-room-form {
-  padding: 8px;
-  display: flex;
-  gap: 4px;
-  background-color: #1f1f1f;
-  border-bottom: 2px solid #404040;
+/* Scrollbar Styles for all scrollable elements */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.join-code-input {
-  flex: 1;
-  padding: 6px 8px;
-  background-color: #000000;
+::-webkit-scrollbar-track {
+  background: #000000;
   border: 2px solid #404040;
-  color: #ffffff;
-  font-family: "Minecraft", Arial, sans-serif;
-  font-size: 14px;
 }
 
-.join-code-input:focus {
-  outline: none;
-  border-color: #ffffff;
-}
-
-.join-btn {
+::-webkit-scrollbar-thumb {
   background-color: #404040;
-  border: 2px solid #808080;
-  color: #ffffff;
-  padding: 4px 12px;
-  font-family: "Minecraft", Arial, sans-serif;
-  cursor: pointer;
-  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.2);
+  border: 2px solid #666666;
 }
 
-.join-btn:hover {
-  background-color: #505050;
-}
-
-.join-btn:active {
-  box-shadow: inset 2px 4px #000000;
-  transform: translateY(2px);
-}
-
-.room-item {
-  padding: 8px;
-  background-color: #1f1f1f;
-  border: 2px solid #404040;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.room-item:hover {
-  background-color: #2f2f2f;
-}
-
-.copy-btn {
-  background: none;
-  border: none;
-  color: #ffffff;
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.copy-btn:hover {
-  color: #55ff55;
-}
-
-.error-message {
-  color: #ff5555;
-  text-shadow: 2px 2px #000000;
-  font-size: 12px;
-  padding: 8px;
-  text-align: center;
-  background-color: rgba(255, 0, 0, 0.2);
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555555;
 }

@@ -10,7 +10,6 @@ const chatRoomSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  description: String,
   type: {
     type: String,
     enum: ['public', 'private'],
@@ -28,7 +27,6 @@ const chatRoomSchema = new mongoose.Schema({
   timestamps: true
 });
 
-chatRoomSchema.index({ name: 1 }, { unique: true });
 chatRoomSchema.index({ members: 1 });
 
 module.exports = mongoose.model('ChatRoom', chatRoomSchema);
