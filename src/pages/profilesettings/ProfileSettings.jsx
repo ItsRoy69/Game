@@ -5,6 +5,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 import popSound from "../../assets/audio/save.mp3";
 import backSound from "../../assets/audio/back.mp3";
+import relaxingSound from "../../assets/audio/relaxing.mp3"; 
 import "./profilesettings.css";
 
 const MinecraftAlert = ({ message, onClose }) => {
@@ -51,6 +52,17 @@ const ProfileSettings = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const relaxingAudio = useRef(new Audio(relaxingSound));
+
+  useEffect(() => {
+    relaxingAudio.current.loop = true; 
+    relaxingAudio.current.play();
+
+    return () => {
+      relaxingAudio.current.pause();
+      relaxingAudio.current.currentTime = 0; 
+    };
+  }, []);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
