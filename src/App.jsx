@@ -6,7 +6,6 @@ import { ChatProvider } from './contexts/ChatContext';
 import AppRoutes from './routes/Routes';
 import './App.css';
 
-
 function AuthenticationWrapper({ children }) {
   const { isAuthenticated, getAccessTokenSilently, user, isLoading } = useAuth0();
 
@@ -14,10 +13,18 @@ function AuthenticationWrapper({ children }) {
     const syncUserData = async () => {
       if (isAuthenticated && user) {
         try {
-          const token = await getAccessTokenSilently();
+          const token = await getAccessTokenSilently({
+            authorizationParams: {
+              audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+              scope: 'openid profile email'
+            }
+          });
           
           const API_BASE_URL = import.meta.env.VITE_API_URL;
-
+          
+          // Log the token for debugging (remove in production)
+          console.log('Token obtained:', token ? 'Token exists' : 'No token');
+          
           const response = await axios.post(
             `${API_BASE_URL}/api/users`,
             {
@@ -29,14 +36,20 @@ function AuthenticationWrapper({ children }) {
             },
             {
               headers: {
-                Authorization: `Bearer ${token}`,
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
               },
             }
           );
           
           console.log('User sync successful:', response.data);
         } catch (error) {
-          console.error('Error syncing user data:', error.response?.data || error.message);
+          console.error('Error syncing user data:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            headers: error.response?.headers
+          });
         }
       }
     };
@@ -59,9 +72,12 @@ function App() {
       domain={import.meta.env.VITE_AUTH0_DOMAIN}
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
       authorizationParams={{
-        redirect_uri: import.meta.env.VITE_AUTH0_CALLBACK_URL,
-        audience: import.meta.env.VITE_AUTH0_AUDIENCE 
+        redirect_uri: window.location.origin,
+        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        scope: 'openid profile email'
       }}
+      cacheLocation="localstorage"
+      useRefreshTokens={true}
     >
       <Router>
         <AuthenticationWrapper>

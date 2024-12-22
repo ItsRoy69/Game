@@ -8,9 +8,10 @@ export const ChatProvider = ({ children }) => {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [socket, setSocket] = useState(null);
   const [activeUsers, setActiveUsers] = useState([]);
-  const [chatRooms, setChatRooms] = useState([]);
+  const [chatRooms, setChatRooms] = useState([]); 
   const [currentRoom, setCurrentRoom] = useState(null);
   const [privateChats, setPrivateChats] = useState(new Map());
+
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -97,6 +98,54 @@ export const ChatProvider = ({ children }) => {
       setCurrentRoom(null);
     }
   };
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      if (!isAuthenticated) return;
+      
+      try {
+        const token = await getAccessTokenSilently({
+          authorizationParams: {
+            audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+            scope: 'openid profile email'
+          }
+        });
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/rooms`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setChatRooms(data.data?.rooms || []); // Ensure we set an array
+      } catch (error) {
+        console.error('Error fetching rooms:', error);
+        setChatRooms([]); // Set empty array on error
+      }
+    };
+
+    fetchRooms();
+  }, [isAuthenticated, getAccessTokenSilently]);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const newSocket = io(import.meta.env.VITE_API_URL);
+      setSocket(newSocket);
+
+      newSocket.emit('user_join', {
+        userId: user.sub,
+        userName: user.name
+      });
+
+      return () => newSocket.close();
+    }
+  }, [isAuthenticated, user]);
 
   return (
     <ChatContext.Provider
