@@ -1,11 +1,20 @@
 import { Check, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 const NotificationItem = ({ notification, onClose, onAccept, onDecline }) => {
+  const navigate = useNavigate();
+
+  const handleAccept = async (challengeId) => {
+    await onAccept(challengeId);
+    navigate('/balloongame');
+  };
+
   const renderActions = () => {
     if (notification.type === 'challenge' && notification.metadata?.challengeId) {
       return (
         <div className="notification-actions">
           <button 
-            onClick={() => onAccept(notification.metadata.challengeId)}
+            onClick={() => handleAccept(notification.metadata.challengeId)}
             className="action-button accept-button"
           >
             <Check size={16} />
