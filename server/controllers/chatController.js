@@ -24,18 +24,15 @@ const cleanupService = {
       for (const room of expiredRooms) {
         const session = await mongoose.startSession();
         try {
-          session.startTransaction();
+          await session.withTransaction(async () => {
+            await Message.deleteMany({
+              roomId: room._id,
+              type: 'group'
+            }, { session });
 
-          await Message.deleteMany({
-            roomId: room._id,
-            type: 'group'
-          }, { session });
-
-          await ChatRoom.findByIdAndDelete(room._id, { session });
-
-          await session.commitTransaction();
+            await ChatRoom.deleteOne({ _id: room._id }, { session });
+          });
         } catch (error) {
-          await session.abortTransaction();
           console.error('Error during cleanup:', error);
         } finally {
           session.endSession();
@@ -345,26 +342,23 @@ const chatController = {
       }
 
       const session = await mongoose.startSession();
-      session.startTransaction();
-
       try {
-        await Message.deleteMany(
-          {
-            roomId: req.params.roomId,
-            type: "group",
-          },
-          { session }
-        );
-        await ChatRoom.findByIdAndDelete(req.params.roomId, { session });
-
-        await session.commitTransaction();
+        await session.withTransaction(async () => {
+          await Message.deleteMany(
+            {
+              roomId: req.params.roomId,
+              type: "group",
+            },
+            { session }
+          );
+          await ChatRoom.deleteOne({ _id: req.params.roomId }, { session });
+        });
 
         res.json({
           success: true,
           message: "Room and associated messages deleted successfully",
         });
       } catch (error) {
-        await session.abortTransaction();
         throw error;
       } finally {
         session.endSession();

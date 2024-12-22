@@ -35,7 +35,7 @@ const chatRoomSchema = new mongoose.Schema({
 chatRoomSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 chatRoomSchema.index({ members: 1 });
 
-chatRoomSchema.pre('remove', async function (next) {
+chatRoomSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
   try {
     await mongoose.model('Message').deleteMany({
       roomId: this._id,

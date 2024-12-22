@@ -231,10 +231,26 @@ function initializeSocket(server) {
       const expiredRooms = await ChatRoom.find({
         expiresAt: { $lte: new Date() }
       });
-
+  
       for (const room of expiredRooms) {
-        io.to(room._id.toString()).emit('room_expired', { roomId: room._id });
-        io.in(room._id.toString()).socketsLeave(room._id.toString());
+        const session = await mongoose.startSession();
+        try {
+          await session.withTransaction(async () => {
+            await Message.deleteMany({
+              roomId: room._id,
+              type: 'group'
+            }, { session });
+  
+            await ChatRoom.deleteOne({ _id: room._id }, { session });
+            
+            io.to(room._id.toString()).emit('room_expired', { roomId: room._id });
+            io.in(room._id.toString()).socketsLeave(room._id.toString());
+          });
+        } catch (error) {
+          console.error('Error during room cleanup:', error);
+        } finally {
+          session.endSession();
+        }
       }
     } catch (error) {
       console.error('Error in periodic room expiration check:', error);
