@@ -1,6 +1,4 @@
 import { Check, X } from "lucide-react";
-import "./notificationitem.css"
-
 const NotificationItem = ({ notification, onClose, onAccept, onDecline }) => {
   const renderActions = () => {
     if (notification.type === 'challenge' && notification.metadata?.challengeId) {

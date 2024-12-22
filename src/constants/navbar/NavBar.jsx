@@ -166,9 +166,9 @@ const NavBar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-content">
-          <div className="navbar-brand">
+          <a href="/" className="navbar-brand">
             <h1>GameZ</h1>
-          </div>
+          </a>
           <div className="navbar-right">
             {isAuthenticated && (
               <div className="notification-container">

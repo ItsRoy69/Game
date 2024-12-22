@@ -1,12 +1,18 @@
+/* Navbar Base Styles */
 .navbar {
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
 }
 
 .navbar-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  width: 100%;
 }
 
 .navbar-content {
@@ -14,11 +20,14 @@
   justify-content: space-between;
   align-items: center;
   height: 64px;
+  width: 100%;
 }
 
 .navbar-brand {
   font-size: 1.5rem;
   font-weight: bold;
+  text-decoration: none;
+  color: black;
 }
 
 .navbar-right {
@@ -27,6 +36,7 @@
   gap: 16px;
 }
 
+/* User Profile Styles */
 .user-profile {
   display: flex;
   align-items: center;
@@ -44,6 +54,7 @@
   font-family: "MinecraftiaRegular", "VT323", monospace;
 }
 
+/* Auth Button Styles */
 .auth-button {
   font-family: "MinecraftiaRegular", "VT323", monospace;
   padding: 8px 16px;
@@ -78,7 +89,7 @@
   box-shadow: inset 2px 2px #0006, inset -2px -4px #fff7;
 }
 
-
+/* Notification Container Styles */
 .notification-container {
   position: relative;
   margin-right: 16px;
@@ -97,6 +108,7 @@
   color: #4caf50;
 }
 
+/* Notification Badge Styles */
 .notification-badge {
   position: absolute;
   top: 0;
@@ -114,34 +126,79 @@
   font-family: "MinecraftiaRegular", "VT323", monospace;
 }
 
+/* Notification Dropdown Styles */
 .notification-dropdown {
   position: absolute;
-  top: 100%;
-  right: 0;
+  top: calc(100% + 8px);
+  right: -16px;
   background-color: white;
   border: 3px solid #1d1f21;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  min-width: 300px;
+  width: 320px;
   max-height: 400px;
   overflow-y: auto;
   z-index: 1000;
 }
 
+/* Notification Item Styles */
 .notification-item {
   padding: 12px;
   border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-family: "MinecraftiaRegular", "VT323", monospace;
+  align-items: flex-start;
 }
 
 .notification-item:last-child {
   border-bottom: none;
 }
 
-.notification-item button {
+.notification-content {
+  flex: 1;
+  margin-right: 8px;
+  word-break: break-word;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Action Button Styles */
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 2px solid #1d1f21;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.accept-button {
+  background-color: #3c8527;
+  color: white;
+}
+
+.accept-button:hover {
+  background-color: #4caf50;
+}
+
+.decline-button {
+  background-color: #aa0000;
+  color: white;
+}
+
+.decline-button:hover {
+  background-color: #cc0000;
+}
+
+.close-button {
   background: none;
   border: none;
   cursor: pointer;
@@ -149,7 +206,7 @@
   padding: 4px 8px;
 }
 
-.notification-item button:hover {
+.close-button:hover {
   color: #ff4444;
 }
 
@@ -158,4 +215,105 @@
   text-align: center;
   color: #666;
   font-family: "MinecraftiaRegular", "VT323", monospace;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+ 
+ 
+  .navbar-container {
+    padding: 0;
+    width: 90%
+  }
+
+  .navbar-content {
+    height: auto;
+  }
+
+  .navbar-right {
+    gap: 8px;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .auth-button {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+  }
+
+  .notification-dropdown {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: calc(100vh - 64px);
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+
+  .notification-container {
+    margin-right: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+
+  .navbar-right {
+    gap: 6px;
+  }
+
+  .auth-button {
+    padding: 4px 10px;
+    font-size: 0.813rem;
+  }
+
+  .notification-item {
+    padding: 10px;
+    flex-direction: column;
+  }
+
+  .notification-content {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+
+  .notification-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .close-button {
+    align-self: flex-end;
+    margin-top: 4px;
+  }
+}
+
+/* Scrollbar Styles */
+.notification-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notification-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
