@@ -149,6 +149,109 @@ const userController = {
     }
   },
 
+  async updateGameScore(req, res, next) {
+    try {
+      const { auth0Id } = req.params;
+      const { gameName, score } = req.body;
+
+      if (!gameName || score === undefined) {
+        const error = new Error('Game name and score are required');
+        error.status = 400;
+        throw error;
+      }
+
+      const user = await User.findOne({ auth0Id });
+      if (!user) {
+        const error = new Error('User not found');
+        error.status = 404;
+        throw error;
+      }
+
+      if (!user.gameScores) {
+        user.gameScores = new Map();
+      }
+
+      const gameScore = user.gameScores.get(gameName) || {
+        gameName: gameName,
+        highScore: 0,
+        totalGamesPlayed: 0,
+        scoreHistory: [],
+        lastPlayed: new Date()
+      };
+
+      gameScore.totalGamesPlayed += 1;
+      gameScore.lastPlayed = new Date();
+
+      if (score > gameScore.highScore) {
+        gameScore.highScore = score;
+      }
+
+      gameScore.scoreHistory.push({
+        score: score,
+        date: new Date()
+      });
+
+      if (gameScore.scoreHistory.length > 10) {
+        gameScore.scoreHistory = gameScore.scoreHistory.slice(-10);
+      }
+      user.gameScores.set(String(gameName), gameScore);
+      await user.save();
+
+      res.json({
+        message: 'Game score updated successfully',
+        gameScore
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getGameScore(req, res, next) {
+    try {
+      const { auth0Id, gameName } = req.params;
+
+      const user = await User.findOne({ auth0Id });
+      if (!user) {
+        const error = new Error('User not found');
+        error.status = 404;
+        throw error;
+      }
+
+      const gameScore = user.gameScores.get(String(gameName)) || {
+        gameName,
+        highScore: 0,
+        totalGamesPlayed: 0,
+        scoreHistory: []
+      };
+
+      res.json(gameScore);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getAllGameScores(req, res, next) {
+    try {
+      const { auth0Id } = req.params;
+
+      const user = await User.findOne({ auth0Id });
+      if (!user) {
+        const error = new Error('User not found');
+        error.status = 404;
+        throw error;
+      }
+
+      const gameScores = Object.fromEntries(user.gameScores || new Map());
+
+      res.json({
+        auth0Id,
+        gameScores
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async deleteUser(req, res, next) {
     try {
       const { auth0Id } = req.params;
@@ -185,17 +288,7 @@ const userController = {
         throw error;
       }
 
-      const stats = {
-        totalLogins: user.login_count || 0,
-        lastLogin: user.last_login,
-        accountCreated: user.created_at,
-        lastUpdated: user.updated_at,
-        loginHistory: user.login_history || [],
-        emailVerified: user.email_verified,
-        totalPhotos: user.photos ? user.photos.length : 0,
-        storageUsed: user.photos ? user.photos.length : 0
-      };
-
+      const stats = user.getStats();
       res.json(stats);
     } catch (error) {
       next(error);
@@ -228,89 +321,6 @@ const userController = {
         currentPage: page,
         totalPages: Math.ceil(total / limit),
         totalResults: total
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  async uploadSinglePhoto(req, res, next) {
-    try {
-      const { auth0Id } = req.params;
-      const { photo } = req.body;
-
-      if (!photo) {
-        const error = new Error('No photo provided');
-        error.status = 400;
-        throw error;
-      }
-
-      try {
-        const uploadedUrl = await appwriteUpload.saveImage(photo);
-
-        const user = await User.findOneAndUpdate(
-          { auth0Id },
-          {
-            $push: { photos: uploadedUrl },
-            updated_at: new Date()
-          },
-          { new: true }
-        );
-
-        if (!user) {
-          const error = new Error('User not found');
-          error.status = 404;
-          throw error;
-        }
-
-        res.json({
-          message: 'Photo uploaded successfully',
-          photoUrl: uploadedUrl,
-          user
-        });
-      } catch (error) {
-        console.error('Error uploading photo:', error);
-        const err = new Error('Failed to upload photo');
-        err.status = 500;
-        throw err;
-      }
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  async deleteSinglePhoto(req, res, next) {
-    try {
-      const { auth0Id, photoUrl } = req.params;
-
-      const user = await User.findOne({ auth0Id });
-
-      if (!user) {
-        const error = new Error('User not found');
-        error.status = 404;
-        throw error;
-      }
-
-      if (!user.photos.includes(photoUrl)) {
-        const error = new Error('Photo not found for this user');
-        error.status = 404;
-        throw error;
-      }
-
-      await appwriteUpload.deleteImage(photoUrl);
-
-      const updatedUser = await User.findOneAndUpdate(
-        { auth0Id },
-        {
-          $pull: { photos: photoUrl },
-          updated_at: new Date()
-        },
-        { new: true }
-      );
-
-      res.json({
-        message: 'Photo deleted successfully',
-        user: updatedUser
       });
     } catch (error) {
       next(error);

@@ -1,5 +1,20 @@
 const mongoose = require('mongoose');
 
+const gameScoreSchema = new mongoose.Schema({
+  gameName: { type: String, required: true },
+  highScore: { type: Number, default: 0 },
+  lastPlayed: { type: Date, default: Date.now },
+  totalGamesPlayed: { type: Number, default: 0 },
+  scoreHistory: {
+    type: [{
+      score: Number,
+      date: { type: Date, default: Date.now }
+    }],
+    default: [],
+    validate: [arrayLimit, '{PATH} exceeds the limit of 10']
+  }
+});
+
 const userSchema = new mongoose.Schema({
   auth0Id: { type: String, required: true, unique: true },
   email: { type: String, required: true },
@@ -12,6 +27,11 @@ const userSchema = new mongoose.Schema({
     type: [Date],
     default: [],
     validate: [arrayLimit, '{PATH} exceeds the limit of 10']
+  },
+  gameScores: {
+    type: Map,
+    of: gameScoreSchema,
+    default: new Map()
   },
   gender: String,
   datingPreferences: [String],
@@ -42,14 +62,15 @@ function arrayLimit(val) {
 userSchema.index({ email: 1 });
 userSchema.index({ created_at: -1 });
 
-userSchema.methods.getStats = function () {
+userSchema.methods.getStats = function() {
   return {
     totalLogins: this.login_count || 0,
     lastLogin: this.last_login,
     accountCreated: this.created_at,
     lastUpdated: this.updated_at,
     loginHistory: this.login_history || [],
-    emailVerified: this.email_verified
+    emailVerified: this.email_verified,
+    gameStats: Object.fromEntries(this.gameScores || new Map())
   };
 };
 
