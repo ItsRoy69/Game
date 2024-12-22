@@ -1,12 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
-import './chat.css';
 import { useAuth0 } from '@auth0/auth0-react';
-// In MessageList.jsx, update to handle the data structure:
+import './chat.css';
+
 const MessageList = ({ messages = [], isPrivateChat }) => {
   const messagesEndRef = useRef(null);
   const { user } = useAuth0();
-  
-  // Add error state
   const [error, setError] = useState(null);
 
   const scrollToBottom = () => {
@@ -33,18 +31,23 @@ const MessageList = ({ messages = [], isPrivateChat }) => {
   }
 
   return (
-    <div className="messages-container">
-      {messages.map((msg, index) => (
-        <div
-          key={msg._id || index}
-          className={`message ${msg.sender === user.auth0Id ? 'sent' : 'received'}`}
-        >
-          <div className="message-content">
-            <span className="message-text">{msg.content}</span>
-            <span className="message-time">{formatTime(msg.createdAt)}</span>
+    <div className="chat-messages">
+      {messages.map((msg, index) => {
+        const isCurrentUser = msg.sender === user?.sub;
+        return (
+          <div
+            key={msg._id || index}
+            className="message-container"
+          >
+            <div className={`message-bubble ${isCurrentUser ? 'user' : 'bot'}`}>
+              <span>{msg.content}</span>
+              <div className="message-time">
+                {formatTime(msg.createdAt)}
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
       <div ref={messagesEndRef} />
     </div>
   );

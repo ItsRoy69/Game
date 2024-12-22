@@ -12,8 +12,9 @@ function initializeSocket(server) {
     }
   });
 
-  // Store active users
+  // Store active users with their room information
   const activeUsers = new Map();
+  const userRooms = new Map(); // Track which rooms each user is in
 
   // Check room expiration
   const isRoomExpired = async (roomId) => {
@@ -35,6 +36,7 @@ function initializeSocket(server) {
       
       // Store user data
       activeUsers.set(socket.id, { userId, userName });
+      userRooms.set(userId, new Set());
       
       // Join personal room for private messages
       socket.join(userId);
@@ -75,26 +77,21 @@ function initializeSocket(server) {
 
     // Handle group messages
     socket.on('group_message', async (data) => {
-      const { roomId, message, from } = data;
+      const { roomId, message, from, tempId } = data;
       
       try {
-        // Check if room has expired
-        if (await isRoomExpired(roomId)) {
-          socket.emit('room_expired', { roomId });
-          socket.leave(roomId);
-          return;
-        }
-
         const newMessage = await Message.create({
           sender: from,
           roomId,
           content: message,
           type: 'group'
         });
-
+    
         io.to(roomId).emit('group_message', {
+          roomId,
           message: newMessage,
-          from
+          from,
+          tempId // Send back tempId for tracking
         });
       } catch (error) {
         console.error('Error saving group message:', error);
@@ -124,7 +121,12 @@ function initializeSocket(server) {
           return;
         }
 
-        // Join the room
+        // Update user's room membership
+        const userRoomSet = userRooms.get(userId) || new Set();
+        userRoomSet.add(roomId);
+        userRooms.set(userId, userRoomSet);
+
+        // Join the socket room
         socket.join(roomId);
 
         // Get recent messages
@@ -157,13 +159,21 @@ function initializeSocket(server) {
     socket.on('leave_room', async (data) => {
       const { roomId, userId } = data;
       
-      socket.leave(roomId);
-      
-      // Notify room members
-      socket.to(roomId).emit('user_left_room', {
-        userId,
-        userName: activeUsers.get(socket.id)?.userName
-      });
+      if (userId && roomId) {
+        // Update user's room membership
+        const userRoomSet = userRooms.get(userId);
+        if (userRoomSet) {
+          userRoomSet.delete(roomId);
+        }
+        
+        socket.leave(roomId);
+        
+        // Notify room members
+        socket.to(roomId).emit('user_left_room', {
+          userId,
+          userName: activeUsers.get(socket.id)?.userName
+        });
+      }
     });
 
     // Handle room expiration check
@@ -220,6 +230,18 @@ function initializeSocket(server) {
       const userData = activeUsers.get(socket.id);
       
       if (userData) {
+        // Leave all rooms the user was in
+        const userRoomSet = userRooms.get(userData.userId);
+        if (userRoomSet) {
+          userRoomSet.forEach(roomId => {
+            socket.to(roomId).emit('user_left_room', {
+              userId: userData.userId,
+              userName: userData.userName
+            });
+          });
+          userRooms.delete(userData.userId);
+        }
+        
         // Notify all rooms the user was in
         io.emit('user_offline', {
           userId: userData.userId,

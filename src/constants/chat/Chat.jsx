@@ -17,7 +17,8 @@ const Chat = ({ onClose }) => {
     currentRoom,
     sendPrivateMessage,
     sendGroupMessage,
-    privateChats
+    privateChats,
+    roomMessages
   } = useChat();
 
   useEffect(() => {
@@ -36,6 +37,16 @@ const Chat = ({ onClose }) => {
 
     setInputText('');
   };
+
+  const getCurrentMessages = () => {
+    if (selectedUser) {
+      return privateChats.get(selectedUser.userId) || [];
+    }
+    if (currentRoom) {
+      return roomMessages.get(currentRoom) || [];
+    }
+    return [];
+  };
   
   const renderContent = () => {
     switch (view) {
@@ -53,7 +64,7 @@ const Chat = ({ onClose }) => {
       case "chat":
         return (
           <MessageList
-            messages={selectedUser ? privateChats.get(selectedUser.userId) : []}
+            messages={getCurrentMessages()}
             isPrivateChat={!!selectedUser}
           />
         );
@@ -68,14 +79,20 @@ const Chat = ({ onClose }) => {
         <div className="chat-tabs">
           <button
             className={`tab ${view === "rooms" ? "active" : ""}`}
-            onClick={() => setView("rooms")}
+            onClick={() => {
+              setView("rooms");
+              setSelectedUser(null);
+            }}
           >
             <MessageSquare size={16} />
             Rooms
           </button>
           <button
             className={`tab ${view === "users" ? "active" : ""}`}
-            onClick={() => setView("users")}
+            onClick={() => {
+              setView("users");
+              setSelectedUser(null);
+            }}
           >
             <Users size={16} />
             Users
@@ -88,7 +105,7 @@ const Chat = ({ onClose }) => {
 
       <div className="chat-content">{renderContent()}</div>
 
-      {view === "chat" && (
+      {view === "chat" && (currentRoom || selectedUser) && (
         <form onSubmit={handleSend} className="chat-input">
           <input
             ref={inputRef}
@@ -98,7 +115,7 @@ const Chat = ({ onClose }) => {
             placeholder="Type a message..."
             maxLength={1000}
           />
-          <button type="submit" className="send-button">
+          <button type="submit" className="minecraft-button">
             <Send size={16} />
           </button>
         </form>
