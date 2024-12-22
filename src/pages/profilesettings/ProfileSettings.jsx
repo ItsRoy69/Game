@@ -5,7 +5,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 import popSound from "../../assets/audio/save.mp3";
 import backSound from "../../assets/audio/back.mp3";
-import relaxingSound from "../../assets/audio/relaxing.mp3"; 
+import relaxingSound from "../../assets/audio/relaxing.mp3";
 import "./profilesettings.css";
 
 const MinecraftAlert = ({ message, onClose }) => {
@@ -55,12 +55,12 @@ const ProfileSettings = () => {
   const relaxingAudio = useRef(new Audio(relaxingSound));
 
   useEffect(() => {
-    relaxingAudio.current.loop = true; 
+    relaxingAudio.current.loop = true;
     relaxingAudio.current.play();
 
     return () => {
       relaxingAudio.current.pause();
-      relaxingAudio.current.currentTime = 0; 
+      relaxingAudio.current.currentTime = 0;
     };
   }, []);
 
@@ -181,7 +181,6 @@ const ProfileSettings = () => {
     }));
   };
 
-
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -193,7 +192,10 @@ const ProfileSettings = () => {
               <select
                 value={userProfile.gender}
                 onChange={(e) =>
-                  setUserProfile((prev) => ({ ...prev, gender: e.target.value }))
+                  setUserProfile((prev) => ({
+                    ...prev,
+                    gender: e.target.value,
+                  }))
                 }
               >
                 <option value="">Select Gender</option>
@@ -210,13 +212,17 @@ const ProfileSettings = () => {
                   <label key={preference}>
                     <input
                       type="checkbox"
-                      checked={userProfile.datingPreferences.includes(preference)}
+                      checked={userProfile.datingPreferences.includes(
+                        preference
+                      )}
                       onChange={(e) => {
                         setUserProfile((prev) => ({
                           ...prev,
                           datingPreferences: e.target.checked
                             ? [...prev.datingPreferences, preference]
-                            : prev.datingPreferences.filter((p) => p !== preference),
+                            : prev.datingPreferences.filter(
+                                (p) => p !== preference
+                              ),
                         }));
                       }}
                     />
@@ -328,7 +334,9 @@ const ProfileSettings = () => {
                 onChange={(e) =>
                   setUserProfile((prev) => ({
                     ...prev,
-                    favoriteGames: e.target.value.split(",").map((game) => game.trim()),
+                    favoriteGames: e.target.value
+                      .split(",")
+                      .map((game) => game.trim()),
                   }))
                 }
               />
@@ -397,11 +405,17 @@ const ProfileSettings = () => {
   return (
     <div className="profile-settings">
       {showAlert && (
-        <MinecraftAlert message={alertMessage} onClose={() => setShowAlert(false)} />
+        <MinecraftAlert
+          message={alertMessage}
+          onClose={() => setShowAlert(false)}
+        />
       )}
       <div className="profile-settings-container">
         <div className="header-container">
-          <button onClick={() => navigate("/")} className="back-settings-button">
+          <button
+            onClick={() => navigate("/")}
+            className="back-settings-button"
+          >
             <ArrowLeft size={24} />
             Back
           </button>
@@ -419,17 +433,29 @@ const ProfileSettings = () => {
 
           <div className="form-navigation">
             {currentStep > 1 && (
-              <button type="button" className="nav-button" onClick={handlePrevious}>
+              <button
+                type="button"
+                className="nav-button"
+                onClick={handlePrevious}
+              >
                 Previous
               </button>
             )}
             {currentStep < 3 && (
-              <button type="button" className="nav-button next" onClick={handleNext}>
+              <button
+                type="button"
+                className="nav-button next"
+                onClick={handleNext}
+              >
                 Next
               </button>
             )}
             {currentStep === 3 && (
-              <button type="submit" className="save-button" disabled={isLoading}>
+              <button
+                type="submit"
+                className="save-button"
+                disabled={isLoading}
+              >
                 {isLoading ? "Saving..." : "Save Changes"}
               </button>
             )}

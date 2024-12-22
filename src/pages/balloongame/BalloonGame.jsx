@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Balloon from '../../components/balloon/balloon';
-import GameControls from '../../constants/gamecontrols/GameControls';
-import Chat from '../../constants/chat/Chat';
-import backSound from '../../assets/audio/back.mp3';
-import saveSound from '../../assets/audio/save.mp3';
-import './balloongame.css';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Balloon from "../../components/balloon/balloon";
+import GameControls from "../../constants/gamecontrols/GameControls";
+import Chat from "../../constants/chat/Chat";
+import backSound from "../../assets/audio/back.mp3";
+import saveSound from "../../assets/audio/save.mp3";
+import "./balloongame.css";
 
 const BALLOON_COLORS = ["red", "blue", "yellow", "green", "black", "pink"];
 const GAME_DURATION = 30;
@@ -24,7 +24,7 @@ const BalloonGame = () => {
   const [showFinalScore, setShowFinalScore] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [highScore, setHighScore] = useState(
-    parseInt(localStorage.getItem('balloonGameHighScore')) || 0
+    parseInt(localStorage.getItem("balloonGameHighScore")) || 0
   );
 
   const gameLoop = useRef(null);
@@ -32,7 +32,7 @@ const BalloonGame = () => {
 
   const handleBackClick = () => {
     backAudio.play();
-    navigate('/');
+    navigate("/");
   };
 
   const startGame = useCallback(() => {
@@ -52,47 +52,53 @@ const BalloonGame = () => {
 
   const handleExitToHome = useCallback(() => {
     backAudio.play();
-    navigate('/');
+    navigate("/");
   }, [navigate]);
 
-  const updateHighScore = useCallback((newScore) => {
-    if (newScore > highScore) {
-      setHighScore(newScore);
-      localStorage.setItem('balloonGameHighScore', newScore.toString());
-    }
-  }, [highScore]);
+  const updateHighScore = useCallback(
+    (newScore) => {
+      if (newScore > highScore) {
+        setHighScore(newScore);
+        localStorage.setItem("balloonGameHighScore", newScore.toString());
+      }
+    },
+    [highScore]
+  );
 
-  const popBalloon = useCallback((id, shouldScore) => {
-    setBalloons(prev => prev.filter(balloon => balloon.id !== id));
+  const popBalloon = useCallback(
+    (id, shouldScore) => {
+      setBalloons((prev) => prev.filter((balloon) => balloon.id !== id));
 
-    if (shouldScore) {
-      setScore(prev => {
-        const newScore = prev + 1;
-        const balloon = balloons.find(b => b.id === id);
-        
-        if (balloon) {
-          const popup = {
-            id: Math.random(),
-            x: balloon.x,
-            y: balloon.y,
-            text: '+1'
-          };
-          
-          setScorePopups(prev => [...prev, popup]);
-          setTimeout(() => {
-            setScorePopups(prev => prev.filter(p => p.id !== popup.id));
-          }, 1000);
-        }
+      if (shouldScore) {
+        setScore((prev) => {
+          const newScore = prev + 1;
+          const balloon = balloons.find((b) => b.id === id);
 
-        return newScore;
-      });
-    }
-  }, [balloons]);
+          if (balloon) {
+            const popup = {
+              id: Math.random(),
+              x: balloon.x,
+              y: balloon.y,
+              text: "+1",
+            };
+
+            setScorePopups((prev) => [...prev, popup]);
+            setTimeout(() => {
+              setScorePopups((prev) => prev.filter((p) => p.id !== popup.id));
+            }, 1000);
+          }
+
+          return newScore;
+        });
+      }
+    },
+    [balloons]
+  );
 
   useEffect(() => {
     if (gameActive && timeLeft > 0) {
       gameLoop.current = setInterval(() => {
-        setTimeLeft(prev => {
+        setTimeLeft((prev) => {
           if (prev <= 1) {
             exitGame();
             updateHighScore(score);
@@ -116,9 +122,10 @@ const BalloonGame = () => {
           id: Math.random(),
           x: Math.random() * 80 + 10,
           y: 100,
-          color: BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)]
+          color:
+            BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
         };
-        setBalloons(prev => [...prev, newBalloon]);
+        setBalloons((prev) => [...prev, newBalloon]);
       }, BALLOON_SPAWN_INTERVAL);
     }
 
@@ -163,16 +170,10 @@ const BalloonGame = () => {
               <p className="score-text">New High Score! 🏆</p>
             )}
             <div className="button-container">
-              <button 
-                className="start-button" 
-                onClick={startGame}
-              >
+              <button className="start-button" onClick={startGame}>
                 ▶ Play Again
               </button>
-              <button 
-                className="exit-button" 
-                onClick={handleExitToHome}
-              >
+              <button className="exit-button" onClick={handleExitToHome}>
                 ⬅ Exit to Home
               </button>
             </div>
@@ -181,15 +182,11 @@ const BalloonGame = () => {
       )}
 
       <div className="game-area">
-        {balloons.map(balloon => (
-          <Balloon 
-            key={balloon.id} 
-            {...balloon} 
-            onPop={popBalloon} 
-          />
+        {balloons.map((balloon) => (
+          <Balloon key={balloon.id} {...balloon} onPop={popBalloon} />
         ))}
 
-        {scorePopups.map(popup => (
+        {scorePopups.map((popup) => (
           <div
             key={popup.id}
             className="score-popup"
@@ -208,7 +205,7 @@ const BalloonGame = () => {
         gameActive={gameActive}
         onStartGame={startGame}
         onExitGame={exitGame}
-        onChatToggle={() => setChatOpen(prev => !prev)}
+        onChatToggle={() => setChatOpen((prev) => !prev)}
         chatOpen={chatOpen}
       />
 

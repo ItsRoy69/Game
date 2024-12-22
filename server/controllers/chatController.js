@@ -11,28 +11,28 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const cleanupService = {
   running: false,
-  
+
   async cleanupMessages() {
     if (this.running) return;
-    
+
     this.running = true;
     try {
       const expiredRooms = await ChatRoom.find({
         expiresAt: { $lte: new Date() }
       });
-      
+
       for (const room of expiredRooms) {
         const session = await mongoose.startSession();
         try {
           session.startTransaction();
-          
+
           await Message.deleteMany({
             roomId: room._id,
             type: 'group'
           }, { session });
-          
+
           await ChatRoom.findByIdAndDelete(room._id, { session });
-          
+
           await session.commitTransaction();
         } catch (error) {
           await session.abortTransaction();
@@ -47,8 +47,8 @@ const cleanupService = {
       this.running = false;
     }
   },
-  
-  startPeriodicCleanup(interval = 60 * 60 * 1000) { 
+
+  startPeriodicCleanup(interval = 60 * 60 * 1000) {
     setInterval(() => this.cleanupMessages(), interval);
   }
 };
@@ -64,8 +64,8 @@ const chatController = {
       }
 
       const joinCode = generateJoinCode();
-      const expiresAt = new Date(Date.now() + 5 * 60 * 60 * 1000); 
-      
+      const expiresAt = new Date(Date.now() + 5 * 60 * 60 * 1000);
+
       const room = await ChatRoom.create({
         name: `Room #${joinCode}`,
         type: req.body.type || "public",
@@ -120,7 +120,7 @@ const chatController = {
 
       const roomsWithExpiry = rooms.map(room => ({
         ...room.toJSON(),
-        remainingTime: Math.max(0, room.expiresAt - new Date()) / 1000 / 60 / 60 
+        remainingTime: Math.max(0, room.expiresAt - new Date()) / 1000 / 60 / 60
       }));
 
       res.json({
@@ -150,7 +150,7 @@ const chatController = {
       }
 
       const { joinCode } = req.body;
-      
+
       if (!joinCode) {
         return res.status(400).json({
           success: false,
@@ -158,11 +158,11 @@ const chatController = {
         });
       }
 
-      const room = await ChatRoom.findOne({ 
+      const room = await ChatRoom.findOne({
         joinCode,
-        expiresAt: { $gt: new Date() } 
+        expiresAt: { $gt: new Date() }
       });
-      
+
       if (!room) {
         return res.status(404).json({
           success: false,

@@ -42,7 +42,7 @@ function arrayLimit(val) {
 userSchema.index({ email: 1 });
 userSchema.index({ created_at: -1 });
 
-userSchema.methods.getStats = function() {
+userSchema.methods.getStats = function () {
   return {
     totalLogins: this.login_count || 0,
     lastLogin: this.last_login,

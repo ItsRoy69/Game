@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
-import './chat.css';
+import React, { useRef, useEffect, useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import "./chat.css";
 
 const MessageList = ({ messages = [], isPrivateChat }) => {
   const messagesEndRef = useRef(null);
@@ -17,8 +17,8 @@ const MessageList = ({ messages = [], isPrivateChat }) => {
 
   const formatTime = (date) => {
     return new Date(date).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -35,15 +35,10 @@ const MessageList = ({ messages = [], isPrivateChat }) => {
       {messages.map((msg, index) => {
         const isCurrentUser = msg.sender === user?.sub;
         return (
-          <div
-            key={msg._id || index}
-            className="message-container"
-          >
-            <div className={`message-bubble ${isCurrentUser ? 'user' : 'bot'}`}>
+          <div key={msg._id || index} className="message-container">
+            <div className={`message-bubble ${isCurrentUser ? "user" : "bot"}`}>
               <span>{msg.content}</span>
-              <div className="message-time">
-                {formatTime(msg.createdAt)}
-              </div>
+              <div className="message-time">{formatTime(msg.createdAt)}</div>
             </div>
           </div>
         );

@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { useChat } from '../../contexts/ChatContext';
-import { Plus, Copy, Lock, Globe, ChevronDown, ChevronUp } from 'lucide-react';
-import './chat.css';
-import { useAuth0 } from '@auth0/auth0-react';
+import React, { useState } from "react";
+import { useChat } from "../../contexts/ChatContext";
+import { Plus, Copy, Lock, Globe, ChevronDown, ChevronUp } from "lucide-react";
+import "./chat.css";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const ChatRoomsList = ({ onSelectRoom }) => {
   const { chatRooms, joinRoom, createRoom } = useChat();
-  const [joinCode, setJoinCode] = useState('');
-  const [error, setError] = useState('');
+  const [joinCode, setJoinCode] = useState("");
+  const [error, setError] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [roomType, setRoomType] = useState('public');
+  const [roomType, setRoomType] = useState("public");
   const [showPublicRooms, setShowPublicRooms] = useState(false);
   const { getAccessTokenSilently } = useAuth0();
 
@@ -18,7 +18,7 @@ const ChatRoomsList = ({ onSelectRoom }) => {
       await joinRoom(roomId);
       onSelectRoom(roomId);
     } catch (error) {
-      setError(error.message || 'Failed to join room');
+      setError(error.message || "Failed to join room");
     }
   };
 
@@ -27,9 +27,9 @@ const ChatRoomsList = ({ onSelectRoom }) => {
       const newRoom = await createRoom({ type: roomType });
       handleRoomSelect(newRoom._id);
       setShowCreateModal(false);
-      setRoomType('public');
+      setRoomType("public");
     } catch (error) {
-      setError(error.message || 'Failed to create room');
+      setError(error.message || "Failed to create room");
     }
   };
 
@@ -40,10 +40,10 @@ const ChatRoomsList = ({ onSelectRoom }) => {
 
   const handleJoinByCode = async () => {
     if (!joinCode.trim()) {
-      setError('Join code is required');
+      setError("Join code is required");
       return;
     }
-  
+
     try {
       const token = await getAccessTokenSilently({
         authorizationParams: {
@@ -51,38 +51,41 @@ const ChatRoomsList = ({ onSelectRoom }) => {
           scope: "openid profile email",
         },
       });
-  
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/join`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({ joinCode })
-      });
-  
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/chat/join`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ joinCode }),
+        }
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to join room');
+        throw new Error(errorData.message || "Failed to join room");
       }
-  
+
       const data = await response.json();
       handleRoomSelect(data.data._id);
-      setJoinCode('');
+      setJoinCode("");
     } catch (error) {
-      console.error('Error joining room:', error);
-      setError(error.message || 'Failed to join room');
+      console.error("Error joining room:", error);
+      setError(error.message || "Failed to join room");
     }
   };
 
-  const publicRooms = chatRooms.filter(room => room.type === 'public');
-  const privateRooms = chatRooms.filter(room => room.type === 'private');
+  const publicRooms = chatRooms.filter((room) => room.type === "public");
+  const privateRooms = chatRooms.filter((room) => room.type === "private");
 
   return (
     <div className="chat-rooms-list">
       <div className="rooms-header">
         <h3>Chat Rooms</h3>
-        <button 
+        <button
           className="create-room-btn"
           onClick={() => setShowCreateModal(true)}
         >
@@ -113,14 +116,14 @@ const ChatRoomsList = ({ onSelectRoom }) => {
           Private Rooms
         </h4>
         {privateRooms.map((room) => (
-          <div 
-            key={room._id} 
+          <div
+            key={room._id}
             className="room-item"
             onClick={() => handleRoomSelect(room._id)}
           >
             <div className="room-info">
               <span className="room-id">Room #{room.joinCode}</span>
-              <button 
+              <button
                 onClick={(e) => copyJoinCode(room.joinCode, e)}
                 className="copy-btn"
                 title="Copy room code"
@@ -137,18 +140,22 @@ const ChatRoomsList = ({ onSelectRoom }) => {
 
       {/* Public Rooms Section */}
       <div className="rooms-section">
-        <h4 
+        <h4
           className="section-title toggle-title"
           onClick={() => setShowPublicRooms(!showPublicRooms)}
         >
           <Globe size={16} />
           Public Rooms
-          {showPublicRooms ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {showPublicRooms ? (
+            <ChevronUp size={16} />
+          ) : (
+            <ChevronDown size={16} />
+          )}
         </h4>
-        {showPublicRooms && (
+        {showPublicRooms &&
           publicRooms.map((room) => (
-            <div 
-              key={room._id} 
+            <div
+              key={room._id}
               className="room-item"
               onClick={() => handleRoomSelect(room._id)}
             >
@@ -156,8 +163,7 @@ const ChatRoomsList = ({ onSelectRoom }) => {
                 <span className="room-id">Room #{room.joinCode}</span>
               </div>
             </div>
-          ))
-        )}
+          ))}
         {!showPublicRooms && publicRooms.length === 0 && (
           <div className="no-rooms">No public rooms available</div>
         )}
@@ -180,7 +186,10 @@ const ChatRoomsList = ({ onSelectRoom }) => {
               <button onClick={handleCreateRoom} className="create-btn">
                 Create Room
               </button>
-              <button onClick={() => setShowCreateModal(false)} className="cancel-btn">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="cancel-btn"
+              >
                 Cancel
               </button>
             </div>

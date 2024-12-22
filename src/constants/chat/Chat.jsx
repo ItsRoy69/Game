@@ -1,15 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Users, MessageSquare, X } from 'lucide-react';
-import { useChat } from '../../contexts/ChatContext';
-import { useAuth0 } from '@auth0/auth0-react';
-import ChatRoomsList from './ChatRoomsList';
-import UsersList from './UsersList';
-import MessageList from './MessageList';
-import './Chat.css';
+import React, { useState, useRef, useEffect } from "react";
+import { Send, Users, MessageSquare, X } from "lucide-react";
+import { useChat } from "../../contexts/ChatContext";
+import { useAuth0 } from "@auth0/auth0-react";
+import ChatRoomsList from "./ChatRoomsList";
+import UsersList from "./UsersList";
+import MessageList from "./MessageList";
+import "./Chat.css";
 
 const Chat = ({ onClose }) => {
-  const [inputText, setInputText] = useState('');
-  const [view, setView] = useState('rooms');
+  const [inputText, setInputText] = useState("");
+  const [view, setView] = useState("rooms");
   const [selectedUser, setSelectedUser] = useState(null);
   const inputRef = useRef(null);
   const { user } = useAuth0();
@@ -18,7 +18,7 @@ const Chat = ({ onClose }) => {
     sendPrivateMessage,
     sendGroupMessage,
     privateChats,
-    roomMessages
+    roomMessages,
   } = useChat();
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const Chat = ({ onClose }) => {
       sendGroupMessage(currentRoom, inputText);
     }
 
-    setInputText('');
+    setInputText("");
   };
 
   const getCurrentMessages = () => {
@@ -47,7 +47,7 @@ const Chat = ({ onClose }) => {
     }
     return [];
   };
-  
+
   const renderContent = () => {
     switch (view) {
       case "rooms":

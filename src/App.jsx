@@ -1,13 +1,14 @@
-import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { useEffect } from 'react';
-import axios from 'axios';
-import { ChatProvider } from './contexts/ChatContext';
-import AppRoutes from './routes/Routes';
-import './App.css';
+import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
+import { BrowserRouter as Router } from "react-router-dom";
+import { useEffect } from "react";
+import axios from "axios";
+import { ChatProvider } from "./contexts/ChatContext";
+import AppRoutes from "./routes/Routes";
+import "./App.css";
 
 function AuthenticationWrapper({ children }) {
-  const { isAuthenticated, getAccessTokenSilently, user, isLoading } = useAuth0();
+  const { isAuthenticated, getAccessTokenSilently, user, isLoading } =
+    useAuth0();
 
   useEffect(() => {
     const syncUserData = async () => {
@@ -16,14 +17,14 @@ function AuthenticationWrapper({ children }) {
           const token = await getAccessTokenSilently({
             authorizationParams: {
               audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-              scope: 'openid profile email'
-            }
+              scope: "openid profile email",
+            },
           });
-          
+
           const API_BASE_URL = import.meta.env.VITE_API_URL;
-          
-          console.log('Token obtained:', token ? 'Token exists' : 'No token');
-          
+
+          console.log("Token obtained:", token ? "Token exists" : "No token");
+
           const response = await axios.post(
             `${API_BASE_URL}/api/users`,
             {
@@ -35,19 +36,19 @@ function AuthenticationWrapper({ children }) {
             },
             {
               headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
               },
             }
           );
-          
-          console.log('User sync successful:', response.data);
+
+          console.log("User sync successful:", response.data);
         } catch (error) {
-          console.error('Error syncing user data:', {
+          console.error("Error syncing user data:", {
             message: error.message,
             response: error.response?.data,
             status: error.response?.status,
-            headers: error.response?.headers
+            headers: error.response?.headers,
           });
         }
       }
@@ -73,7 +74,7 @@ function App() {
       authorizationParams={{
         redirect_uri: window.location.origin,
         audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-        scope: 'openid profile email'
+        scope: "openid profile email",
       }}
       cacheLocation="localstorage"
       useRefreshTokens={true}

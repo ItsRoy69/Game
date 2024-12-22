@@ -26,7 +26,7 @@ const chatRoomSchema = new mongoose.Schema({
   expiresAt: {
     type: Date,
     required: true,
-    default: () => new Date(Date.now() + 5 * 60 * 60 * 1000) 
+    default: () => new Date(Date.now() + 5 * 60 * 60 * 1000)
   }
 }, {
   timestamps: true
@@ -35,7 +35,7 @@ const chatRoomSchema = new mongoose.Schema({
 chatRoomSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 chatRoomSchema.index({ members: 1 });
 
-chatRoomSchema.pre('remove', async function(next) {
+chatRoomSchema.pre('remove', async function (next) {
   try {
     await mongoose.model('Message').deleteMany({
       roomId: this._id,

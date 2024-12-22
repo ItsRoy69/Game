@@ -9,7 +9,7 @@ import "./home.css";
 
 function Home() {
   const { isAuthenticated, user, loginWithRedirect } = useAuth0();
-  
+
   const saveAudio = new Audio(saveSound);
   const settingAudio = new Audio(settingSound);
 

@@ -1,6 +1,6 @@
-import React from 'react';
-import { useChat } from '../../contexts/ChatContext';
-import './chat.css';
+import React from "react";
+import { useChat } from "../../contexts/ChatContext";
+import "./chat.css";
 
 const UsersList = ({ onSelectUser }) => {
   const { activeUsers } = useChat();
@@ -28,6 +28,5 @@ const UsersList = ({ onSelectUser }) => {
     </div>
   );
 };
-
 
 export default UsersList;

@@ -258,22 +258,22 @@
   .game-title {
     font-size: 2rem;
   }
-  
+
   .back-button {
     padding: 6px 12px;
     font-size: 1rem;
     left: 10px;
   }
-  
+
   .stats {
     flex-wrap: wrap;
     gap: 10px;
   }
-  
+
   .stats-item {
     font-size: 1rem;
   }
-  
+
   .stats-icon {
     font-size: 1.2rem;
   }
@@ -283,23 +283,23 @@
   .game-title {
     font-size: 1.5rem;
   }
-  
+
   .game-header {
     padding: 0 50px;
   }
-  
+
   .minecraft-score h2 {
     font-size: 2rem;
   }
-  
+
   .score-text {
     font-size: 1.5rem;
   }
-  
+
   .button-container {
     flex-direction: column;
   }
-  
+
   .start-button,
   .exit-button,
   .chat-toggle {

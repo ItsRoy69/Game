@@ -3,13 +3,11 @@
   src: url("../../assets/font/Minecraft.ttf") format("truetype");
 }
 
-/* Base Container Styles */
 .chat-container {
   font-family: "Minecraft", Arial, sans-serif;
   image-rendering: pixelated;
 }
 
-/* Chat Panel */
 .chat-panel {
   position: fixed;
   right: 20px;
@@ -23,7 +21,6 @@
   height: 400px;
 }
 
-/* Chat Content */
 .chat-content {
   height: 300px;
   overflow-y: auto;
@@ -31,7 +28,6 @@
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* Chat Header */
 .chat-header {
   padding: 8px;
   background-color: #1f1f1f;
@@ -65,7 +61,6 @@
   color: #ff5555;
 }
 
-/* Chat Messages Area */
 .chat-messages {
   height: 100%;
   overflow-y: auto;
@@ -104,7 +99,6 @@
   color: #aaaaaa;
 }
 
-/* Chat Input Area */
 .chat-input {
   padding: 8px;
   display: flex;
@@ -129,7 +123,6 @@
   border-color: #55ff55;
 }
 
-/* Chat Rooms List */
 .chat-rooms-list {
   height: 100%;
   overflow-y: auto;
@@ -154,7 +147,6 @@
   font-size: 16px;
 }
 
-/* Button Styles */
 .minecraft-button {
   background-color: #5a5a5a;
   border: 2px solid #404040;
@@ -204,7 +196,6 @@
   box-shadow: inset 2px 2px #000000;
 }
 
-/* Join Room Form */
 .join-room-form {
   padding: 4px;
   background-color: #1f1f1f;
@@ -258,7 +249,6 @@
   box-shadow: inset 2px 2px #000000;
 }
 
-/* Room Sections */
 .rooms-section {
   margin-bottom: 16px;
 }
@@ -298,7 +288,6 @@
   font-size: 14px;
 }
 
-/* Copy Button */
 .copy-btn {
   background: none;
   border: none;
@@ -311,7 +300,6 @@
   color: #55ff55;
 }
 
-/* Error Message */
 .error-message {
   color: #ff5555;
   text-shadow: 2px 2px #000000;
@@ -323,7 +311,6 @@
   font-size: 14px;
 }
 
-/* Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -381,7 +368,6 @@
   background-color: #666666;
 }
 
-/* No Rooms Message */
 .no-rooms {
   color: #aaaaaa;
   text-shadow: 2px 2px #000000;
@@ -392,7 +378,6 @@
   border: 2px solid #404040;
 }
 
-/* Chat Tabs */
 .chat-tabs {
   display: flex;
   gap: 4px;
@@ -439,9 +424,9 @@
   background-color: #ff5555;
 }
 
-/* Scrollbar Styles */
 ::-webkit-scrollbar {
   width: 6px;
+  display: none;
 }
 
 ::-webkit-scrollbar-track {

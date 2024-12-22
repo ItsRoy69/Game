@@ -13,7 +13,7 @@ function initializeSocket(server) {
   });
 
   const activeUsers = new Map();
-  const userRooms = new Map(); 
+  const userRooms = new Map();
   const isRoomExpired = async (roomId) => {
     try {
       const room = await ChatRoom.findById(roomId);
@@ -36,7 +36,7 @@ function initializeSocket(server) {
 
     socket.on('private_message', async (data) => {
       const { to, message, from } = data;
-      
+
       try {
         const newMessage = await Message.create({
           sender: from,
@@ -61,7 +61,7 @@ function initializeSocket(server) {
 
     socket.on('group_message', async (data) => {
       const { roomId, message, from, tempId } = data;
-      
+
       try {
         const newMessage = await Message.create({
           sender: from,
@@ -69,7 +69,7 @@ function initializeSocket(server) {
           content: message,
           type: 'group'
         });
-    
+
         io.to(roomId).emit('group_message', {
           roomId,
           message: newMessage,
@@ -83,7 +83,7 @@ function initializeSocket(server) {
     });
     socket.on('join_room', async (data) => {
       const { roomId, userId } = data;
-      
+
       try {
         const room = await ChatRoom.findOne({
           _id: roomId,
@@ -106,7 +106,7 @@ function initializeSocket(server) {
 
         socket.join(roomId);
 
-        const messages = await Message.find({ 
+        const messages = await Message.find({
           roomId,
           type: 'group'
         })
@@ -131,15 +131,15 @@ function initializeSocket(server) {
 
     socket.on('leave_room', async (data) => {
       const { roomId, userId } = data;
-      
+
       if (userId && roomId) {
         const userRoomSet = userRooms.get(userId);
         if (userRoomSet) {
           userRoomSet.delete(roomId);
         }
-        
+
         socket.leave(roomId);
-        
+
         socket.to(roomId).emit('user_left_room', {
           userId,
           userName: activeUsers.get(socket.id)?.userName
@@ -169,7 +169,7 @@ function initializeSocket(server) {
 
     socket.on('mark_messages_read', async (data) => {
       const { messageIds, userId } = data;
-      
+
       try {
         await Message.updateMany(
           {
@@ -194,7 +194,7 @@ function initializeSocket(server) {
 
     socket.on('disconnect', () => {
       const userData = activeUsers.get(socket.id);
-      
+
       if (userData) {
         const userRoomSet = userRooms.get(userData.userId);
         if (userRoomSet) {
@@ -206,17 +206,17 @@ function initializeSocket(server) {
           });
           userRooms.delete(userData.userId);
         }
-        
+
         io.emit('user_offline', {
           userId: userData.userId,
           userName: userData.userName
         });
       }
-      
+
       activeUsers.delete(socket.id);
-      
+
       io.emit('active_users', Array.from(activeUsers.values()));
-      
+
       console.log('User disconnected:', socket.id);
     });
 

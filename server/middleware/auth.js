@@ -39,7 +39,7 @@ const handleAuthError = (err, req, res, next) => {
       code: err.code,
       status: err.status
     });
-    
+
     return res.status(401).json({
       success: false,
       message: 'Authentication failed',
@@ -56,8 +56,8 @@ const extractUser = (req, res, next) => {
   next();
 };
 
-module.exports = { 
-  authMiddleware, 
+module.exports = {
+  authMiddleware,
   handleAuthError,
-  extractUser 
+  extractUser
 };

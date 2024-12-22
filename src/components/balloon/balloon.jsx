@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import './balloon.css';
-import blueBalloon from '../../assets/blue-balloon.png';
-import redBalloon from '../../assets/red-balloon.png';
-import yellowBalloon from '../../assets/yellow-balloon.png';
-import greenBalloon from '../../assets/green-balloon.png';
-import blackBalloon from '../../assets/black-balloon.png';
-import pinkBalloon from '../../assets/pink-balloon.png';
-import balloonBurstSound from '../../assets/audio/balloon-burst.mp3';
+import React, { useEffect, useState, useCallback } from "react";
+import "./balloon.css";
+import blueBalloon from "../../assets/blue-balloon.png";
+import redBalloon from "../../assets/red-balloon.png";
+import yellowBalloon from "../../assets/yellow-balloon.png";
+import greenBalloon from "../../assets/green-balloon.png";
+import blackBalloon from "../../assets/black-balloon.png";
+import pinkBalloon from "../../assets/pink-balloon.png";
+import balloonBurstSound from "../../assets/audio/balloon-burst.mp3";
 
 const BALLOON_IMAGES = {
   blue: blueBalloon,
@@ -14,7 +14,7 @@ const BALLOON_IMAGES = {
   yellow: yellowBalloon,
   green: greenBalloon,
   black: blackBalloon,
-  pink: pinkBalloon
+  pink: pinkBalloon,
 };
 
 const burstAudio = new Audio(balloonBurstSound);
@@ -42,7 +42,7 @@ function Balloon({ id, x, y, color, onPop }) {
       setIsPopping(true);
       burstAudio.currentTime = 0;
       burstAudio.play();
-      
+
       setTimeout(() => {
         onPop(id, true);
       }, 300);
@@ -53,7 +53,7 @@ function Balloon({ id, x, y, color, onPop }) {
     <img
       src={BALLOON_IMAGES[color]}
       alt={`${color} balloon`}
-      className={`balloon ${isPopping ? 'balloon-pop' : ''}`}
+      className={`balloon ${isPopping ? "balloon-pop" : ""}`}
       style={{
         left: `${x}%`,
         bottom: `${position}%`,

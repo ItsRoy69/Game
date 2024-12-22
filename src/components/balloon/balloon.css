@@ -1,43 +1,44 @@
 .balloon {
-    position: absolute;
-    width: 60px;
-    height: 6 px;
-    cursor: pointer;
-    transform-origin: bottom center;
-    animation: float 2s ease-in-out infinite;
-    transition: transform 0.3s ease-out;
-    user-select: none;
-    -webkit-user-drag: none;
+  position: absolute;
+  width: 60px;
+  height: 6 px;
+  cursor: pointer;
+  transform-origin: bottom center;
+  animation: float 2s ease-in-out infinite;
+  transition: transform 0.3s ease-out;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.balloon:hover {
+  transform: scale(1.1);
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
   }
-  
-  .balloon:hover {
-    transform: scale(1.1);
+  50% {
+    transform: translateY(-10px) rotate(2deg);
   }
-  
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0) rotate(0deg);
-    }
-    50% {
-      transform: translateY(-10px) rotate(2deg);
-    }
+}
+
+.balloon-pop {
+  animation: pop 0.3s ease-out forwards;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+    opacity: 1;
   }
-  
-  .balloon-pop {
-    animation: pop 0.3s ease-out forwards;
+  50% {
+    transform: scale(1.2);
+    opacity: 0.5;
   }
-  
-  @keyframes pop {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.2);
-      opacity: 0.5;
-    }
-    100% {
-      transform: scale(0);
-      opacity: 0;
-    }
+  100% {
+    transform: scale(0);
+    opacity: 0;
   }
+}

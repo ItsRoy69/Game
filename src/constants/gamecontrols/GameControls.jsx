@@ -20,13 +20,15 @@ const GameControls = ({
 
         <button
           onClick={gameActive ? onExitGame : onStartGame}
-          className={`minecraft-button ${gameActive ? "exit-button" : "start-button"}`}
+          className={`minecraft-button ${
+            gameActive ? "exit-button" : "start-button"
+          }`}
         >
           {gameActive ? "⬛ Stop Game" : "▶ Start Game"}
         </button>
 
-        <button 
-          className={`minecraft-button chat-button ${chatOpen ? 'active' : ''}`}
+        <button
+          className={`minecraft-button chat-button ${chatOpen ? "active" : ""}`}
           onClick={onChatToggle}
         >
           <MessageCircle className="chat-icon" />

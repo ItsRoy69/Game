@@ -6,16 +6,16 @@ const userController = {
     try {
       console.log('Received user data:', req.body);
       const { auth0Id } = req.body;
-      
+
       const updateData = {
         ...req.body,
         updated_at: new Date(),
         last_login: new Date(),
         $inc: { login_count: 1 },
-        $push: { 
+        $push: {
           login_history: {
             $each: [new Date()],
-            $slice: -10 
+            $slice: -10
           }
         }
       };
@@ -23,13 +23,13 @@ const userController = {
       const user = await User.findOneAndUpdate(
         { auth0Id },
         updateData,
-        { 
+        {
           new: true,
           upsert: true,
           setDefaultsOnInsert: true
         }
       );
-      
+
       res.json(user);
     } catch (error) {
       if (error.code === 11000) {
@@ -51,13 +51,13 @@ const userController = {
   async getUser(req, res, next) {
     try {
       const user = await User.findOne({ auth0Id: req.params.auth0Id });
-      
+
       if (!user) {
         const error = new Error('User not found');
         error.status = 404;
         throw error;
       }
-      
+
       res.json(user);
     } catch (error) {
       next(error);
@@ -96,7 +96,7 @@ const userController = {
       if (updateData.photos) {
         try {
           const existingUser = await User.findOne({ auth0Id });
-        
+
           if (existingUser && existingUser.photos) {
             for (const oldPhoto of existingUser.photos) {
               if (!updateData.photos.includes(oldPhoto)) {
@@ -247,10 +247,10 @@ const userController = {
 
       try {
         const uploadedUrl = await appwriteUpload.saveImage(photo);
-        
+
         const user = await User.findOneAndUpdate(
           { auth0Id },
-          { 
+          {
             $push: { photos: uploadedUrl },
             updated_at: new Date()
           },
@@ -301,7 +301,7 @@ const userController = {
 
       const updatedUser = await User.findOneAndUpdate(
         { auth0Id },
-        { 
+        {
           $pull: { photos: photoUrl },
           updated_at: new Date()
         },
