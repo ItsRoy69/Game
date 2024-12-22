@@ -1,6 +1,11 @@
-const ChatRoom = require("../models/ChatRoom");
-const Message = require("../models/Message");
-const mongoose = require("mongoose");
+const ChatRoom = require('../models/ChatRoom');
+const Message = require('../models/Message');
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+
+const generateJoinCode = () => {
+  return crypto.randomBytes(4).toString('hex');
+};
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -14,42 +19,23 @@ const chatController = {
         });
       }
 
-      const { name, description, type, members } = req.body;
-
-      if (!name) {
-        return res.status(400).json({
-          success: false,
-          message: "Room name is required",
-        });
-      }
-
-      if (type && !["public", "private"].includes(type)) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid room type. Must be 'public' or 'private'",
-        });
-      }
-
+      const joinCode = generateJoinCode();
+      
       const room = await ChatRoom.create({
-        name,
-        description: description || "",
-        type: type || "public",
-        members: [...new Set([...(members || []), req.user.auth0Id])],
+        name: req.body.name || `Room #${joinCode}`,
+        type: req.body.type || "public",
+        members: [req.user.auth0Id],
         admins: [req.user.auth0Id],
+        joinCode,
+        description: req.body.description
       });
 
       res.status(201).json({
         success: true,
         message: "Chat room created successfully",
-        data: room,
+        data: room
       });
     } catch (error) {
-      if (error.code === 11000) {
-        return res.status(409).json({
-          success: false,
-          message: "A room with this name already exists",
-        });
-      }
       next(error);
     }
   },
@@ -68,13 +54,11 @@ const chatController = {
       const skip = (page - 1) * limit;
 
       const query = {
-        $or: [{ type: "public" }, { members: req.user.auth0Id }],
+        $or: [{ type: "public" }, { members: req.user.auth0Id }]
       };
 
       if (req.query.search) {
-        query.$or.push({
-          name: new RegExp(req.query.search, "i"),
-        });
+        query.name = new RegExp(req.query.search, "i");
       }
 
       const rooms = await ChatRoom.find(query)
@@ -95,6 +79,49 @@ const chatController = {
             hasMore: total > skip + rooms.length,
           },
         },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+
+  async joinRoomByCode(req, res, next) {
+    try {
+      if (!req.user?.auth0Id) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized - User not authenticated",
+        });
+      }
+
+      const { joinCode } = req.body;
+      
+      if (!joinCode) {
+        return res.status(400).json({
+          success: false,
+          message: "Join code is required"
+        });
+      }
+
+      const room = await ChatRoom.findOne({ joinCode });
+      
+      if (!room) {
+        return res.status(404).json({
+          success: false,
+          message: "Room not found with this join code"
+        });
+      }
+
+      if (!room.members.includes(req.user.auth0Id)) {
+        room.members.push(req.user.auth0Id);
+        await room.save();
+      }
+
+      res.json({
+        success: true,
+        message: "Successfully joined room",
+        data: room
       });
     } catch (error) {
       next(error);
@@ -284,46 +311,54 @@ const chatController = {
         });
       }
 
+      const { userId } = req.params;
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 50;
       const skip = (page - 1) * limit;
 
-      const dateFilter = {};
+      // Get messages where the current user is either sender or recipient
+      const query = {
+        type: 'private',
+        $or: [
+          { sender: req.user.auth0Id, recipient: userId },
+          { sender: userId, recipient: req.user.auth0Id }
+        ]
+      };
+
+      // Add date filters if provided
       if (req.query.startDate) {
-        dateFilter.createdAt = { $gte: new Date(req.query.startDate) };
+        query.createdAt = { $gte: new Date(req.query.startDate) };
       }
       if (req.query.endDate) {
-        dateFilter.createdAt = {
-          ...dateFilter.createdAt,
-          $lte: new Date(req.query.endDate),
+        query.createdAt = {
+          ...query.createdAt,
+          $lte: new Date(req.query.endDate)
         };
       }
 
-      const messages = await Message.find({
-        type: "private",
-        $or: [
-          { sender: req.user.auth0Id, recipient: req.params.userId },
-          { sender: req.params.userId, recipient: req.user.auth0Id },
-        ],
-        ...dateFilter,
-      })
+      const messages = await Message.find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
 
-      const total = await Message.countDocuments({
-        type: "private",
-        $or: [
-          { sender: req.user.auth0Id, recipient: req.params.userId },
-          { sender: req.params.userId, recipient: req.user.auth0Id },
-        ],
-        ...dateFilter,
-      });
+      const total = await Message.countDocuments(query);
+
+      // Mark messages as read if recipient is current user
+      if (messages.length > 0) {
+        await Message.updateMany(
+          {
+            _id: { $in: messages.map(m => m._id) },
+            recipient: req.user.auth0Id,
+            read: false
+          },
+          { read: true }
+        );
+      }
 
       res.json({
         success: true,
         data: {
-          messages: messages.reverse(),
+          messages: messages.reverse(), // Return in chronological order
           pagination: {
             currentPage: page,
             totalPages: Math.ceil(total / limit),
@@ -409,76 +444,6 @@ const chatController = {
             totalMessages: total,
             hasMore: total > skip + messages.length,
           },
-        },
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  async markMessagesAsRead(req, res, next) {
-    try {
-      if (!req.user?.auth0Id) {
-        return res.status(401).json({
-          success: false,
-          message: "Unauthorized - User not authenticated",
-        });
-      }
-
-      const { messageIds } = req.body;
-
-      if (!Array.isArray(messageIds)) {
-        return res.status(400).json({
-          success: false,
-          message: "messageIds must be an array",
-        });
-      }
-
-      if (!messageIds.every((id) => isValidObjectId(id))) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid message ID format",
-        });
-      }
-
-      await Message.updateMany(
-        {
-          _id: { $in: messageIds },
-          recipient: req.user.auth0Id,
-          read: false,
-        },
-        {
-          $set: { read: true },
-        }
-      );
-
-      res.json({
-        success: true,
-        message: "Messages marked as read successfully",
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  async getUnreadMessageCount(req, res, next) {
-    try {
-      if (!req.user?.auth0Id) {
-        return res.status(401).json({
-          success: false,
-          message: "Unauthorized - User not authenticated",
-        });
-      }
-
-      const unreadCount = await Message.countDocuments({
-        recipient: req.user.auth0Id,
-        read: false,
-      });
-
-      res.json({
-        success: true,
-        data: {
-          unreadCount,
         },
       });
     } catch (error) {

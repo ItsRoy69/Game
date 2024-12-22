@@ -5,6 +5,11 @@ const chatRoomSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  joinCode: {
+    type: String,
+    required: true,
+    unique: true
+  },
   description: String,
   type: {
     type: String,

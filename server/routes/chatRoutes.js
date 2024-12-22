@@ -3,7 +3,7 @@ const router = express.Router();
 const chatController = require('../controllers/chatController');
 const { authMiddleware, handleAuthError, extractUser } = require('../middleware/auth');
 
-// Define debug middleware
+// Debug middleware
 const debugMiddleware = (req, res, next) => {
   console.log('Request Headers:', req.headers);
   console.log('Request Body:', req.body);
@@ -12,18 +12,18 @@ const debugMiddleware = (req, res, next) => {
   next();
 };
 
-// Add middlewares in the correct order
+// Apply middleware
 router.use(debugMiddleware);
 router.use(authMiddleware);
 router.use(extractUser);
 
-// Your existing routes
+// Chat routes
 router.post('/rooms', chatController.createRoom);
-router.get('/rooms', chatController.getRooms);  // Note: Added missing getRooms route
+router.get('/rooms', chatController.getRooms);
 router.get('/rooms/:roomId', chatController.getRoomDetails);
 router.put('/rooms/:roomId', chatController.updateRoom);
 router.delete('/rooms/:roomId', chatController.deleteRoom);
-
+router.post('/join', chatController.joinRoomByCode);
 router.get('/messages/private/:userId', chatController.getPrivateMessages);
 router.get('/messages/room/:roomId', chatController.getRoomMessages);
 

@@ -1,46 +1,52 @@
 import React, { useState } from 'react';
 import { useChat } from '../../contexts/ChatContext';
-import { Plus } from 'lucide-react';
+import { Plus, Copy } from 'lucide-react';
 import './chat.css';
-import { useAuth0 } from '@auth0/auth0-react';
 
 const ChatRoomsList = ({ onSelectRoom }) => {
   const { chatRooms, joinRoom, createRoom } = useChat();
-  const { isAuthenticated } = useAuth0();
-  const [isCreating, setIsCreating] = useState(false);
-  const [newRoomName, setNewRoomName] = useState('');
+  const [joinCode, setJoinCode] = useState('');
   const [error, setError] = useState('');
 
-  const handleRoomSelect = (roomId) => {
-    joinRoom(roomId);
-    if (onSelectRoom) onSelectRoom();
+  const handleCreateRoom = async () => {
+    try {
+      const newRoom = await createRoom();
+      handleRoomSelect(newRoom._id);
+    } catch (error) {
+      setError(error.message || 'Failed to create room');
+    }
   };
 
-  const handleCreateRoom = async () => {
-    if (!newRoomName.trim()) {
-      setError('Room name is required');
+  const copyJoinCode = (code) => {
+    navigator.clipboard.writeText(code);
+  };
+
+  const handleJoinByCode = async () => {
+    if (!joinCode.trim()) {
+      setError('Join code is required');
       return;
     }
 
     try {
-      setIsCreating(true);
-      setError('');
-      const newRoom = await createRoom({
-        name: newRoomName,
-        type: 'public'
+      const response = await fetch('http://localhost:5000/api/chat/join', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ joinCode })
       });
-      setNewRoomName('');
-      handleRoomSelect(newRoom._id);
+
+      if (!response.ok) {
+        throw new Error('Failed to join room');
+      }
+
+      const data = await response.json();
+      handleRoomSelect(data.data._id);
+      setJoinCode('');
     } catch (error) {
-      setError(error.message || 'Failed to create room');
-    } finally {
-      setIsCreating(false);
+      setError(error.message);
     }
   };
-
-  if (!isAuthenticated) {
-    return <div className="chat-rooms-list">Please log in to view chat rooms</div>;
-  }
 
   return (
     <div className="chat-rooms-list">
@@ -48,59 +54,48 @@ const ChatRoomsList = ({ onSelectRoom }) => {
         <h3>Chat Rooms</h3>
         <button 
           className="create-room-btn"
-          onClick={() => setNewRoomName('')}
-          disabled={isCreating}
+          onClick={handleCreateRoom}
         >
           <Plus size={16} />
           New Room
         </button>
       </div>
 
-      {/* Room creation form */}
-      {newRoomName !== null && (
-        <div className="room-creation-form">
-          <input
-            type="text"
-            value={newRoomName}
-            onChange={(e) => setNewRoomName(e.target.value)}
-            placeholder="Enter room name"
-            className="room-name-input"
-          />
-          {error && <div className="error-message">{error}</div>}
-          <div className="form-buttons">
-            <button 
-              onClick={handleCreateRoom}
-              disabled={isCreating}
-              className="create-btn"
-            >
-              {isCreating ? 'Creating...' : 'Create'}
-            </button>
-            <button 
-              onClick={() => setNewRoomName(null)}
-              disabled={isCreating}
-              className="cancel-btn"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-      
+      {/* Join by code input */}
+      <div className="join-room-form">
+        <input
+          type="text"
+          value={joinCode}
+          onChange={(e) => setJoinCode(e.target.value)}
+          placeholder="Enter room code to join"
+          className="join-code-input"
+        />
+        <button onClick={handleJoinByCode} className="join-btn">
+          Join
+        </button>
+      </div>
+
+      {error && <div className="error-message">{error}</div>}
+
       {/* Room list */}
-      {Array.isArray(chatRooms) && chatRooms.length > 0 ? (
-        chatRooms.map((room) => (
-          <div
-            key={room._id}
-            className="room-item"
-            onClick={() => handleRoomSelect(room._id)}
-          >
-            <div className="room-info">
-              <span className="room-name">{room.name}</span>
-              <span className="room-type">{room.type}</span>
+      {chatRooms.map((room) => (
+        <div key={room._id} className="room-item">
+          <div className="room-info">
+            <span className="room-name">Room #{room.joinCode}</span>
+            <div className="room-code">
+              <button 
+                onClick={() => copyJoinCode(room.joinCode)}
+                className="copy-btn"
+                title="Copy room code"
+              >
+                <Copy size={16} />
+              </button>
             </div>
           </div>
-        ))
-      ) : (
+        </div>
+      ))}
+
+      {chatRooms.length === 0 && (
         <div className="no-rooms">No chat rooms available</div>
       )}
     </div>
