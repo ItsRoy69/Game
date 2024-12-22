@@ -1,9 +1,9 @@
 .home {
   min-height: 100vh;
   background-color: #1d1f21;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-    url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMjHxIGmVAAAAVklEQVRoQ+3PMREAIAADITvkX8kKyH2Q0PBv5t5zxQAAAAAALHhnraWktZa01pLWWtJaS1prSWstaa0lrbWktZa01pLWWtJaS1prSWstaR0AAADA7wEdzIwJWqwJ4wAAAABJRU5ErkJggg==");
   font-family: "MinecraftiaRegular", "VT323", monospace;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+  url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMjHxIGmVAAAAVklEQVRoQ+3PMREAIAADITvkX8kKyH2Q0PBv5t5zxQAAAAAALHhnraWktZa01pLWWtJaS1prSWstaa0lrbWktZa01pLWWtJaS1prSWstaR0AAADA7wEdzIwJWqwJ4wAAAABJRU5ErkJggg==");
 }
 
 .home-container {
