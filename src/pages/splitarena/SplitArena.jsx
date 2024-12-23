@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useChat } from '../../contexts/ChatContext';
 import BalloonGame from '../balloongame/BalloonGame';
 import './splitarena.css';
 
@@ -10,9 +11,42 @@ const SplitArena = () => {
   const [player2Score, setPlayer2Score] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [localPlayerReady, setLocalPlayerReady] = useState(false);
+  const [opponentReady, setOpponentReady] = useState(false);
   const navigate = useNavigate();
   const rightGameRef = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const { socket } = useChat();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('player_ready', (data) => {
+      if (data.playerId === opponent.userId) {
+        setOpponentReady(true);
+      }
+    });
+
+    socket.on('game_start', () => {
+      setGameStarted(true);
+    });
+
+    return () => {
+      socket.off('player_ready');
+      socket.off('game_start');
+    };
+  }, [socket, opponent]);
+
+  useEffect(() => {
+    if (localPlayerReady && opponentReady) {
+      setTimeout(() => {
+        setGameStarted(true);
+        socket.emit('game_start', {
+          opponentId: opponent.userId
+        });
+      }, 1000);
+    }
+  }, [localPlayerReady, opponentReady, socket, opponent]);
 
   const handleDragStart = (e) => {
     const rightGame = rightGameRef.current;
@@ -61,7 +95,11 @@ const SplitArena = () => {
   };
 
   const handleStartGame = () => {
-    setGameStarted(true);
+    setLocalPlayerReady(true);
+    socket.emit('player_ready', {
+      playerId: socket.auth.userId,
+      opponentId: opponent.userId
+    });
   };
 
   const toggleMinimize = () => {
@@ -95,9 +133,20 @@ const SplitArena = () => {
       </div>
 
       {!gameStarted && (
-        <button className="start-button" onClick={handleStartGame}>
-          Start Game
-        </button>
+        <div className="ready-status">
+          <button 
+            className={`start-button ${localPlayerReady ? 'ready' : ''}`} 
+            onClick={handleStartGame}
+            disabled={localPlayerReady}
+          >
+            {localPlayerReady ? "Ready!" : "Click When Ready"}
+          </button>
+          <div className="opponent-status">
+            {opponentReady ? 
+              `Opponent ${opponent.userName} is ready!` : 
+              `Waiting for ${opponent.userName} to be ready!`}
+          </div>
+        </div>
       )}
 
       <div className="arena-content">

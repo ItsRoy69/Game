@@ -165,6 +165,18 @@ function initializeSocket(server) {
       socket.to(roomId).emit('user_typing', { userId, userName });
     });
 
+    socket.on('player_ready', (data) => {
+      const { playerId, opponentId } = data;
+      socket.to(opponentId).emit('player_ready', {
+        playerId
+      });
+    });
+    
+    socket.on('game_start', (data) => {
+      const { opponentId } = data;
+      socket.to(opponentId).emit('game_start');
+    });
+
     socket.on('typing_stop', (data) => {
       const { roomId, userId } = data;
       socket.to(roomId).emit('user_stopped_typing', { userId });
