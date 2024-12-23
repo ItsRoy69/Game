@@ -254,10 +254,10 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate }) => {
               <p className="new-high-score">New High Score! 🏆</p>
             )}
             <div className="button-container">
-              <button className="start-button" onClick={startGame}>
+              <button className="start-button-final" onClick={startGame}>
                 ▶ Play Again
               </button>
-              <button className="exit-button" onClick={handleExitToHome}>
+              <button className="exit-button-final" onClick={handleExitToHome}>
                 ⬅ Exit to Home
               </button>
             </div>

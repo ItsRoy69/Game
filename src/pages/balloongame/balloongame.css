@@ -97,8 +97,8 @@
   position: relative;
 }
 
-.start-button,
-.exit-button {
+.start-button-final,
+.exit-button-final {
   padding: 8px 16px;
   font-size: 1.2rem;
   color: #ffffff;
@@ -112,21 +112,21 @@
   transition: all 0.1s ease;
 }
 
-.start-button {
+.start-button-final {
   background-color: #008800;
 }
 
-.exit-button {
+.exit-button-final {
   background-color: #aa0000;
 }
 
-.start-button:hover,
-.exit-button:hover {
+.start-button-final:hover,
+.exit-button-final:hover {
   filter: brightness(1.1);
 }
 
-.start-button:active,
-.exit-button:active {
+.start-button-final:active,
+.exit-button-final:active {
   box-shadow: inset 2px 4px #000000;
   transform: translateY(2px);
 }
@@ -300,8 +300,8 @@
     flex-direction: column;
   }
 
-  .start-button,
-  .exit-button,
+  .start-button-final,
+  .exit-button-final,
   .chat-toggle {
     font-size: 1rem;
     padding: 6px 12px;
