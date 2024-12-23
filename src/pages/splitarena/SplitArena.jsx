@@ -155,9 +155,12 @@ const SplitArena = () => {
           <div className="game-wrapper">
             {gameStarted && (
               <BalloonGame 
-                isArenaMode={true}
-                onScoreUpdate={handlePlayer1Score}
-              />
+              isArenaMode={true}
+              onScoreUpdate={handlePlayer1Score}
+              player={{
+                userId: socket.auth.userId
+              }}
+            />
             )}
           </div>
         </div>
@@ -180,9 +183,12 @@ const SplitArena = () => {
           <div className="game-wrapper">
             {gameStarted && (
               <BalloonGame 
-                isArenaMode={true}
-                onScoreUpdate={handlePlayer2Score}
-              />
+              isArenaMode={true}
+              onScoreUpdate={handlePlayer2Score}
+              player={{
+                userId: opponent.userId
+              }}
+            />
             )}
           </div>
         </div>

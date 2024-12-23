@@ -42,15 +42,18 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate }) => {
 
   useEffect(() => {
     const fetchHighScore = async () => {
-      if (!isAuthenticated || !user) return;
-
+      if (!isAuthenticated || (!user && !player)) return;
+    
       try {
         setIsLoading(true);
         const token = await getAccessTokenSilently();
         const API_BASE_URL = import.meta.env.VITE_API_URL;
         
+        const userId = isArenaMode ? player?.userId : user?.sub;
+        if (!userId) return;
+    
         const response = await axios.get(
-          `${API_BASE_URL}/api/users/${isArenaMode ? player.userId : user.sub}/games/${GAME_NAME}/score`,
+          `${API_BASE_URL}/api/users/${userId}/games/${GAME_NAME}/score`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
