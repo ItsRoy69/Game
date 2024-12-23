@@ -307,3 +307,21 @@
     padding: 6px 12px;
   }
 }
+
+.balloon-game.opponent-view {
+  filter: grayscale(100%);
+  pointer-events: none;
+  opacity: 0.8;
+  position: relative;
+}
+
+.balloon-game.opponent-view::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 1000;
+}

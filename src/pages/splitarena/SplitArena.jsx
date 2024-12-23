@@ -24,22 +24,17 @@ const SplitArena = () => {
       return;
     }
 
-    console.log('Setting up socket listeners');
-
     socket.on('player_ready', (data) => {
-      console.log('Player ready received:', data);
       if (data.playerId === opponent.userId) {
         setOpponentReady(true);
       }
     });
 
     socket.on('game_start', () => {
-      console.log('Game start event received');
       setGameStarted(true);
     });
 
     return () => {
-      console.log('Cleaning up socket listeners');
       socket.off('player_ready');
       socket.off('game_start');
     };
@@ -47,7 +42,6 @@ const SplitArena = () => {
 
   useEffect(() => {
     if (localPlayerReady && opponentReady) {
-      console.log('Both players ready, starting game');
       setGameStarted(true);
       socket.emit('game_start', {
         opponentId: opponent.userId
@@ -102,7 +96,6 @@ const SplitArena = () => {
   };
 
   const handleStartGame = () => {
-    console.log('Local player clicking ready');
     setLocalPlayerReady(true);
     socket.emit('player_ready', {
       playerId: socket.auth.userId,
@@ -170,6 +163,7 @@ const SplitArena = () => {
                   userId: socket.auth.userId
                 }}
                 gameActive={true}
+                isOpponentView={false}
               />
             )}
           </div>
@@ -200,6 +194,7 @@ const SplitArena = () => {
                   userId: opponent.userId
                 }}
                 gameActive={true}
+                isOpponentView={true}
               />
             )}
           </div>

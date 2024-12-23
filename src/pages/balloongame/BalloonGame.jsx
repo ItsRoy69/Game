@@ -17,7 +17,13 @@ const GAME_NAME = "balloonPopper";
 const backAudio = new Audio(backSound);
 const saveAudio = new Audio(saveSound);
 
-const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate, gameActive: externalGameActive = false }) => {
+const BalloonGame = ({ 
+  isArenaMode = false, 
+  player, 
+  onScoreUpdate, 
+  gameActive: externalGameActive = false,
+  isOpponentView = false 
+}) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [score, setScore] = useState(0);
@@ -35,7 +41,6 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate, gameActive: e
 
   useEffect(() => {
     if (isArenaMode) {
-      console.log("Setting game active from props:", externalGameActive);
       setGameActive(externalGameActive);
     }
   }, [isArenaMode, externalGameActive]);
@@ -99,7 +104,6 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate, gameActive: e
         }
       );
   
-      console.log("Score saved successfully:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error saving high score:", error.response?.data || error.message);
@@ -153,6 +157,8 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate, gameActive: e
 
   const popBalloon = useCallback(
     (id, shouldScore) => {
+      if (isOpponentView) return; // Prevent balloon popping in opponent view
+      
       setBalloons((prev) => prev.filter((balloon) => balloon.id !== id));
 
       if (shouldScore) {
@@ -178,12 +184,11 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate, gameActive: e
         });
       }
     },
-    [balloons]
+    [balloons, isOpponentView]
   );
 
   useEffect(() => {
     if (gameActive && timeLeft > 0) {
-      console.log("Starting game loop");
       gameLoop.current = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -203,7 +208,6 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate, gameActive: e
 
   useEffect(() => {
     if (gameActive) {
-      console.log("Starting balloon spawner");
       balloonSpawner.current = setInterval(() => {
         const newBalloon = {
           id: Math.random(),
@@ -227,7 +231,7 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate, gameActive: e
   }
 
   return (
-    <div className={`balloon-game ${isArenaMode ? 'arena-mode' : ''}`}>
+    <div className={`balloon-game ${isArenaMode ? 'arena-mode' : ''} ${isOpponentView ? 'opponent-view' : ''}`}>
       {!isArenaMode && (
         <div className="game-info">
           <div className="game-header">

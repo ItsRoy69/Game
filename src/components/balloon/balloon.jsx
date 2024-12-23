@@ -22,24 +22,29 @@ const burstAudio = new Audio(balloonBurstSound);
 function Balloon({ id, x, y, color, onPop }) {
   const [position, setPosition] = useState(y);
   const [isPopping, setIsPopping] = useState(false);
+  const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
+    if (!isActive) return;
+
     const moveInterval = setInterval(() => {
-      setPosition((prev) => {
+      setPosition(prev => {
         if (prev <= -20) {
+          setIsActive(false);
           onPop(id, false);
-          return -20;
+          return prev;
         }
         return prev - 0.5;
       });
     }, 100);
 
     return () => clearInterval(moveInterval);
-  }, [onPop, id]);
+  }, [id, onPop, isActive]);
 
   const handlePop = useCallback(() => {
-    if (!isPopping) {
+    if (!isPopping && isActive) {
       setIsPopping(true);
+      setIsActive(false);
       burstAudio.currentTime = 0;
       burstAudio.play();
 
@@ -47,7 +52,9 @@ function Balloon({ id, x, y, color, onPop }) {
         onPop(id, true);
       }, 300);
     }
-  }, [id, onPop, isPopping]);
+  }, [id, onPop, isPopping, isActive]);
+
+  if (!isActive && !isPopping) return null;
 
   return (
     <img
