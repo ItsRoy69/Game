@@ -17,12 +17,12 @@ const GAME_NAME = "balloonPopper";
 const backAudio = new Audio(backSound);
 const saveAudio = new Audio(saveSound);
 
-const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate }) => {
+const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate, gameActive: externalGameActive = false }) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [score, setScore] = useState(0);
   const [balloons, setBalloons] = useState([]);
-  const [gameActive, setGameActive] = useState(false);
+  const [gameActive, setGameActive] = useState(externalGameActive);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [scorePopups, setScorePopups] = useState([]);
   const [showFinalScore, setShowFinalScore] = useState(false);
@@ -33,7 +33,13 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate }) => {
   const gameLoop = useRef(null);
   const balloonSpawner = useRef(null);
 
-  // Effect for arena mode score updates
+  useEffect(() => {
+    if (isArenaMode) {
+      console.log("Setting game active from props:", externalGameActive);
+      setGameActive(externalGameActive);
+    }
+  }, [isArenaMode, externalGameActive]);
+
   useEffect(() => {
     if (isArenaMode && onScoreUpdate) {
       onScoreUpdate(score);
@@ -109,30 +115,27 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate }) => {
   };
 
   const startGame = useCallback(() => {
-    saveAudio.play();
+    if (!isArenaMode) {
+      saveAudio.play();
+    }
     setGameActive(true);
     setScore(0);
     setTimeLeft(GAME_DURATION);
     setBalloons([]);
     setScorePopups([]);
     setShowFinalScore(false);
-  }, []);
+  }, [isArenaMode]);
 
   const updateHighScore = useCallback(
     (newScore) => {
       if (newScore > highScore) {
-        console.log('Attempting to save new high score:', {
-          newScore,
-          gameName: GAME_NAME,
-          userId: isArenaMode ? player.userId : user?.sub
-        });
         setHighScore(newScore);
         saveHighScore(newScore).catch(error => {
           console.error('Failed to save high score:', error);
         });
       }
     },
-    [highScore, user, isArenaMode, player]
+    [highScore]
   );
 
   const exitGame = useCallback(() => {
@@ -180,6 +183,7 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate }) => {
 
   useEffect(() => {
     if (gameActive && timeLeft > 0) {
+      console.log("Starting game loop");
       gameLoop.current = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -199,6 +203,7 @@ const BalloonGame = ({ isArenaMode = false, player, onScoreUpdate }) => {
 
   useEffect(() => {
     if (gameActive) {
+      console.log("Starting balloon spawner");
       balloonSpawner.current = setInterval(() => {
         const newBalloon = {
           id: Math.random(),

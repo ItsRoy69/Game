@@ -19,19 +19,27 @@ const SplitArena = () => {
   const { socket } = useChat();
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) {
+      console.log('No socket connection');
+      return;
+    }
+
+    console.log('Setting up socket listeners');
 
     socket.on('player_ready', (data) => {
+      console.log('Player ready received:', data);
       if (data.playerId === opponent.userId) {
         setOpponentReady(true);
       }
     });
 
     socket.on('game_start', () => {
+      console.log('Game start event received');
       setGameStarted(true);
     });
 
     return () => {
+      console.log('Cleaning up socket listeners');
       socket.off('player_ready');
       socket.off('game_start');
     };
@@ -39,12 +47,11 @@ const SplitArena = () => {
 
   useEffect(() => {
     if (localPlayerReady && opponentReady) {
-      setTimeout(() => {
-        setGameStarted(true);
-        socket.emit('game_start', {
-          opponentId: opponent.userId
-        });
-      }, 1000);
+      console.log('Both players ready, starting game');
+      setGameStarted(true);
+      socket.emit('game_start', {
+        opponentId: opponent.userId
+      });
     }
   }, [localPlayerReady, opponentReady, socket, opponent]);
 
@@ -95,6 +102,7 @@ const SplitArena = () => {
   };
 
   const handleStartGame = () => {
+    console.log('Local player clicking ready');
     setLocalPlayerReady(true);
     socket.emit('player_ready', {
       playerId: socket.auth.userId,
@@ -143,8 +151,8 @@ const SplitArena = () => {
           </button>
           <div className="opponent-status">
             {opponentReady ? 
-              `Opponent ${opponent.userName} is ready!` : 
-              `Waiting for ${opponent.userName} to be ready!`}
+              `${opponent.userName} is ready!` : 
+              `Waiting for ${opponent.userName} to be ready...`}
           </div>
         </div>
       )}
@@ -155,12 +163,14 @@ const SplitArena = () => {
           <div className="game-wrapper">
             {gameStarted && (
               <BalloonGame 
-              isArenaMode={true}
-              onScoreUpdate={handlePlayer1Score}
-              player={{
-                userId: socket.auth.userId
-              }}
-            />
+                key="player1-game"
+                isArenaMode={true}
+                onScoreUpdate={handlePlayer1Score}
+                player={{
+                  userId: socket.auth.userId
+                }}
+                gameActive={true}
+              />
             )}
           </div>
         </div>
@@ -183,12 +193,14 @@ const SplitArena = () => {
           <div className="game-wrapper">
             {gameStarted && (
               <BalloonGame 
-              isArenaMode={true}
-              onScoreUpdate={handlePlayer2Score}
-              player={{
-                userId: opponent.userId
-              }}
-            />
+                key="player2-game"
+                isArenaMode={true}
+                onScoreUpdate={handlePlayer2Score}
+                player={{
+                  userId: opponent.userId
+                }}
+                gameActive={true}
+              />
             )}
           </div>
         </div>
