@@ -10,6 +10,7 @@ const SplitArena = () => {
   const [player1Score, setPlayer1Score] = useState(0);
   const [player2Score, setPlayer2Score] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
+  const [gameEnded, setGameEnded] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [localPlayerReady, setLocalPlayerReady] = useState(false);
   const [opponentReady, setOpponentReady] = useState(false);
@@ -17,6 +18,7 @@ const SplitArena = () => {
   const rightGameRef = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const { socket } = useChat();
+  const gameTimer = useRef(null);
 
   useEffect(() => {
     if (!socket) {
@@ -32,13 +34,24 @@ const SplitArena = () => {
 
     socket.on('game_start', () => {
       setGameStarted(true);
+      startGameTimer();
     });
 
     return () => {
       socket.off('player_ready');
       socket.off('game_start');
+      if (gameTimer.current) {
+        clearTimeout(gameTimer.current);
+      }
     };
   }, [socket, opponent]);
+
+  const startGameTimer = () => {
+    // Game duration is 30 seconds (matching BalloonGame.jsx)
+    gameTimer.current = setTimeout(() => {
+      setGameEnded(true);
+    }, 30000);
+  };
 
   useEffect(() => {
     if (localPlayerReady && opponentReady) {
@@ -46,6 +59,7 @@ const SplitArena = () => {
       socket.emit('game_start', {
         opponentId: opponent.userId
       });
+      startGameTimer();
     }
   }, [localPlayerReady, opponentReady, socket, opponent]);
 
@@ -115,6 +129,28 @@ const SplitArena = () => {
     setPlayer2Score(score);
   };
 
+  const getWinnerMessage = () => {
+    if (player1Score > player2Score) {
+      return "You Win! 🎉";
+    } else if (player2Score > player1Score) {
+      return `${opponent.userName} Wins! 🏆`;
+    } else {
+      return "It's a Tie! 🤝";
+    }
+  };
+
+  const handlePlayAgain = () => {
+    setGameEnded(false);
+    setGameStarted(false);
+    setLocalPlayerReady(false);
+    setOpponentReady(false);
+    setPlayer1Score(0);
+    setPlayer2Score(0);
+    if (gameTimer.current) {
+      clearTimeout(gameTimer.current);
+    }
+  };
+
   if (!opponent) {
     return <div>Invalid arena access</div>;
   }
@@ -133,7 +169,27 @@ const SplitArena = () => {
         </div>
       </div>
 
-      {!gameStarted && (
+      {gameEnded && (
+        <div className="winner-overlay">
+          <div className="winner-content">
+            <h2>{getWinnerMessage()}</h2>
+            <div className="final-scores">
+              <p>Your Score: {player1Score}</p>
+              <p>{opponent.userName}'s Score: {player2Score}</p>
+            </div>
+            <div className="winner-buttons">
+              <button className="play-again-button" onClick={handlePlayAgain}>
+                Play Again
+              </button>
+              <button className="exit-button" onClick={handleBackClick}>
+                Exit to Home
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!gameStarted && !gameEnded && (
         <div className="ready-status">
           <button 
             className={`start-button ${localPlayerReady ? 'ready' : ''}`} 
@@ -154,7 +210,7 @@ const SplitArena = () => {
         <div className="game-section left">
           <div className="player-info">Your Game</div>
           <div className="game-wrapper">
-            {gameStarted && (
+            {gameStarted && !gameEnded && (
               <BalloonGame 
                 key="player1-game"
                 isArenaMode={true}
@@ -185,7 +241,7 @@ const SplitArena = () => {
           </button>
           <div className="player-info">{opponent.userName}'s Game</div>
           <div className="game-wrapper">
-            {gameStarted && (
+            {gameStarted && !gameEnded && (
               <BalloonGame 
                 key="player2-game"
                 isArenaMode={true}

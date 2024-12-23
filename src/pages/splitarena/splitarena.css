@@ -230,3 +230,71 @@
   font-size: 1rem;
   color: #666;
 }
+
+.winner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.winner-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+.winner-content h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.final-scores {
+  margin: 1rem 0;
+  font-size: 1.2rem;
+}
+
+.winner-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.play-again-button, .exit-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.play-again-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+}
+
+.play-again-button:hover {
+  background-color: #45a049;
+}
+
+.exit-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+}
+
+.exit-button:hover {
+  background-color: #da190b;
+}
