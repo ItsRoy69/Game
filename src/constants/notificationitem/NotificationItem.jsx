@@ -4,9 +4,14 @@ import { useNavigate } from "react-router-dom";
 const NotificationItem = ({ notification, onClose, onAccept, onDecline }) => {
   const navigate = useNavigate();
 
+  const normalizeGameId = (gameId) => {
+    return gameId?.replace('-', '') || 'balloongame';
+  };
+
   const handleAccept = async (challengeId) => {
     await onAccept(challengeId);
-    navigate("/balloongame");
+    const gameId = normalizeGameId(notification.metadata?.gameId);
+    navigate(`/${gameId}`);
   };
 
   const renderActions = () => {
@@ -37,12 +42,15 @@ const NotificationItem = ({ notification, onClose, onAccept, onDecline }) => {
         <div className="notification-actions">
           <button
             onClick={() => {
-              navigate("/arena", {
+              // Normalize the game ID from metadata
+              const gameId = normalizeGameId(notification.metadata?.gameId);
+              navigate(`/arena/${gameId}`, {
                 state: {
                   opponent: {
                     userId: notification.metadata.userId,
                     userName: notification.metadata.userName,
                   },
+                  gameId: gameId
                 },
               });
               onClose(notification._id);

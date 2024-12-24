@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useChat } from "../../contexts/ChatContext";
 import "./chat.css";
@@ -7,6 +7,7 @@ import "./chat.css";
 const MessageList = ({ messages = [], isPrivateChat, selectedUser }) => {
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth0();
   const { socket } = useChat();
   const [error, setError] = useState(null);
@@ -21,14 +22,34 @@ const MessageList = ({ messages = [], isPrivateChat, selectedUser }) => {
 
   const handleEnterArena = () => {
     console.log('Selected User:', selectedUser);
+    
+    const currentPath = location.pathname;
+    let gameId = '';
+    
+    if (currentPath.includes('/balloongame')) {
+      gameId = 'balloon';
+    } else if (currentPath.match(/\/challenges\/([^/]+)/)) {
+      gameId = currentPath.match(/\/challenges\/([^/]+)/)[1];
+    } else {
+      console.error('No valid game context found');
+      return;
+    }
+
     if (socket) {
       socket.emit('arena_join', {
         userId: user.sub,
         userName: user.nickname || user.name,
-        opponentId: selectedUser.userId
+        opponentId: selectedUser.userId,
+        gameId: gameId 
       });
     }
-    navigate('/arena', { state: { opponent: selectedUser } });
+    
+    navigate(`/arena/${gameId}`, { 
+      state: { 
+        opponent: selectedUser,
+        gameId: gameId
+      } 
+    });
   };
 
   const formatTime = (date) => {
