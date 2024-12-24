@@ -95,7 +95,7 @@ function initializeSocket(server) {
 
     socket.on("arena_join", async (data) => {
       const { userId, userName, opponentId } = data;
-
+    
       try {
         const notification = await Notification.create({
           recipient: opponentId,
@@ -108,16 +108,15 @@ function initializeSocket(server) {
             userName: userName,
           },
         });
-
+    
         io.to(opponentId).emit("newNotification", notification);
-
         const message = await Message.create({
           sender: userId,
           recipient: opponentId,
           content: `${userName} has entered the arena`,
-          type: "system",
+          type: "private" 
         });
-
+    
         io.to(opponentId).emit("private_message", {
           message,
           from: userId,

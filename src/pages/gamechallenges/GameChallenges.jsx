@@ -50,11 +50,33 @@ function GameChallenges() {
     const fetchUsers = async () => {
       console.log("Starting to fetch and filter users");
       console.log("Current user profile state:", currentUserProfile);
-
+  
       setIsLoading(true);
       try {
         const token = await getAccessTokenSilently();
         const API_BASE_URL = import.meta.env.VITE_API_URL;
+  
+        const challengesResponse = await axios.get(
+          `${API_BASE_URL}/api/challenges/${currentUser.sub}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            }
+          }
+        );
+        
+        const connectedUserIds = new Set(
+          challengesResponse.data
+            .filter(challenge => 
+              challenge.status === "accepted" &&
+              challenge.gameId === gameId)
+            .map(challenge => 
+              challenge.challengerId === currentUser.sub 
+                ? challenge.challengedId 
+                : challenge.challengerId
+            )
+        );
+  
         const response = await axios.get(`${API_BASE_URL}/api/users`, {
           params: {
             page: 1,
@@ -64,20 +86,24 @@ function GameChallenges() {
             Authorization: `Bearer ${token}`,
           },
         });
-
+  
         console.log("All users fetched:", response.data.users.length);
-
+  
         const filteredUsers = response.data.users.filter((potentialMatch) => {
           console.log("\nEvaluating potential match:", {
             name: potentialMatch.name,
             id: potentialMatch.auth0Id,
           });
-
+          if (connectedUserIds.has(potentialMatch.auth0Id)) {
+            console.log("Skipping - Already connected in this game");
+            return false;
+          }
+  
           if (potentialMatch.auth0Id === currentUser.sub) {
             console.log("Skipping - This is the current user");
             return false;
           }
-
+  
           const profileFields = {
             currentUserGender: !!currentUserProfile?.gender,
             currentUserPreferences: !!currentUserProfile?.datingPreferences,
@@ -88,21 +114,21 @@ function GameChallenges() {
             matchDOB: !!potentialMatch.dateOfBirth,
             matchAgeRange: !!potentialMatch.datingAgeRange,
           };
-
+  
           console.log("Profile completeness check:", profileFields);
-
+  
           if (Object.values(profileFields).some((field) => !field)) {
             console.log("Skipping - Incomplete profile fields");
             return false;
           }
-
+  
           const userLikesPotentialMatch = currentUserProfile.datingPreferences.includes(
             potentialMatch.gender
           );
           const potentialMatchLikesUser = potentialMatch.datingPreferences.includes(
             currentUserProfile.gender
           );
-
+  
           console.log("Gender preferences check:", {
             currentUserGender: currentUserProfile.gender,
             currentUserPrefers: currentUserProfile.datingPreferences,
@@ -111,23 +137,23 @@ function GameChallenges() {
             userLikesPotentialMatch,
             potentialMatchLikesUser,
           });
-
+  
           if (!userLikesPotentialMatch || !potentialMatchLikesUser) {
             console.log("Skipping - Gender preferences mismatch");
             return false;
           }
-
+  
           const matchAge = calculateAge(potentialMatch.dateOfBirth);
           const userAge = calculateAge(currentUserProfile.dateOfBirth);
-
+  
           const withinUserPreferences =
             matchAge >= currentUserProfile.datingAgeRange.min &&
             matchAge <= currentUserProfile.datingAgeRange.max;
-
+  
           const withinMatchPreferences =
             userAge >= potentialMatch.datingAgeRange.min &&
             userAge <= potentialMatch.datingAgeRange.max;
-
+  
           console.log("Age preferences check:", {
             userAge,
             matchAge,
@@ -136,16 +162,16 @@ function GameChallenges() {
             withinUserPreferences,
             withinMatchPreferences,
           });
-
+  
           if (!withinUserPreferences || !withinMatchPreferences) {
             console.log("Skipping - Age preferences mismatch");
             return false;
           }
-
+  
           console.log("Match accepted! ✅");
           return true;
         });
-
+  
         console.log(
           `Filtering complete. Found ${filteredUsers.length} matches`
         );
@@ -163,7 +189,7 @@ function GameChallenges() {
         setIsLoading(false);
       }
     };
-
+  
     if (currentUserProfile) {
       fetchUsers();
     }
