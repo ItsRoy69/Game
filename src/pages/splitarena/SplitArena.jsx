@@ -14,11 +14,17 @@ const SplitArena = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [localPlayerReady, setLocalPlayerReady] = useState(false);
   const [opponentReady, setOpponentReady] = useState(false);
+  const [isVoiceConnected, setIsVoiceConnected] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const navigate = useNavigate();
   const rightGameRef = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const { socket } = useChat();
   const gameTimer = useRef(null);
+  const localStreamRef = useRef(null);
+  const peerConnectionRef = useRef(null);
+  const remoteStreamRef = useRef(null);
+  const remoteAudioRef = useRef(null);
 
   useEffect(() => {
     if (!socket) {
@@ -46,8 +52,85 @@ const SplitArena = () => {
     };
   }, [socket, opponent]);
 
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('voice_offer', async ({ offer, from }) => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        localStreamRef.current = stream;
+        
+        const peerConnection = new RTCPeerConnection({
+          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        });
+        
+        stream.getTracks().forEach(track => {
+          peerConnection.addTrack(track, stream);
+        });
+        
+        peerConnection.ontrack = (event) => {
+          remoteStreamRef.current = event.streams[0];
+          if (remoteAudioRef.current) {
+            remoteAudioRef.current.srcObject = event.streams[0];
+          }
+        };
+        
+        peerConnectionRef.current = peerConnection;
+        
+        peerConnection.onicecandidate = (event) => {
+          if (event.candidate) {
+            socket.emit('voice_candidate', {
+              candidate: event.candidate,
+              opponentId: opponent.userId
+            });
+          }
+        };
+        
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        
+        socket.emit('voice_answer', {
+          answer,
+          opponentId: opponent.userId
+        });
+        
+        setIsVoiceConnected(true);
+      } catch (err) {
+        console.error('Error handling voice offer:', err);
+      }
+    });
+
+    socket.on('voice_answer', async ({ answer }) => {
+      try {
+        await peerConnectionRef.current?.setRemoteDescription(
+          new RTCSessionDescription(answer)
+        );
+      } catch (err) {
+        console.error('Error handling voice answer:', err);
+      }
+    });
+
+    socket.on('voice_candidate', async ({ candidate }) => {
+      try {
+        await peerConnectionRef.current?.addIceCandidate(
+          new RTCIceCandidate(candidate)
+        );
+      } catch (err) {
+        console.error('Error handling voice candidate:', err);
+      }
+    });
+
+    return () => {
+      socket.off('voice_offer');
+      socket.off('voice_answer');
+      socket.off('voice_candidate');
+      localStreamRef.current?.getTracks().forEach(track => track.stop());
+      peerConnectionRef.current?.close();
+    };
+  }, [socket, opponent]);
+
   const startGameTimer = () => {
-    // Game duration is 30 seconds (matching BalloonGame.jsx)
     gameTimer.current = setTimeout(() => {
       setGameEnded(true);
     }, 30000);
@@ -62,6 +145,50 @@ const SplitArena = () => {
       startGameTimer();
     }
   }, [localPlayerReady, opponentReady, socket, opponent]);
+
+  const setupVoiceCall = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      localStreamRef.current = stream;
+      
+      const peerConnection = new RTCPeerConnection({
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+      });
+      
+      stream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, stream);
+      });
+      
+      peerConnection.ontrack = (event) => {
+        remoteStreamRef.current = event.streams[0];
+        if (remoteAudioRef.current) {
+          remoteAudioRef.current.srcObject = event.streams[0];
+        }
+      };
+      
+      peerConnectionRef.current = peerConnection;
+      
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit('voice_candidate', {
+            candidate: event.candidate,
+            opponentId: opponent.userId
+          });
+        }
+      };
+      
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit('voice_offer', {
+        offer,
+        opponentId: opponent.userId
+      });
+      
+      setIsVoiceConnected(true);
+    } catch (err) {
+      console.error('Error setting up voice call:', err);
+    }
+  };
 
   const handleDragStart = (e) => {
     const rightGame = rightGameRef.current;
@@ -167,7 +294,33 @@ const SplitArena = () => {
           <span className="vs">VS</span>
           <span>{opponent.userName}: {player2Score}</span>
         </div>
+        <div className="voice-controls">
+          {!isVoiceConnected ? (
+            <button onClick={setupVoiceCall}>
+              Start Voice Call
+            </button>
+          ) : (
+            <>
+              <button onClick={() => {
+                const audioTracks = localStreamRef.current?.getAudioTracks();
+                audioTracks?.forEach(track => track.enabled = !track.enabled);
+                setIsMuted(!isMuted);
+              }}>
+                {isMuted ? '🔇' : '🔊'}
+              </button>
+              <button onClick={() => {
+                localStreamRef.current?.getTracks().forEach(track => track.stop());
+                peerConnectionRef.current?.close();
+                setIsVoiceConnected(false);
+              }}>
+                End Call
+              </button>
+            </>
+          )}
+        </div>
       </div>
+
+      <audio ref={remoteAudioRef} autoPlay />
 
       {gameEnded && (
         <div className="winner-overlay">

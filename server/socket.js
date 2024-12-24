@@ -62,6 +62,30 @@ function initializeSocket(server) {
       }
     });
 
+    socket.on('voice_offer', (data) => {
+      const { offer, opponentId } = data;
+      socket.to(opponentId).emit('voice_offer', {
+        offer,
+        from: socket.id
+      });
+    });
+
+    socket.on('voice_answer', (data) => {
+      const { answer, opponentId } = data;
+      socket.to(opponentId).emit('voice_answer', {
+        answer,
+        from: socket.id
+      });
+    });
+
+    socket.on('voice_candidate', (data) => {
+      const { candidate, opponentId } = data;
+      socket.to(opponentId).emit('voice_candidate', {
+        candidate,
+        from: socket.id
+      });
+    });
+
     socket.on('group_message', async (data) => {
       const { roomId, message, from, tempId } = data;
 
@@ -171,7 +195,7 @@ function initializeSocket(server) {
         playerId
       });
     });
-    
+
     socket.on('game_start', (data) => {
       const { opponentId } = data;
       socket.to(opponentId).emit('game_start');
@@ -210,7 +234,7 @@ function initializeSocket(server) {
     socket.on('sendChallenge', async (data) => {
       try {
         const { senderId, recipientId, challengeType, message } = data;
-        
+
         const notification = await Notification.create({
           recipient: recipientId,
           sender: senderId,
@@ -244,7 +268,7 @@ function initializeSocket(server) {
         }
 
         io.emit('user_disconnected', userData.userId);
-        
+
         activeUsers.delete(socket.id);
         io.emit('active_users', Array.from(activeUsers.values()));
       }
@@ -263,7 +287,7 @@ function initializeSocket(server) {
       const expiredRooms = await ChatRoom.find({
         expiresAt: { $lte: new Date() }
       });
-  
+
       for (const room of expiredRooms) {
         const session = await mongoose.startSession();
         try {
@@ -272,9 +296,9 @@ function initializeSocket(server) {
               roomId: room._id,
               type: 'group'
             }, { session });
-  
+
             await ChatRoom.deleteOne({ _id: room._id }, { session });
-            
+
             io.to(room._id.toString()).emit('room_expired', { roomId: room._id });
             io.in(room._id.toString()).socketsLeave(room._id.toString());
           });
