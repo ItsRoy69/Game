@@ -29,6 +29,27 @@ const NotificationItem = ({ notification, onClose, onAccept, onDecline }) => {
           </button>
         </div>
       );
+    } else if (notification.type === 'arena_join') {
+      return (
+        <div className="notification-actions">
+          <button 
+            onClick={() => {
+              navigate('/arena', { 
+                state: { 
+                  opponent: {
+                    userId: notification.metadata.userId,  // Changed from .get()
+                    userName: notification.metadata.userName  // Changed from .get()
+                  }
+                }
+              });
+              onClose(notification._id);
+            }}
+            className="action-button join-button"
+          >
+            Join Arena
+          </button>
+        </div>
+      );
     }
     return null;
   };

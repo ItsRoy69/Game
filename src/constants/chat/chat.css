@@ -582,3 +582,27 @@
   box-shadow: inset 2px 4px #885500;
   transform: translateY(2px);
 }
+
+.system-message {
+  text-align: center;
+  margin: 1rem 0;
+  padding: 0.5rem;
+}
+
+.system-message-content {
+  display: inline-block;
+  background-color: #f0f0f0;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  font-style: italic;
+  color: #666;
+}
+
+.error-message {
+  color: #e53e3e;
+  text-align: center;
+  padding: 1rem;
+  background-color: #fff5f5;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}

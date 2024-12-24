@@ -94,6 +94,45 @@ function initializeSocket(server) {
       });
     });
 
+    socket.on('arena_join', async (data) => {
+      const { userId, userName, opponentId } = data;
+      
+      try {
+        // Create notification for opponent
+        const notification = await Notification.create({
+          recipient: opponentId,
+          sender: userId,
+          type: 'arena_join',
+          message: `${userName} has entered the arena`,
+          metadata: { 
+            type: 'arena_join',
+            userId: userId,
+            userName: userName
+          }
+        });
+    
+        // Send notification to opponent
+        io.to(opponentId).emit('newNotification', notification);
+    
+        // Send chat message to opponent
+        const message = await Message.create({
+          sender: userId,
+          recipient: opponentId,
+          content: `${userName} has entered the arena`,
+          type: 'system'
+        });
+    
+        io.to(opponentId).emit('private_message', {
+          message,
+          from: userId
+        });
+      } catch (error) {
+        console.error('Error sending arena join notification:', error);
+        socket.emit('error', { message: 'Failed to send arena join notification' });
+      }
+    });
+    
+
     socket.on('group_message', async (data) => {
       const { roomId, message, from, tempId } = data;
 
