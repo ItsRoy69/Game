@@ -1,6 +1,8 @@
+// BalloonGame.jsx
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useChat } from '../../contexts/ChatContext';
 import axios from "axios";
 import Balloon from "../../components/balloon/balloon";
 import GameControls from "../../constants/gamecontrols/GameControls";
@@ -22,10 +24,13 @@ const BalloonGame = ({
   player, 
   onScoreUpdate, 
   gameActive: externalGameActive = false,
-  isOpponentView = false 
+  isOpponentView = false,
+  roomId,
+  balloons: syncedBalloons 
 }) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { socket } = useChat();
   const [score, setScore] = useState(0);
   const [balloons, setBalloons] = useState([]);
   const [gameActive, setGameActive] = useState(externalGameActive);
@@ -38,6 +43,35 @@ const BalloonGame = ({
 
   const gameLoop = useRef(null);
   const balloonSpawner = useRef(null);
+
+  const syncGameState = useCallback((newBalloons) => {
+    if (isArenaMode && !isOpponentView && socket) {
+      socket.emit('game_state_update', {
+        roomId,
+        gameState: {
+          balloons: newBalloons,
+          score
+        },
+        from: player.userId
+      });
+    }
+  }, [isArenaMode, isOpponentView, socket, roomId, player, score]);
+
+  const updateBalloons = useCallback((newBalloonsOrFn) => {
+    setBalloons(prev => {
+      const newBalloons = typeof newBalloonsOrFn === 'function' 
+        ? newBalloonsOrFn(prev) 
+        : newBalloonsOrFn;
+      syncGameState(newBalloons);
+      return newBalloons;
+    });
+  }, [syncGameState]);
+
+  useEffect(() => {
+    if (isOpponentView && syncedBalloons) {
+      setBalloons(syncedBalloons);
+    }
+  }, [isOpponentView, syncedBalloons]);
 
   useEffect(() => {
     if (isArenaMode) {
@@ -125,10 +159,10 @@ const BalloonGame = ({
     setGameActive(true);
     setScore(0);
     setTimeLeft(GAME_DURATION);
-    setBalloons([]);
+    updateBalloons([]);
     setScorePopups([]);
     setShowFinalScore(false);
-  }, [isArenaMode]);
+  }, [isArenaMode, updateBalloons]);
 
   const updateHighScore = useCallback(
     (newScore) => {
@@ -157,9 +191,9 @@ const BalloonGame = ({
 
   const popBalloon = useCallback(
     (id, shouldScore) => {
-      if (isOpponentView) return; // Prevent balloon popping in opponent view
+      if (isOpponentView) return;
       
-      setBalloons((prev) => prev.filter((balloon) => balloon.id !== id));
+      updateBalloons(prev => prev.filter((balloon) => balloon.id !== id));
 
       if (shouldScore) {
         setScore((prev) => {
@@ -184,7 +218,7 @@ const BalloonGame = ({
         });
       }
     },
-    [balloons, isOpponentView]
+    [balloons, isOpponentView, updateBalloons]
   );
 
   useEffect(() => {
@@ -207,7 +241,7 @@ const BalloonGame = ({
   }, [gameActive, timeLeft, exitGame]);
 
   useEffect(() => {
-    if (gameActive) {
+    if (gameActive && !isOpponentView) {
       balloonSpawner.current = setInterval(() => {
         const newBalloon = {
           id: Math.random(),
@@ -215,7 +249,7 @@ const BalloonGame = ({
           y: 100,
           color: BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
         };
-        setBalloons((prev) => [...prev, newBalloon]);
+        updateBalloons(prev => [...prev, newBalloon]);
       }, BALLOON_SPAWN_INTERVAL);
     }
 
@@ -224,7 +258,7 @@ const BalloonGame = ({
         clearInterval(balloonSpawner.current);
       }
     };
-  }, [gameActive]);
+  }, [gameActive, isOpponentView, updateBalloons]);
 
   if (isLoading && !isArenaMode) {
     return <div className="loading">Loading game data...</div>;

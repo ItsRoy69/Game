@@ -86,6 +86,14 @@ function initializeSocket(server) {
       });
     });
 
+    socket.on('game_state_update', (data) => {
+      const { roomId, gameState, from } = data;
+      socket.to(roomId).emit('opponent_game_state', {
+        gameState,
+        from
+      });
+    });
+
     socket.on('group_message', async (data) => {
       const { roomId, message, from, tempId } = data;
 

@@ -16,9 +16,11 @@ const SplitArena = () => {
   const [opponentReady, setOpponentReady] = useState(false);
   const [isVoiceConnected, setIsVoiceConnected] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [opponentGameState, setOpponentGameState] = useState(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  
   const navigate = useNavigate();
   const rightGameRef = useRef(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const { socket } = useChat();
   const gameTimer = useRef(null);
   const localStreamRef = useRef(null);
@@ -43,9 +45,16 @@ const SplitArena = () => {
       startGameTimer();
     });
 
+    socket.on('opponent_game_state', ({ gameState, from }) => {
+      if (from === opponent.userId) {
+        setOpponentGameState(gameState);
+      }
+    });
+
     return () => {
       socket.off('player_ready');
       socket.off('game_start');
+      socket.off('opponent_game_state');
       if (gameTimer.current) {
         clearTimeout(gameTimer.current);
       }
@@ -273,6 +282,7 @@ const SplitArena = () => {
     setOpponentReady(false);
     setPlayer1Score(0);
     setPlayer2Score(0);
+    setOpponentGameState(null);
     if (gameTimer.current) {
       clearTimeout(gameTimer.current);
     }
@@ -373,6 +383,7 @@ const SplitArena = () => {
                 }}
                 gameActive={true}
                 isOpponentView={false}
+                roomId={opponent.userId}
               />
             )}
           </div>
@@ -404,6 +415,8 @@ const SplitArena = () => {
                 }}
                 gameActive={true}
                 isOpponentView={true}
+                roomId={opponent.userId}
+                balloons={opponentGameState?.balloons || []}
               />
             )}
           </div>
