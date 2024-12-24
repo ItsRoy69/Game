@@ -317,3 +317,27 @@
 .voice-controls button:hover {
   background-color: #5a5a5a;
 }
+
+.arena-chat {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  width: 300px;
+  max-height: 400px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+}
+
+.chat-toggle {
+  padding: 8px 16px;
+  background: #4a4a4a;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.chat-toggle:hover {
+  background: #5a5a5a;
+}

@@ -1,7 +1,9 @@
+// SplitArena.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useChat } from '../../contexts/ChatContext';
 import BalloonGame from '../balloongame/BalloonGame';
+import Chat from '../../constants/chat/Chat';
 import './splitarena.css';
 
 const SplitArena = () => {
@@ -18,15 +20,16 @@ const SplitArena = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [opponentGameState, setOpponentGameState] = useState(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [showArenaChat, setShowArenaChat] = useState(false);
   
   const navigate = useNavigate();
-  const rightGameRef = useRef(null);
   const { socket } = useChat();
   const gameTimer = useRef(null);
   const localStreamRef = useRef(null);
   const peerConnectionRef = useRef(null);
   const remoteStreamRef = useRef(null);
   const remoteAudioRef = useRef(null);
+  const rightGameRef = useRef(null);
 
   useEffect(() => {
     if (!socket) {
@@ -328,6 +331,12 @@ const SplitArena = () => {
             </>
           )}
         </div>
+        <button 
+          className="chat-toggle"
+          onClick={() => setShowArenaChat(!showArenaChat)}
+        >
+          {showArenaChat ? 'Hide Chat' : 'Show Chat'}
+        </button>
       </div>
 
       <audio ref={remoteAudioRef} autoPlay />
@@ -422,6 +431,16 @@ const SplitArena = () => {
           </div>
         </div>
       </div>
+
+      {showArenaChat && (
+        <div className="arena-chat">
+          <Chat 
+            onClose={() => setShowArenaChat(false)}
+            isArenaChat={true}
+            opponent={opponent}
+          />
+        </div>
+      )}
     </div>
   );
 };
