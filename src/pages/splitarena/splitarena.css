@@ -241,23 +241,33 @@
 }
 
 .winner-content {
-  background-color: white;
+  background-color: #2a2a2a;
+  border: 4px solid #4a4a4a;
   padding: 2rem;
-  border-radius: 1rem;
   text-align: center;
   max-width: 400px;
   width: 90%;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.4);
 }
 
 .winner-content h2 {
   font-size: 2rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: #ffff55;
+  font-family: "Minecraft", Arial, sans-serif;
+  text-shadow: 2px 2px #3f3f3f;
 }
 
 .final-scores {
-  margin: 1rem 0;
+  margin: 1.5rem 0;
   font-size: 1.2rem;
+  font-family: "Minecraft", Arial, sans-serif;
+  color: #ffffff;
+}
+
+.final-scores p {
+  margin: 0.5rem 0;
+  text-shadow: 1px 1px #000000;
 }
 
 .winner-buttons {
@@ -269,31 +279,42 @@
 
 .play-again-button,
 .exit-button {
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 1rem;
+  padding: 12px 24px;
+  font-size: 1.2rem;
+  font-family: "Minecraft", Arial, sans-serif;
+  text-transform: uppercase;
   cursor: pointer;
+  border: 2px solid #000000;
+  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.4);
   transition: all 0.2s;
 }
 
 .play-again-button {
-  background-color: #4caf50;
+  background-color: #45af45;
   color: white;
-  border: none;
 }
 
 .play-again-button:hover {
-  background-color: #45a049;
+  filter: brightness(1.1);
+}
+
+.play-again-button:active {
+  box-shadow: inset 2px 4px #000000;
+  transform: translateY(2px);
 }
 
 .exit-button {
-  background-color: #f44336;
+  background-color: #af4545;
   color: white;
-  border: none;
 }
 
 .exit-button:hover {
-  background-color: #da190b;
+  filter: brightness(1.1);
+}
+
+.exit-button:active {
+  box-shadow: inset 2px 4px #000000;
+  transform: translateY(2px);
 }
 
 .voice-controls {
