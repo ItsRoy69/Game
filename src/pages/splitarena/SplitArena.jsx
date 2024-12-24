@@ -1,10 +1,9 @@
-// SplitArena.jsx
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useChat } from '../../contexts/ChatContext';
-import BalloonGame from '../balloongame/BalloonGame';
-import Chat from '../../constants/chat/Chat';
-import './splitarena.css';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useChat } from "../../contexts/ChatContext";
+import BalloonGame from "../balloongame/BalloonGame";
+import Chat from "../../constants/chat/Chat";
+import "./splitarena.css";
 
 const SplitArena = () => {
   const location = useLocation();
@@ -21,7 +20,7 @@ const SplitArena = () => {
   const [opponentGameState, setOpponentGameState] = useState(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [showArenaChat, setShowArenaChat] = useState(false);
-  
+
   const navigate = useNavigate();
   const { socket } = useChat();
   const gameTimer = useRef(null);
@@ -33,31 +32,31 @@ const SplitArena = () => {
 
   useEffect(() => {
     if (!socket) {
-      console.log('No socket connection');
+      console.log("No socket connection");
       return;
     }
 
-    socket.on('player_ready', (data) => {
+    socket.on("player_ready", (data) => {
       if (data.playerId === opponent.userId) {
         setOpponentReady(true);
       }
     });
 
-    socket.on('game_start', () => {
+    socket.on("game_start", () => {
       setGameStarted(true);
       startGameTimer();
     });
 
-    socket.on('opponent_game_state', ({ gameState, from }) => {
+    socket.on("opponent_game_state", ({ gameState, from }) => {
       if (from === opponent.userId) {
         setOpponentGameState(gameState);
       }
     });
 
     return () => {
-      socket.off('player_ready');
-      socket.off('game_start');
-      socket.off('opponent_game_state');
+      socket.off("player_ready");
+      socket.off("game_start");
+      socket.off("opponent_game_state");
       if (gameTimer.current) {
         clearTimeout(gameTimer.current);
       }
@@ -67,77 +66,81 @@ const SplitArena = () => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on('voice_offer', async ({ offer, from }) => {
+    socket.on("voice_offer", async ({ offer, from }) => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        localStreamRef.current = stream;
-        
-        const peerConnection = new RTCPeerConnection({
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
         });
-        
-        stream.getTracks().forEach(track => {
+        localStreamRef.current = stream;
+
+        const peerConnection = new RTCPeerConnection({
+          iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        });
+
+        stream.getTracks().forEach((track) => {
           peerConnection.addTrack(track, stream);
         });
-        
+
         peerConnection.ontrack = (event) => {
           remoteStreamRef.current = event.streams[0];
           if (remoteAudioRef.current) {
             remoteAudioRef.current.srcObject = event.streams[0];
           }
         };
-        
+
         peerConnectionRef.current = peerConnection;
-        
+
         peerConnection.onicecandidate = (event) => {
           if (event.candidate) {
-            socket.emit('voice_candidate', {
+            socket.emit("voice_candidate", {
               candidate: event.candidate,
-              opponentId: opponent.userId
+              opponentId: opponent.userId,
             });
           }
         };
-        
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+        await peerConnection.setRemoteDescription(
+          new RTCSessionDescription(offer)
+        );
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
-        
-        socket.emit('voice_answer', {
+
+        socket.emit("voice_answer", {
           answer,
-          opponentId: opponent.userId
+          opponentId: opponent.userId,
         });
-        
+
         setIsVoiceConnected(true);
       } catch (err) {
-        console.error('Error handling voice offer:', err);
+        console.error("Error handling voice offer:", err);
       }
     });
 
-    socket.on('voice_answer', async ({ answer }) => {
+    socket.on("voice_answer", async ({ answer }) => {
       try {
         await peerConnectionRef.current?.setRemoteDescription(
           new RTCSessionDescription(answer)
         );
       } catch (err) {
-        console.error('Error handling voice answer:', err);
+        console.error("Error handling voice answer:", err);
       }
     });
 
-    socket.on('voice_candidate', async ({ candidate }) => {
+    socket.on("voice_candidate", async ({ candidate }) => {
       try {
         await peerConnectionRef.current?.addIceCandidate(
           new RTCIceCandidate(candidate)
         );
       } catch (err) {
-        console.error('Error handling voice candidate:', err);
+        console.error("Error handling voice candidate:", err);
       }
     });
 
     return () => {
-      socket.off('voice_offer');
-      socket.off('voice_answer');
-      socket.off('voice_candidate');
-      localStreamRef.current?.getTracks().forEach(track => track.stop());
+      socket.off("voice_offer");
+      socket.off("voice_answer");
+      socket.off("voice_candidate");
+      localStreamRef.current?.getTracks().forEach((track) => track.stop());
       peerConnectionRef.current?.close();
     };
   }, [socket, opponent]);
@@ -151,8 +154,8 @@ const SplitArena = () => {
   useEffect(() => {
     if (localPlayerReady && opponentReady) {
       setGameStarted(true);
-      socket.emit('game_start', {
-        opponentId: opponent.userId
+      socket.emit("game_start", {
+        opponentId: opponent.userId,
       });
       startGameTimer();
     }
@@ -162,97 +165,97 @@ const SplitArena = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       localStreamRef.current = stream;
-      
+
       const peerConnection = new RTCPeerConnection({
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
-      
-      stream.getTracks().forEach(track => {
+
+      stream.getTracks().forEach((track) => {
         peerConnection.addTrack(track, stream);
       });
-      
+
       peerConnection.ontrack = (event) => {
         remoteStreamRef.current = event.streams[0];
         if (remoteAudioRef.current) {
           remoteAudioRef.current.srcObject = event.streams[0];
         }
       };
-      
+
       peerConnectionRef.current = peerConnection;
-      
+
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit('voice_candidate', {
+          socket.emit("voice_candidate", {
             candidate: event.candidate,
-            opponentId: opponent.userId
+            opponentId: opponent.userId,
           });
         }
       };
-      
+
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
-      socket.emit('voice_offer', {
+      socket.emit("voice_offer", {
         offer,
-        opponentId: opponent.userId
+        opponentId: opponent.userId,
       });
-      
+
       setIsVoiceConnected(true);
     } catch (err) {
-      console.error('Error setting up voice call:', err);
+      console.error("Error setting up voice call:", err);
     }
   };
 
   const handleDragStart = (e) => {
     const rightGame = rightGameRef.current;
     if (!rightGame) return;
-  
+
     const startX = e.touches ? e.touches[0].clientX : e.clientX;
     const startY = e.touches ? e.touches[0].clientY : e.clientY;
     const rect = rightGame.getBoundingClientRect();
     const offsetX = startX - rect.left;
     const offsetY = startY - rect.top;
-  
+
     const handleDrag = (e) => {
       const currentX = e.touches ? e.touches[0].clientX : e.clientX;
       const currentY = e.touches ? e.touches[0].clientY : e.clientY;
-      
+
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
-      
+
       let newX = currentX - offsetX;
       let newY = currentY - offsetY;
-      
+
       newX = Math.max(0, Math.min(newX, windowWidth - rect.width));
       newY = Math.max(0, Math.min(newY, windowHeight - rect.height));
-      
+
       setPosition({
         x: newX,
-        y: newY
+        y: newY,
       });
     };
-  
+
     const handleDragEnd = () => {
-      document.removeEventListener('mousemove', handleDrag);
-      document.removeEventListener('mouseup', handleDragEnd);
-      document.removeEventListener('touchmove', handleDrag);
-      document.removeEventListener('touchend', handleDragEnd);
+      document.removeEventListener("mousemove", handleDrag);
+      document.removeEventListener("mouseup", handleDragEnd);
+      document.removeEventListener("touchmove", handleDrag);
+      document.removeEventListener("touchend", handleDragEnd);
     };
-  
-    document.addEventListener('mousemove', handleDrag);
-    document.addEventListener('mouseup', handleDragEnd);
-    document.addEventListener('touchmove', handleDrag);
-    document.addEventListener('touchend', handleDragEnd);
+
+    document.addEventListener("mousemove", handleDrag);
+    document.addEventListener("mouseup", handleDragEnd);
+    document.addEventListener("touchmove", handleDrag);
+    document.addEventListener("touchend", handleDragEnd);
   };
 
   const handleBackClick = () => {
-    navigate('/');
+    navigate("/");
   };
 
   const handleStartGame = () => {
     setLocalPlayerReady(true);
-    socket.emit('player_ready', {
+    socket.emit("player_ready", {
       playerId: socket.auth.userId,
-      opponentId: opponent.userId
+      opponentId: opponent.userId,
     });
   };
 
@@ -305,37 +308,45 @@ const SplitArena = () => {
         <div className="score-display">
           <span>You: {player1Score}</span>
           <span className="vs">VS</span>
-          <span>{opponent.userName}: {player2Score}</span>
+          <span>
+            {opponent.userName}: {player2Score}
+          </span>
         </div>
         <div className="voice-controls">
           {!isVoiceConnected ? (
-            <button onClick={setupVoiceCall}>
-              Start Voice Call
-            </button>
+            <button onClick={setupVoiceCall}>Start Voice Call</button>
           ) : (
             <>
-              <button onClick={() => {
-                const audioTracks = localStreamRef.current?.getAudioTracks();
-                audioTracks?.forEach(track => track.enabled = !track.enabled);
-                setIsMuted(!isMuted);
-              }}>
-                {isMuted ? '🔇' : '🔊'}
+              <button
+                onClick={() => {
+                  const audioTracks = localStreamRef.current?.getAudioTracks();
+                  audioTracks?.forEach(
+                    (track) => (track.enabled = !track.enabled)
+                  );
+                  setIsMuted(!isMuted);
+                }}
+              >
+                {isMuted ? "🔇" : "🔊"}
               </button>
-              <button onClick={() => {
-                localStreamRef.current?.getTracks().forEach(track => track.stop());
-                peerConnectionRef.current?.close();
-                setIsVoiceConnected(false);
-              }}>
+              <button
+                onClick={() => {
+                  localStreamRef.current
+                    ?.getTracks()
+                    .forEach((track) => track.stop());
+                  peerConnectionRef.current?.close();
+                  setIsVoiceConnected(false);
+                }}
+              >
                 End Call
               </button>
             </>
           )}
         </div>
-        <button 
+        <button
           className="chat-toggle"
           onClick={() => setShowArenaChat(!showArenaChat)}
         >
-          {showArenaChat ? 'Hide Chat' : 'Show Chat'}
+          {showArenaChat ? "Hide Chat" : "Show Chat"}
         </button>
       </div>
 
@@ -347,7 +358,9 @@ const SplitArena = () => {
             <h2>{getWinnerMessage()}</h2>
             <div className="final-scores">
               <p>Your Score: {player1Score}</p>
-              <p>{opponent.userName}'s Score: {player2Score}</p>
+              <p>
+                {opponent.userName}'s Score: {player2Score}
+              </p>
             </div>
             <div className="winner-buttons">
               <button className="play-again-button" onClick={handlePlayAgain}>
@@ -363,17 +376,17 @@ const SplitArena = () => {
 
       {!gameStarted && !gameEnded && (
         <div className="ready-status">
-          <button 
-            className={`start-button ${localPlayerReady ? 'ready' : ''}`} 
+          <button
+            className={`start-button ${localPlayerReady ? "ready" : ""}`}
             onClick={handleStartGame}
             disabled={localPlayerReady}
           >
             {localPlayerReady ? "Ready!" : "Click When Ready"}
           </button>
           <div className="opponent-status">
-            {opponentReady ? 
-              `${opponent.userName} is ready!` : 
-              `Waiting for ${opponent.userName} to be ready...`}
+            {opponentReady
+              ? `${opponent.userName} is ready!`
+              : `Waiting for ${opponent.userName} to be ready...`}
           </div>
         </div>
       )}
@@ -383,12 +396,12 @@ const SplitArena = () => {
           <div className="player-info">Your Game</div>
           <div className="game-wrapper">
             {gameStarted && !gameEnded && (
-              <BalloonGame 
+              <BalloonGame
                 key="player1-game"
                 isArenaMode={true}
                 onScoreUpdate={handlePlayer1Score}
                 player={{
-                  userId: socket.auth.userId
+                  userId: socket.auth.userId,
                 }}
                 gameActive={true}
                 isOpponentView={false}
@@ -397,30 +410,30 @@ const SplitArena = () => {
             )}
           </div>
         </div>
-        
+
         <div className="separator"></div>
 
-        <div 
+        <div
           ref={rightGameRef}
-          className={`game-section right ${isMinimized ? 'minimized' : ''}`}
+          className={`game-section right ${isMinimized ? "minimized" : ""}`}
           style={{
-            transform: `translate(${position.x}px, ${position.y}px)`
+            transform: `translate(${position.x}px, ${position.y}px)`,
           }}
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
         >
           <button className="expand-button" onClick={toggleMinimize}>
-            {isMinimized ? '↗' : '↙'}
+            {isMinimized ? "↗" : "↙"}
           </button>
           <div className="player-info">{opponent.userName}'s Game</div>
           <div className="game-wrapper">
             {gameStarted && !gameEnded && (
-              <BalloonGame 
+              <BalloonGame
                 key="player2-game"
                 isArenaMode={true}
                 onScoreUpdate={handlePlayer2Score}
                 player={{
-                  userId: opponent.userId
+                  userId: opponent.userId,
                 }}
                 gameActive={true}
                 isOpponentView={true}
@@ -434,7 +447,7 @@ const SplitArena = () => {
 
       {showArenaChat && (
         <div className="arena-chat">
-          <Chat 
+          <Chat
             onClose={() => setShowArenaChat(false)}
             isArenaChat={true}
             opponent={opponent}

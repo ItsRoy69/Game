@@ -307,7 +307,6 @@ function GameChallenges() {
           </div>
         )}
 
-        {/* User Profile Modal */}
         {selectedUser && (
           <UserProfileModal
             user={{

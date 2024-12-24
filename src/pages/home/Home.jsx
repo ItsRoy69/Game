@@ -9,8 +9,12 @@ import settingSound from "../../assets/audio/setting.mp3";
 import "./home.css";
 
 function Home() {
-  const { isAuthenticated, user, loginWithRedirect, getAccessTokenSilently } =
-    useAuth0();
+  const {
+    isAuthenticated,
+    user,
+    loginWithRedirect,
+    getAccessTokenSilently,
+  } = useAuth0();
   const [userProfile, setUserProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [gameScores, setGameScores] = useState({});
@@ -25,7 +29,7 @@ function Home() {
           setIsLoading(true);
           const token = await getAccessTokenSilently();
           const API_BASE_URL = import.meta.env.VITE_API_URL;
-  
+
           const userResponse = await axios.get(
             `${API_BASE_URL}/api/users/${user.sub}`,
             {
@@ -53,7 +57,7 @@ function Home() {
         setIsLoading(false);
       }
     };
-  
+
     fetchUserProfile();
   }, [isAuthenticated, getAccessTokenSilently, user]);
 
@@ -133,11 +137,12 @@ function Home() {
                       High Score: {getHighScore("balloon-game")}
                     </span>
                     <div className="button-group">
-                      <Link to="/balloongame"
-                          className="play-button"
-                          onClick={handlePlayClick}
-                        >
-                          Play Now
+                      <Link
+                        to="/balloongame"
+                        className="play-button"
+                        onClick={handlePlayClick}
+                      >
+                        Play Now
                       </Link>
                       {isProfileComplete(userProfile) ? (
                         <Link
@@ -152,11 +157,12 @@ function Home() {
                           className="challenge-button locked"
                           title="Challenge"
                         >
-                          Challenge{!isProfileComplete(userProfile) && (
-                      <div className="lock-icon">
-                        <Lock size={20} />
-                      </div>
-                    )}
+                          Challenge
+                          {!isProfileComplete(userProfile) && (
+                            <div className="lock-icon">
+                              <Lock size={20} />
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

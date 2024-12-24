@@ -6,21 +6,24 @@ const NotificationItem = ({ notification, onClose, onAccept, onDecline }) => {
 
   const handleAccept = async (challengeId) => {
     await onAccept(challengeId);
-    navigate('/balloongame');
+    navigate("/balloongame");
   };
 
   const renderActions = () => {
-    if (notification.type === 'challenge' && notification.metadata?.challengeId) {
+    if (
+      notification.type === "challenge" &&
+      notification.metadata?.challengeId
+    ) {
       return (
         <div className="notification-actions">
-          <button 
+          <button
             onClick={() => handleAccept(notification.metadata.challengeId)}
             className="action-button accept-button"
           >
             <Check size={16} />
             Accept
           </button>
-          <button 
+          <button
             onClick={() => onDecline(notification.metadata.challengeId)}
             className="action-button decline-button"
           >
@@ -29,18 +32,18 @@ const NotificationItem = ({ notification, onClose, onAccept, onDecline }) => {
           </button>
         </div>
       );
-    } else if (notification.type === 'arena_join') {
+    } else if (notification.type === "arena_join") {
       return (
         <div className="notification-actions">
-          <button 
+          <button
             onClick={() => {
-              navigate('/arena', { 
-                state: { 
+              navigate("/arena", {
+                state: {
                   opponent: {
-                    userId: notification.metadata.userId,  // Changed from .get()
-                    userName: notification.metadata.userName  // Changed from .get()
-                  }
-                }
+                    userId: notification.metadata.userId,
+                    userName: notification.metadata.userName,
+                  },
+                },
               });
               onClose(notification._id);
             }}
@@ -60,7 +63,7 @@ const NotificationItem = ({ notification, onClose, onAccept, onDecline }) => {
         <p>{notification.message}</p>
         {renderActions()}
       </div>
-      <button 
+      <button
         onClick={() => onClose(notification._id)}
         className="close-button"
       >

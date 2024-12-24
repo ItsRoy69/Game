@@ -10,23 +10,23 @@ import "./profilesettings.css";
 
 const createAudio = (src) => {
   const audio = new Audio(src);
-  audio.preload = 'auto';
+  audio.preload = "auto";
   return audio;
 };
 
 const soundEffects = {
   pop: createAudio(popSound),
-  back: createAudio(backSound)
+  back: createAudio(backSound),
 };
 
 const safePlay = async (audio) => {
   try {
-    if (audio.readyState >= 2) { 
+    if (audio.readyState >= 2) {
       await audio.play();
     }
   } catch (error) {
-    if (error.name !== 'AbortError') {
-      console.error('Error playing audio:', error);
+    if (error.name !== "AbortError") {
+      console.error("Error playing audio:", error);
     }
   }
 };
@@ -79,14 +79,14 @@ const ProfileSettings = () => {
   useEffect(() => {
     backgroundMusic.current = new Audio(relaxingSound);
     backgroundMusic.current.loop = true;
-    
+
     const initializeBackgroundMusic = async () => {
       try {
         if (!isUnmounting.current) {
           await safePlay(backgroundMusic.current);
         }
       } catch (error) {
-        console.error('Failed to initialize background music:', error);
+        console.error("Failed to initialize background music:", error);
       }
     };
 
@@ -247,7 +247,9 @@ const ProfileSettings = () => {
                   <label key={preference}>
                     <input
                       type="checkbox"
-                      checked={userProfile.datingPreferences.includes(preference)}
+                      checked={userProfile.datingPreferences.includes(
+                        preference
+                      )}
                       onChange={(e) => {
                         setUserProfile((prev) => ({
                           ...prev,

@@ -1,8 +1,7 @@
-// BalloonGame.jsx
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useChat } from '../../contexts/ChatContext';
+import { useChat } from "../../contexts/ChatContext";
 import axios from "axios";
 import Balloon from "../../components/balloon/balloon";
 import GameControls from "../../constants/gamecontrols/GameControls";
@@ -19,14 +18,14 @@ const GAME_NAME = "balloonPopper";
 const backAudio = new Audio(backSound);
 const saveAudio = new Audio(saveSound);
 
-const BalloonGame = ({ 
-  isArenaMode = false, 
-  player, 
-  onScoreUpdate, 
+const BalloonGame = ({
+  isArenaMode = false,
+  player,
+  onScoreUpdate,
   gameActive: externalGameActive = false,
   isOpponentView = false,
   roomId,
-  balloons: syncedBalloons 
+  balloons: syncedBalloons,
 }) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
@@ -44,28 +43,35 @@ const BalloonGame = ({
   const gameLoop = useRef(null);
   const balloonSpawner = useRef(null);
 
-  const syncGameState = useCallback((newBalloons) => {
-    if (isArenaMode && !isOpponentView && socket) {
-      socket.emit('game_state_update', {
-        roomId,
-        gameState: {
-          balloons: newBalloons,
-          score
-        },
-        from: player.userId
-      });
-    }
-  }, [isArenaMode, isOpponentView, socket, roomId, player, score]);
+  const syncGameState = useCallback(
+    (newBalloons) => {
+      if (isArenaMode && !isOpponentView && socket) {
+        socket.emit("game_state_update", {
+          roomId,
+          gameState: {
+            balloons: newBalloons,
+            score,
+          },
+          from: player.userId,
+        });
+      }
+    },
+    [isArenaMode, isOpponentView, socket, roomId, player, score]
+  );
 
-  const updateBalloons = useCallback((newBalloonsOrFn) => {
-    setBalloons(prev => {
-      const newBalloons = typeof newBalloonsOrFn === 'function' 
-        ? newBalloonsOrFn(prev) 
-        : newBalloonsOrFn;
-      syncGameState(newBalloons);
-      return newBalloons;
-    });
-  }, [syncGameState]);
+  const updateBalloons = useCallback(
+    (newBalloonsOrFn) => {
+      setBalloons((prev) => {
+        const newBalloons =
+          typeof newBalloonsOrFn === "function"
+            ? newBalloonsOrFn(prev)
+            : newBalloonsOrFn;
+        syncGameState(newBalloons);
+        return newBalloons;
+      });
+    },
+    [syncGameState]
+  );
 
   useEffect(() => {
     if (isOpponentView && syncedBalloons) {
@@ -88,15 +94,15 @@ const BalloonGame = ({
   useEffect(() => {
     const fetchHighScore = async () => {
       if (!isAuthenticated || (!user && !player)) return;
-    
+
       try {
         setIsLoading(true);
         const token = await getAccessTokenSilently();
         const API_BASE_URL = import.meta.env.VITE_API_URL;
-        
+
         const userId = isArenaMode ? player?.userId : user?.sub;
         if (!userId) return;
-    
+
         const response = await axios.get(
           `${API_BASE_URL}/api/users/${userId}/games/${GAME_NAME}/score`,
           {
@@ -105,7 +111,7 @@ const BalloonGame = ({
             },
           }
         );
-        
+
         setHighScore(response.data.highScore);
       } catch (error) {
         console.error("Error fetching high score:", error);
@@ -119,16 +125,18 @@ const BalloonGame = ({
 
   const saveHighScore = async (newScore) => {
     if (!isAuthenticated || (!user && !isArenaMode)) return;
-  
+
     try {
       const token = await getAccessTokenSilently();
       const API_BASE_URL = import.meta.env.VITE_API_URL;
-  
+
       const response = await axios.post(
-        `${API_BASE_URL}/api/users/${isArenaMode ? player.userId : user.sub}/games/${GAME_NAME}/score`,
+        `${API_BASE_URL}/api/users/${
+          isArenaMode ? player.userId : user.sub
+        }/games/${GAME_NAME}/score`,
         {
           gameName: GAME_NAME,
-          score: newScore
+          score: newScore,
         },
         {
           headers: {
@@ -137,10 +145,13 @@ const BalloonGame = ({
           },
         }
       );
-  
+
       return response.data;
     } catch (error) {
-      console.error("Error saving high score:", error.response?.data || error.message);
+      console.error(
+        "Error saving high score:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   };
@@ -168,8 +179,8 @@ const BalloonGame = ({
     (newScore) => {
       if (newScore > highScore) {
         setHighScore(newScore);
-        saveHighScore(newScore).catch(error => {
-          console.error('Failed to save high score:', error);
+        saveHighScore(newScore).catch((error) => {
+          console.error("Failed to save high score:", error);
         });
       }
     },
@@ -192,8 +203,8 @@ const BalloonGame = ({
   const popBalloon = useCallback(
     (id, shouldScore) => {
       if (isOpponentView) return;
-      
-      updateBalloons(prev => prev.filter((balloon) => balloon.id !== id));
+
+      updateBalloons((prev) => prev.filter((balloon) => balloon.id !== id));
 
       if (shouldScore) {
         setScore((prev) => {
@@ -247,9 +258,10 @@ const BalloonGame = ({
           id: Math.random(),
           x: Math.random() * 80 + 10,
           y: 100,
-          color: BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
+          color:
+            BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
         };
-        updateBalloons(prev => [...prev, newBalloon]);
+        updateBalloons((prev) => [...prev, newBalloon]);
       }, BALLOON_SPAWN_INTERVAL);
     }
 
@@ -265,7 +277,11 @@ const BalloonGame = ({
   }
 
   return (
-    <div className={`balloon-game ${isArenaMode ? 'arena-mode' : ''} ${isOpponentView ? 'opponent-view' : ''}`}>
+    <div
+      className={`balloon-game ${isArenaMode ? "arena-mode" : ""} ${
+        isOpponentView ? "opponent-view" : ""
+      }`}
+    >
       {!isArenaMode && (
         <div className="game-info">
           <div className="game-header">
