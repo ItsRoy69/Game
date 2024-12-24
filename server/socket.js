@@ -37,7 +37,7 @@ function initializeSocket(server) {
     });
 
     socket.on("private_message", async (data) => {
-      const { to, message, from } = data;
+      const { to, message, from, tempId } = data;
 
       try {
         const newMessage = await Message.create({
@@ -54,6 +54,7 @@ function initializeSocket(server) {
         socket.emit("private_message", {
           message: newMessage,
           to,
+          tempId,
         });
       } catch (error) {
         console.error("Error saving private message:", error);

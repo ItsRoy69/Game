@@ -152,17 +152,18 @@ export const ChatProvider = ({ children }) => {
           return newChats;
         }
 
-        if (!currentChat.some((msg) => msg._id === data.message._id)) {
-          const updatedChat = [...currentChat, data.message];
-          const newChats = new Map(prev);
-          newChats.set(chatId, updatedChat);
-          return newChats;
+        if (data.from !== user?.sub) {
+          if (!currentChat.some((msg) => msg._id === data.message._id)) {
+            const updatedChat = [...currentChat, data.message];
+            const newChats = new Map(prev);
+            newChats.set(chatId, updatedChat);
+            return newChats;
+          }
         }
 
         return prev;
       });
     };
-
     const handleGroupMessage = (data) => {
       if (data.from !== user?.sub) {
         playMessageSound();
