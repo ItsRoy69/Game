@@ -42,7 +42,6 @@ const NotificationItem = ({ notification, onClose, onAccept, onDecline }) => {
         <div className="notification-actions">
           <button
             onClick={() => {
-              // Normalize the game ID from metadata
               const gameId = normalizeGameId(notification.metadata?.gameId);
               navigate(`/arena/${gameId}`, {
                 state: {

@@ -20,6 +20,7 @@ const SplitArena = () => {
   const [opponentGameState, setOpponentGameState] = useState(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [showArenaChat, setShowArenaChat] = useState(false);
+  const [isCallInitiator, setIsCallInitiator] = useState(false);
 
   const navigate = useNavigate();
   const { socket } = useChat();
@@ -65,6 +66,10 @@ const SplitArena = () => {
 
   useEffect(() => {
     if (!socket) return;
+
+    socket.on("call_initiated", async () => {
+      await setupVoiceCall(false);
+    });
 
     socket.on("voice_offer", async ({ offer, from }) => {
       try {
@@ -118,9 +123,11 @@ const SplitArena = () => {
 
     socket.on("voice_answer", async ({ answer }) => {
       try {
-        await peerConnectionRef.current?.setRemoteDescription(
-          new RTCSessionDescription(answer)
-        );
+        if (peerConnectionRef.current) {
+          await peerConnectionRef.current.setRemoteDescription(
+            new RTCSessionDescription(answer)
+          );
+        }
       } catch (err) {
         console.error("Error handling voice answer:", err);
       }
@@ -128,20 +135,22 @@ const SplitArena = () => {
 
     socket.on("voice_candidate", async ({ candidate }) => {
       try {
-        await peerConnectionRef.current?.addIceCandidate(
-          new RTCIceCandidate(candidate)
-        );
+        if (peerConnectionRef.current) {
+          await peerConnectionRef.current.addIceCandidate(
+            new RTCIceCandidate(candidate)
+          );
+        }
       } catch (err) {
         console.error("Error handling voice candidate:", err);
       }
     });
 
     return () => {
+      socket.off("call_initiated");
       socket.off("voice_offer");
       socket.off("voice_answer");
       socket.off("voice_candidate");
-      localStreamRef.current?.getTracks().forEach((track) => track.stop());
-      peerConnectionRef.current?.close();
+      endVoiceCall();
     };
   }, [socket, opponent]);
 
@@ -161,8 +170,15 @@ const SplitArena = () => {
     }
   }, [localPlayerReady, opponentReady, socket, opponent]);
 
-  const setupVoiceCall = async () => {
+  const setupVoiceCall = async (isInitiator = true) => {
     try {
+      if (isInitiator) {
+        socket.emit("initiate_call", {
+          opponentId: opponent.userId,
+        });
+        setIsCallInitiator(true);
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       localStreamRef.current = stream;
 
@@ -192,17 +208,30 @@ const SplitArena = () => {
         }
       };
 
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-      socket.emit("voice_offer", {
-        offer,
-        opponentId: opponent.userId,
-      });
+      if (isInitiator) {
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.emit("voice_offer", {
+          offer,
+          opponentId: opponent.userId,
+        });
+      }
 
       setIsVoiceConnected(true);
     } catch (err) {
       console.error("Error setting up voice call:", err);
     }
+  };
+
+  const endVoiceCall = () => {
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((track) => track.stop());
+    }
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.close();
+    }
+    setIsVoiceConnected(false);
+    setIsMuted(false);
   };
 
   const handleDragStart = (e) => {
@@ -294,6 +323,16 @@ const SplitArena = () => {
     }
   };
 
+  const toggleMute = () => {
+    if (localStreamRef.current) {
+      const audioTracks = localStreamRef.current.getAudioTracks();
+      audioTracks.forEach((track) => {
+        track.enabled = !track.enabled;
+      });
+      setIsMuted(!isMuted);
+    }
+  };
+
   if (!opponent) {
     return <div>Invalid arena access</div>;
   }
@@ -314,31 +353,13 @@ const SplitArena = () => {
         </div>
         <div className="voice-controls">
           {!isVoiceConnected ? (
-            <button onClick={setupVoiceCall}>Start Voice Call</button>
+            <button onClick={() => setupVoiceCall(true)}>Start Voice Call</button>
           ) : (
             <>
-              <button
-                onClick={() => {
-                  const audioTracks = localStreamRef.current?.getAudioTracks();
-                  audioTracks?.forEach(
-                    (track) => (track.enabled = !track.enabled)
-                  );
-                  setIsMuted(!isMuted);
-                }}
-              >
+              <button onClick={toggleMute}>
                 {isMuted ? "🔇" : "🔊"}
               </button>
-              <button
-                onClick={() => {
-                  localStreamRef.current
-                    ?.getTracks()
-                    .forEach((track) => track.stop());
-                  peerConnectionRef.current?.close();
-                  setIsVoiceConnected(false);
-                }}
-              >
-                End Call
-              </button>
+              <button onClick={endVoiceCall}>End Call</button>
             </>
           )}
         </div>

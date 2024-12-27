@@ -1,4 +1,3 @@
-// routes/index.jsx
 import { Routes, Route } from "react-router-dom";
 import { AuthProtectedRoute, ProfileProtectedRoute } from "./ProtectedRoutes";
 import Home from "../pages/home/Home";

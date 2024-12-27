@@ -96,7 +96,7 @@ function initializeSocket(server) {
 
     socket.on("arena_join", async (data) => {
       const { userId, userName, opponentId } = data;
-    
+
       try {
         const notification = await Notification.create({
           recipient: opponentId,
@@ -109,15 +109,15 @@ function initializeSocket(server) {
             userName: userName,
           },
         });
-    
+
         io.to(opponentId).emit("newNotification", notification);
         const message = await Message.create({
           sender: userId,
           recipient: opponentId,
           content: `${userName} has entered the arena`,
-          type: "private" 
+          type: "private"
         });
-    
+
         io.to(opponentId).emit("private_message", {
           message,
           from: userId,
@@ -248,6 +248,19 @@ function initializeSocket(server) {
     socket.on("typing_stop", (data) => {
       const { roomId, userId } = data;
       socket.to(roomId).emit("user_stopped_typing", { userId });
+    });
+
+    socket.on("initiate_call", async (data) => {
+      const { opponentId } = data;
+      socket.to(opponentId).emit("call_initiated", {
+        from: socket.id
+      });
+    });
+
+    socket.on("call_initiated", async (data) => {
+      socket.emit("auto_start_call", {
+        opponentId: data.from
+      });
     });
 
     socket.on("mark_messages_read", async (data) => {
