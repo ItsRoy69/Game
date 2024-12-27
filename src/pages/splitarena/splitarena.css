@@ -126,19 +126,14 @@
 .start-button {
   padding: 12px 24px;
   font-size: 1.4rem;
-  background-color: #45af45;
+  background-color: #7fba3a;
   color: white;
   border: 2px solid #000000;
   cursor: pointer;
   font-family: "Minecraft", Arial, sans-serif;
   text-transform: uppercase;
-  box-shadow: inset -2px -4px #000000, inset 2px 2px rgba(255, 255, 255, 0.4);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  transition: all 0.3s ease;
+  box-shadow: inset -2px -4px #407020, inset 2px 2px #9fda5a;
+  transition: all 0.1s;
 }
 
 .start-button:hover {
@@ -206,11 +201,15 @@
 }
 
 .ready-status {
+  position: fixed;
+  left: 50%;
+  bottom: 40px; /* Move to bottom of screen */
+  transform: translateX(-50%);
+  z-index: 1000; /* Lower than game customization */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  margin: 1rem 0;
 }
 
 .start-button:disabled {

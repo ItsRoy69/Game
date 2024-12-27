@@ -11,8 +11,6 @@ import saveSound from "../../assets/audio/save.mp3";
 import "./balloongame.css";
 
 const BALLOON_COLORS = ["red", "blue", "yellow", "green", "black", "pink"];
-const GAME_DURATION = 30;
-const BALLOON_SPAWN_INTERVAL = 1000;
 const GAME_NAME = "balloonPopper";
 
 const backAudio = new Audio(backSound);
@@ -26,7 +24,10 @@ const BalloonGame = ({
   isOpponentView = false,
   roomId,
   balloons: syncedBalloons,
-  score: syncedScore = 0
+  score: syncedScore = 0,
+  gameDuration = 30,
+  balloonSpeed = 1000,
+  maxBalloons = 10
 }) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
@@ -34,7 +35,7 @@ const BalloonGame = ({
   const [score, setScore] = useState(isOpponentView ? syncedScore : 0);
   const [balloons, setBalloons] = useState([]);
   const [gameActive, setGameActive] = useState(externalGameActive);
-  const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
+  const [timeLeft, setTimeLeft] = useState(gameDuration);
   const [scorePopups, setScorePopups] = useState([]);
   const [showFinalScore, setShowFinalScore] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
@@ -43,6 +44,7 @@ const BalloonGame = ({
 
   const gameLoop = useRef(null);
   const balloonSpawner = useRef(null);
+
   useEffect(() => {
     if (isOpponentView) {
       setScore(syncedScore);
@@ -175,11 +177,11 @@ const BalloonGame = ({
     }
     setGameActive(true);
     setScore(0);
-    setTimeLeft(GAME_DURATION);
+    setTimeLeft(gameDuration);
     updateBalloons([]);
     setScorePopups([]);
     setShowFinalScore(false);
-  }, [isArenaMode, updateBalloons]);
+  }, [isArenaMode, updateBalloons, gameDuration]);
 
   const updateHighScore = useCallback(
     (newScore) => {
@@ -197,6 +199,12 @@ const BalloonGame = ({
     setGameActive(false);
     setShowFinalScore(true);
     updateHighScore(score);
+    if (gameLoop.current) {
+      clearInterval(gameLoop.current);
+    }
+    if (balloonSpawner.current) {
+      clearInterval(balloonSpawner.current);
+    }
   }, [score, updateHighScore]);
 
   const handleExitToHome = useCallback(() => {
@@ -216,7 +224,10 @@ const BalloonGame = ({
         setScore((prev) => {
           const newScore = prev + 1;
           const balloon = balloons.find((b) => b.id === id);
-          syncGameState(balloons.filter(b => b.id !== id), newScore);
+          syncGameState(
+            balloons.filter((b) => b.id !== id),
+            newScore
+          );
 
           if (balloon) {
             const popup = {
@@ -261,15 +272,18 @@ const BalloonGame = ({
   useEffect(() => {
     if (gameActive && !isOpponentView) {
       balloonSpawner.current = setInterval(() => {
-        const newBalloon = {
-          id: Math.random(),
-          x: Math.random() * 80 + 10,
-          y: 100,
-          color:
-            BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
-        };
-        updateBalloons((prev) => [...prev, newBalloon]);
-      }, BALLOON_SPAWN_INTERVAL);
+        updateBalloons((prev) => {
+          if (prev.length >= maxBalloons) return prev;
+          
+          const newBalloon = {
+            id: Math.random(),
+            x: Math.random() * 80 + 10,
+            y: 100,
+            color: BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)],
+          };
+          return [...prev, newBalloon];
+        });
+      }, balloonSpeed);
     }
 
     return () => {
@@ -277,7 +291,7 @@ const BalloonGame = ({
         clearInterval(balloonSpawner.current);
       }
     };
-  }, [gameActive, isOpponentView, updateBalloons]);
+  }, [gameActive, isOpponentView, updateBalloons, balloonSpeed, maxBalloons]);
 
   if (isLoading && !isArenaMode) {
     return <div className="loading">Loading game data...</div>;

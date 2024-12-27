@@ -263,6 +263,14 @@ function initializeSocket(server) {
       });
     });
 
+    socket.on('game_settings', (data) => {
+      const { settings, opponentId } = data;
+      socket.to(opponentId).emit('opponent_settings', {
+        settings,
+        from: socket.id
+      });
+    });
+    
     socket.on("mark_messages_read", async (data) => {
       const { messageIds, userId } = data;
 

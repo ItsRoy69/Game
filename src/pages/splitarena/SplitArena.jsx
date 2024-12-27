@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useChat } from "../../contexts/ChatContext";
 import BalloonGame from "../balloongame/BalloonGame";
 import Chat from "../../constants/chat/Chat";
+import GameCustomization from '../../constants/gamecustomization/GameCustomization'
 import "./splitarena.css";
 
 const SplitArena = () => {
@@ -21,6 +22,7 @@ const SplitArena = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [showArenaChat, setShowArenaChat] = useState(false);
   const [isCallInitiator, setIsCallInitiator] = useState(false);
+  const [gameSettings, setGameSettings] = useState(null);
 
   const navigate = useNavigate();
   const { socket } = useChat();
@@ -354,12 +356,12 @@ const SplitArena = () => {
         </div>
         <div className="voice-controls">
           {!isVoiceConnected ? (
-            <button onClick={() => setupVoiceCall(true)}>Start Voice Call</button>
+            <button onClick={() => setupVoiceCall(true)}>
+              Start Voice Call
+            </button>
           ) : (
             <>
-              <button onClick={toggleMute}>
-                {isMuted ? "🔇" : "🔊"}
-              </button>
+              <button onClick={toggleMute}>{isMuted ? "🔇" : "🔊"}</button>
               <button onClick={endVoiceCall}>End Call</button>
             </>
           )}
@@ -396,6 +398,16 @@ const SplitArena = () => {
         </div>
       )}
 
+      {!gameSettings && !gameStarted && !gameEnded && (
+        <GameCustomization
+          socket={socket}
+          opponent={opponent}
+          onSettingsConfirmed={(settings) => {
+            setGameSettings(settings);
+          }}
+        />
+      )}
+
       {!gameStarted && !gameEnded && (
         <div className="ready-status">
           <button
@@ -419,16 +431,19 @@ const SplitArena = () => {
           <div className="game-wrapper">
             {gameStarted && !gameEnded && (
               <BalloonGame
-                key="player1-game"
-                isArenaMode={true}
-                onScoreUpdate={handlePlayer1Score}
-                player={{
-                  userId: socket.auth.userId,
-                }}
-                gameActive={true}
-                isOpponentView={false}
-                roomId={opponent.userId}
-              />
+              key="player1-game"
+              isArenaMode={true}
+              onScoreUpdate={handlePlayer1Score}
+              player={{
+                userId: socket.auth.userId,
+              }}
+              gameActive={true}
+              isOpponentView={false}
+              roomId={opponent.userId}
+              gameDuration={gameSettings?.gameDuration || 30}
+              balloonSpeed={gameSettings?.balloonSpeed || 1000}
+              maxBalloons={gameSettings?.maxBalloons || 10}
+            />
             )}
           </div>
         </div>
@@ -461,7 +476,7 @@ const SplitArena = () => {
                 isOpponentView={true}
                 roomId={opponent.userId}
                 balloons={opponentGameState?.balloons || []}
-                score={opponentGameState?.score || 0} 
+                score={opponentGameState?.score || 0}
               />
             )}
           </div>
