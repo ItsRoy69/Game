@@ -134,7 +134,7 @@ function Home() {
                   <p>Pop as many balloons as you can in 30 seconds!</p>
                   <div className="game-card-footer">
                     <span className="high-score">
-                      High Score: {getHighScore("balloon-game")}
+                      High Score: {getHighScore('balloon-game')}
                     </span>
                     <div className="button-group">
                       <Link
