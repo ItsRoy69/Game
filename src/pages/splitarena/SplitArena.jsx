@@ -51,6 +51,7 @@ const SplitArena = () => {
     socket.on("opponent_game_state", ({ gameState, from }) => {
       if (from === opponent.userId) {
         setOpponentGameState(gameState);
+        setPlayer2Score(gameState.score);
       }
     });
 
@@ -460,6 +461,7 @@ const SplitArena = () => {
                 isOpponentView={true}
                 roomId={opponent.userId}
                 balloons={opponentGameState?.balloons || []}
+                score={opponentGameState?.score || 0} 
               />
             )}
           </div>

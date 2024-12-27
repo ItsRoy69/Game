@@ -26,11 +26,12 @@ const BalloonGame = ({
   isOpponentView = false,
   roomId,
   balloons: syncedBalloons,
+  score: syncedScore = 0
 }) => {
   const navigate = useNavigate();
   const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
   const { socket } = useChat();
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState(isOpponentView ? syncedScore : 0);
   const [balloons, setBalloons] = useState([]);
   const [gameActive, setGameActive] = useState(externalGameActive);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
@@ -42,21 +43,26 @@ const BalloonGame = ({
 
   const gameLoop = useRef(null);
   const balloonSpawner = useRef(null);
+  useEffect(() => {
+    if (isOpponentView) {
+      setScore(syncedScore);
+    }
+  }, [isOpponentView, syncedScore]);
 
   const syncGameState = useCallback(
-    (newBalloons) => {
+    (newBalloons, currentScore) => {
       if (isArenaMode && !isOpponentView && socket) {
         socket.emit("game_state_update", {
           roomId,
           gameState: {
             balloons: newBalloons,
-            score,
+            score: currentScore,
           },
           from: player.userId,
         });
       }
     },
-    [isArenaMode, isOpponentView, socket, roomId, player, score]
+    [isArenaMode, isOpponentView, socket, roomId, player]
   );
 
   const updateBalloons = useCallback(
@@ -66,11 +72,11 @@ const BalloonGame = ({
           typeof newBalloonsOrFn === "function"
             ? newBalloonsOrFn(prev)
             : newBalloonsOrFn;
-        syncGameState(newBalloons);
+        syncGameState(newBalloons, score);
         return newBalloons;
       });
     },
-    [syncGameState]
+    [syncGameState, score]
   );
 
   useEffect(() => {
@@ -210,6 +216,7 @@ const BalloonGame = ({
         setScore((prev) => {
           const newScore = prev + 1;
           const balloon = balloons.find((b) => b.id === id);
+          syncGameState(balloons.filter(b => b.id !== id), newScore);
 
           if (balloon) {
             const popup = {
@@ -229,7 +236,7 @@ const BalloonGame = ({
         });
       }
     },
-    [balloons, isOpponentView, updateBalloons]
+    [balloons, isOpponentView, updateBalloons, syncGameState]
   );
 
   useEffect(() => {
