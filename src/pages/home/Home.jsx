@@ -87,7 +87,12 @@ function Home() {
   };
 
   const getHighScore = (gameName) => {
-    return gameScores[gameName]?.highScore || 0;
+    const gameNameMap = {
+      'balloon-game': 'balloonPopper'
+    };
+    
+    const dbGameName = gameNameMap[gameName];
+    return gameScores[dbGameName]?.highScore || 0;
   };
 
   if (isLoading) {
