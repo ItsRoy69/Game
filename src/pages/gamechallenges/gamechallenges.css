@@ -131,3 +131,60 @@
 .no-matches {
   color: #a8a8a8;
 }
+
+/* Add these new styles to your existing CSS file */
+.challenges-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+}
+
+.gender-filter-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-family: "MinecraftiaRegular", "VT323", monospace;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.gender-filter-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  background-color: #373737;
+  border: 2px solid #1d1f21;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+}
+
+.gender-filter-checkbox:checked {
+  background-color: #7e3cbd;
+}
+
+.gender-filter-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+}
+
+.gender-filter-checkbox:hover {
+  background-color: #4a4a4a;
+}
+
+.gender-filter-checkbox:checked:hover {
+  background-color: #9947e5;
+}

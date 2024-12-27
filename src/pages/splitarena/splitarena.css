@@ -203,9 +203,9 @@
 .ready-status {
   position: fixed;
   left: 50%;
-  bottom: 40px; /* Move to bottom of screen */
+  bottom: 40px; 
   transform: translateX(-50%);
-  z-index: 1000; /* Lower than game customization */
+  z-index: 1000; 
   display: flex;
   flex-direction: column;
   align-items: center;

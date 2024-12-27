@@ -10,6 +10,7 @@ function GameChallenges() {
   const [users, setUsers] = useState([]);
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [ignoreGenderPreferences, setIgnoreGenderPreferences] = useState(false);
   const { gameId } = useParams();
   const { getAccessTokenSilently, user: currentUser } = useAuth0();
   const [isLoading, setIsLoading] = useState(true);
@@ -33,12 +34,6 @@ function GameChallenges() {
         setCurrentUserProfile(response.data);
       } catch (error) {
         console.error("Error fetching current user profile:", error);
-        console.log("Error details:", {
-          message: error.message,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-        });
         setError("Failed to load user profile");
       }
     };
@@ -90,17 +85,11 @@ function GameChallenges() {
         console.log("All users fetched:", response.data.users.length);
   
         const filteredUsers = response.data.users.filter((potentialMatch) => {
-          console.log("\nEvaluating potential match:", {
-            name: potentialMatch.name,
-            id: potentialMatch.auth0Id,
-          });
           if (connectedUserIds.has(potentialMatch.auth0Id)) {
-            console.log("Skipping - Already connected in this game");
             return false;
           }
   
           if (potentialMatch.auth0Id === currentUser.sub) {
-            console.log("Skipping - This is the current user");
             return false;
           }
   
@@ -115,32 +104,22 @@ function GameChallenges() {
             matchAgeRange: !!potentialMatch.datingAgeRange,
           };
   
-          console.log("Profile completeness check:", profileFields);
-  
           if (Object.values(profileFields).some((field) => !field)) {
-            console.log("Skipping - Incomplete profile fields");
             return false;
           }
-  
-          const userLikesPotentialMatch = currentUserProfile.datingPreferences.includes(
-            potentialMatch.gender
-          );
-          const potentialMatchLikesUser = potentialMatch.datingPreferences.includes(
-            currentUserProfile.gender
-          );
-  
-          console.log("Gender preferences check:", {
-            currentUserGender: currentUserProfile.gender,
-            currentUserPrefers: currentUserProfile.datingPreferences,
-            matchGender: potentialMatch.gender,
-            matchPrefers: potentialMatch.datingPreferences,
-            userLikesPotentialMatch,
-            potentialMatchLikesUser,
-          });
-  
-          if (!userLikesPotentialMatch || !potentialMatchLikesUser) {
-            console.log("Skipping - Gender preferences mismatch");
-            return false;
+
+          // Skip gender preference check if ignoreGenderPreferences is true
+          if (!ignoreGenderPreferences) {
+            const userLikesPotentialMatch = currentUserProfile.datingPreferences.includes(
+              potentialMatch.gender
+            );
+            const potentialMatchLikesUser = potentialMatch.datingPreferences.includes(
+              currentUserProfile.gender
+            );
+
+            if (!userLikesPotentialMatch || !potentialMatchLikesUser) {
+              return false;
+            }
           }
   
           const matchAge = calculateAge(potentialMatch.dateOfBirth);
@@ -154,21 +133,10 @@ function GameChallenges() {
             userAge >= potentialMatch.datingAgeRange.min &&
             userAge <= potentialMatch.datingAgeRange.max;
   
-          console.log("Age preferences check:", {
-            userAge,
-            matchAge,
-            userPreferences: currentUserProfile.datingAgeRange,
-            matchPreferences: potentialMatch.datingAgeRange,
-            withinUserPreferences,
-            withinMatchPreferences,
-          });
-  
           if (!withinUserPreferences || !withinMatchPreferences) {
-            console.log("Skipping - Age preferences mismatch");
             return false;
           }
   
-          console.log("Match accepted! ✅");
           return true;
         });
   
@@ -178,12 +146,6 @@ function GameChallenges() {
         setUsers(filteredUsers);
       } catch (error) {
         console.error("Error fetching users:", error);
-        console.log("Error details:", {
-          message: error.message,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-        });
         setError("Failed to load users");
       } finally {
         setIsLoading(false);
@@ -193,7 +155,7 @@ function GameChallenges() {
     if (currentUserProfile) {
       fetchUsers();
     }
-  }, [getAccessTokenSilently, currentUser.sub, currentUserProfile, gameId]);
+  }, [getAccessTokenSilently, currentUser.sub, currentUserProfile, gameId, ignoreGenderPreferences]);
 
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return null;
@@ -212,12 +174,6 @@ function GameChallenges() {
 
   const handleChallenge = async (challengedUser, event) => {
     event.stopPropagation();
-
-    console.log("Sending challenge to:", {
-      challengedUser: challengedUser.name,
-      challengedId: challengedUser.auth0Id,
-      gameId,
-    });
 
     try {
       const token = await getAccessTokenSilently();
@@ -241,18 +197,11 @@ function GameChallenges() {
       alert("Challenge sent successfully!");
     } catch (error) {
       console.error("Error sending challenge:", error);
-      console.log("Error details:", {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-      });
       alert("Failed to send challenge. Please try again.");
     }
   };
 
   if (isLoading) {
-    console.log("Rendering loading state");
     return (
       <div className="challenges-page">
         <NavBar />
@@ -264,7 +213,6 @@ function GameChallenges() {
   }
 
   if (error) {
-    console.log("Rendering error state:", error);
     return (
       <div className="challenges-page">
         <NavBar />
@@ -275,25 +223,28 @@ function GameChallenges() {
     );
   }
 
-  console.log("Rendering user cards:", {
-    totalMatches: users.length,
-    matchDetails: users.map((u) => ({
-      name: u.name,
-      id: u.auth0Id,
-      age: calculateAge(u.dateOfBirth),
-      gameScore: u.gameScores && u.gameScores[gameId]?.highScore,
-    })),
-  });
-
   return (
     <div className="challenges-page">
       <NavBar />
       <div className="challenges-container">
-        <h2 className="challenges-title">Challenge Players</h2>
+        <div className="challenges-header">
+          <h2 className="challenges-title">Challenge Players</h2>
+          <div className="filter-controls">
+            <label className="gender-filter-label">
+              <input
+                type="checkbox"
+                checked={ignoreGenderPreferences}
+                onChange={(e) => setIgnoreGenderPreferences(e.target.checked)}
+                className="gender-filter-checkbox"
+              />
+              Match with all players
+            </label>
+          </div>
+        </div>
         {users.length === 0 ? (
           <div className="no-matches">
             No players found matching your preferences. Try updating your
-            profile settings!
+            profile settings or enabling "Match with all players"!
           </div>
         ) : (
           <div className="players-grid">
