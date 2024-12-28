@@ -25,7 +25,8 @@ app.use(errorHandler);
 const uploadDir = path.join(__dirname, "public/uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
-@@ -30,4 +46,4 @@
+}
+
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
